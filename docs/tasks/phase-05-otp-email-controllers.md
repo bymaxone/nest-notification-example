@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 1 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -97,7 +97,7 @@ the notification-domain behavior.
 
 | ID  | Task                                                                        | Status  | Priority | Size | Depends on         |
 | --- | --------------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
-| 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | 📋 ToDo | P0       | M    | —                  |
+| 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | ✅ Done | P0       | M    | —                  |
 | 5.2 | OTP controller — generate/verify/resend/consume/status                      | 📋 ToDo | P0       | L    | 5.1                |
 | 5.3 | Email controller — send + send-template (+ attachment guard)                | 📋 ToDo | P0       | M    | —                  |
 | 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | 📋 ToDo | P1       | M    | 5.3                |
@@ -110,7 +110,7 @@ the notification-domain behavior.
 
 ### Task 5.1 — OTP DTOs + verify→HTTP mapping helper
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -123,16 +123,16 @@ unit-tested in isolation.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/otp/dto/otp.dto.ts` exports Zod schemas + inferred types for generate, verify, resend, consume,
+- [x] `apps/api/src/otp/dto/otp.dto.ts` exports Zod schemas + inferred types for generate, verify, resend, consume,
       status — each with `recipient` (email) + `purpose` (string) and route-specific fields (`code` for verify;
       `deliverVia`/`emailTemplate`/`emailData`/`locale` for generate/resend). `tenantId` is **not** in any body schema
       (it comes from the header).
-- [ ] `apps/api/src/otp/otp-verify-mapping.ts` exports `mapOtpVerifyResult(result): { status: number; body: unknown }`
+- [x] `apps/api/src/otp/otp-verify-mapping.ts` exports `mapOtpVerifyResult(result): { status: number; body: unknown }`
       — `valid` → 200, `invalid_code` → 401 (body carries `remainingAttempts`), `not_found` → 404, `max_attempts` → 429
       (**no `Retry-After`** — `verify` carries no cooldown); a JSDoc states the expiry-as-not-found 404 choice.
-- [ ] No `tenantId` accepted from the body in any DTO; schemas reject unknown keys is **not** required, but every field
+- [x] No `tenantId` accepted from the body in any DTO; schemas reject unknown keys is **not** required, but every field
       has an explicit type/constraint.
-- [ ] `pnpm typecheck` exits 0; the mapping helper has a co-located `.spec.ts` proving all four branches at 100%.
+- [x] `pnpm typecheck` exits 0; the mapping helper has a co-located `.spec.ts` proving all four branches at 100%.
 
 #### Files to create / modify
 
@@ -825,4 +825,4 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 5.1 ✅ 2026-06-23 — OTP DTOs + verify→HTTP mapping helper

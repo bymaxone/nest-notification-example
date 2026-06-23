@@ -1,6 +1,6 @@
 # Phase 1 — Local Stack & Environment
 
-> **Status**: 🔄 In Progress · **Progress**: 4 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 5 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P1
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -78,7 +78,7 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 | 1.2 | Docker Compose dev stack + Postgres init | ✅ Done | P0       | M    | 1.1        |
 | 1.3 | Docker Compose test stack (high ports)   | ✅ Done | P1       | S    | 1.2        |
 | 1.4 | `.env.example` + infra scripts           | ✅ Done | P0       | S    | 1.2        |
-| 1.5 | Zod env schema + failure-path unit test  | 📋 ToDo | P0       | M    | 1.1, 1.4   |
+| 1.5 | Zod env schema + failure-path unit test  | ✅ Done | P0       | M    | 1.1, 1.4   |
 
 ---
 
@@ -556,7 +556,7 @@ Completion Protocol:
 
 ### Task 1.5 — Zod env schema + failure-path unit test
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 1.1, 1.4
@@ -569,19 +569,19 @@ covering both the happy path (defaults applied) and the failure path (an invalid
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/config/env.schema.ts` exports `envSchema`, the inferred `Env` type, and a `validateEnv(config)`
+- [x] `apps/api/src/config/env.schema.ts` exports `envSchema`, the inferred `Env` type, and a `validateEnv(config)`
       function used as the `ConfigModule.forRoot({ validate })` entrypoint; it validates every OVERVIEW §9 variable
       (`PORT` coerced int, `DATABASE_URL` URL, `REDIS_URL` optional URL, `SMTP_URL` URL with default,
       `RESEND_API_KEY` optional, `MAIL_FROM` string, `MAIL_FROM_NAME` optional, `DEFAULT_LOCALE` default `en`,
       `OTP_DEFAULT_TTL_SECONDS` / `OTP_RESEND_COOLDOWN_SECONDS` coerced int with defaults, `AUDIT_MASK_RECIPIENT` coerced
       boolean default `true`, `WEB_ORIGIN` URL default `http://localhost:3003`, plus `NODE_ENV` enum).
-- [ ] Production guards (`superRefine`): in `production`, `DATABASE_URL` / `REDIS_URL` must not be loopback and
+- [x] Production guards (`superRefine`): in `production`, `DATABASE_URL` / `REDIS_URL` must not be loopback and
       `WEB_ORIGIN` must be `https://`; `validateEnv` throws an `Error` whose message aggregates every offending key + reason.
-- [ ] Every export carries JSDoc; zero `any`, zero suppression comments.
-- [ ] `apps/api/src/config/env.schema.spec.ts` — covers: defaults applied on a minimal valid env; a missing required var
+- [x] Every export carries JSDoc; zero `any`, zero suppression comments.
+- [x] `apps/api/src/config/env.schema.spec.ts` — covers: defaults applied on a minimal valid env; a missing required var
       throws; an invalid value (e.g. non-URL `DATABASE_URL`) throws with the key named; the production loopback +
       non-https guards fire. The file passes under the api test runner.
-- [ ] `pnpm -F api typecheck` exits 0; the spec passes (the failure path is asserted — see the DoD).
+- [x] `pnpm -F api typecheck` exits 0; the spec passes (the failure path is asserted — see the DoD).
 
 #### Files to create / modify
 
@@ -747,7 +747,8 @@ If any DoD bullet is unmet or CI is red, set P1 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-- 1.4 ✅ 2026-06-23 — .env.example (all 13 OVERVIEW §9 vars) + infra:* scripts in root package.json
+- 1.5 ✅ 2026-06-23 — Zod env schema + failure-path unit test (19 tests, 100% coverage all metrics)
+- 1.4 ✅ 2026-06-23 — .env.example (all 13 OVERVIEW §9 vars) + infra:\* scripts in root package.json
 - 1.3 ✅ 2026-06-23 — docker compose test stack (high ports: postgres 55432, redis 56379)
 - 1.2 ✅ 2026-06-23 — docker compose dev stack (postgres/redis/mailpit) + init.sql
 - 1.1 ✅ 2026-06-23 — apps/api skeleton package

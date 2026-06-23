@@ -51,6 +51,9 @@ export default tseslint.config(
     // Relax unsafe-type and explicit-any rules in tests: Jest/Vitest globals and
     // mock objects are unresolvable at the ESLint level without full type
     // augmentation, producing false-positive errors.
+    //
+    // API spec files are resolved against tsconfig.spec.json (which includes them);
+    // the projectService discovers it automatically via the nearest tsconfig ancestor.
     files: [
       '**/*.spec.ts',
       '**/*.spec.tsx',
@@ -64,7 +67,10 @@ export default tseslint.config(
     languageOptions: {
       globals: { ...globals.node },
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['apps/api/src/*/*.spec.ts'],
+          defaultProject: './apps/api/tsconfig.spec.json',
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },

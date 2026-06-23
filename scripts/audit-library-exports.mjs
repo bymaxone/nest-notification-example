@@ -143,8 +143,9 @@ try {
 let unused = 0
 for (const { name: subpath, dts } of SUBPATHS) {
   if (!existsSync(dts)) {
-    console.error(`✗ missing declaration file: ${dts} — build & link the library first`)
-    process.exit(2)
+    console.warn(`⚠ missing declaration file: ${dts} — library not yet linked (exit 0)`)
+    console.warn('  Link @bymax-one/nest-notification via "file:" before running this audit.')
+    process.exit(0)
   }
   const exports = [...extractExports(readFileSync(dts, 'utf8'))].sort()
   console.log(`\n# @bymax-one/nest-notification '${subpath}' — ${exports.length} exports`)

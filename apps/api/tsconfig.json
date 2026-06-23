@@ -7,7 +7,6 @@
     "moduleResolution": "NodeNext",
     "types": ["node"]
   },
-  "files": [],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "src/**/*.spec.ts"]
 }

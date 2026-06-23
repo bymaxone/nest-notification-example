@@ -7,6 +7,7 @@
  * application's module is never touched.
  */
 import { Test } from '@nestjs/testing'
+import type { TestingModule } from '@nestjs/testing'
 import type { DynamicModule } from '@nestjs/common'
 
 import type { RoadmapRejectionResult } from './dto/roadmap-rejection.result.js'
@@ -29,9 +30,7 @@ export async function attemptConfigure(
   attempt: RoadmapRejectionResult['attempt'],
   buildModule: () => DynamicModule,
 ): Promise<RoadmapRejectionResult> {
-  let moduleRef:
-    | Awaited<ReturnType<ReturnType<typeof Test.createTestingModule>['compile']>>
-    | undefined
+  let moduleRef: TestingModule | undefined
   try {
     const dynamicModule = buildModule()
     moduleRef = await Test.createTestingModule({ imports: [dynamicModule] }).compile()

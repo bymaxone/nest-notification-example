@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 0 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 1 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,7 +76,7 @@ adapt** them rather than inventing configs.
 
 | ID  | Task                                                                  | Status  | Priority | Size | Depends on    |
 | --- | --------------------------------------------------------------------- | ------- | -------- | ---- | ------------- |
-| 4.1 | `NotificationLog` Prisma schema + migration + seed                    | 📋 ToDo | P0       | M    | —             |
+| 4.1 | `NotificationLog` Prisma schema + migration + seed                    | ✅ Done | P0       | M    | —             |
 | 4.2 | `PrismaNotificationLogRepository` (write side)                        | 📋 ToDo | P0       | S    | 4.1           |
 | 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | 📋 ToDo | P0       | M    | —             |
 | 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | 📋 ToDo | P1       | M    | —             |
@@ -90,7 +90,7 @@ adapt** them rather than inventing configs.
 
 ### Task 4.1 — `NotificationLog` Prisma schema + migration + seed
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -102,15 +102,15 @@ migration, and write an idempotent `seed.ts` that creates the `acme` / `globex` 
 
 #### Acceptance criteria
 
-- [ ] `apps/api/prisma/schema.prisma` declares `model NotificationLog` mirroring the library's `NotificationLogEntry`
+- [x] `apps/api/prisma/schema.prisma` declares `model NotificationLog` mirroring the library's `NotificationLogEntry`
       (`id`, `timestamp`, `tenantId`, `channel`, `verb`, `recipient`, `purpose?`, `providerName`, `messageId?`,
       `errorMessage? @db.Text`, `userId?`, `metadata? Json`) mapped to `notification_logs`, with the three indexes
       (`[tenantId, timestamp(Desc)]`, `[tenantId, channel, verb]`, `[userId, timestamp(Desc)]`), and a `model Tenant`
       (`id`, `name`, `createdAt`).
-- [ ] `apps/api/prisma/migrations/<ts>_init/migration.sql` creates both tables + indexes; `migration_lock.toml` present.
-- [ ] `apps/api/prisma/seed.ts` is idempotent (upsert), creates tenants `acme` + `globex`, redacts the DB URL on error,
+- [x] `apps/api/prisma/migrations/<ts>_init/migration.sql` creates both tables + indexes; `migration_lock.toml` present.
+- [x] `apps/api/prisma/seed.ts` is idempotent (upsert), creates tenants `acme` + `globex`, redacts the DB URL on error,
       and uses the `@prisma/adapter-pg` connection pattern.
-- [ ] `prisma generate` succeeds; `prisma migrate deploy` (or `dev`) against the local Postgres creates `notification_logs`.
+- [x] `prisma generate` succeeds; `prisma migrate deploy` (or `dev`) against the local Postgres creates `notification_logs`.
 
 #### Files to create / modify
 
@@ -897,4 +897,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 4.1 ✅ 2026-06-23 — NotificationLog schema + migration + seed

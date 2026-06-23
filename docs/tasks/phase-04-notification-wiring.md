@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 3 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 4 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -79,7 +79,7 @@ adapt** them rather than inventing configs.
 | 4.1 | `NotificationLog` Prisma schema + migration + seed                    | ✅ Done | P0       | M    | —             |
 | 4.2 | `PrismaNotificationLogRepository` (write side)                        | ✅ Done | P0       | S    | 4.1           |
 | 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | ✅ Done | P0       | M    | —             |
-| 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | 📋 ToDo | P1       | M    | —             |
+| 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | ✅ Done | P1       | M    | —             |
 | 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | 📋 ToDo | P0       | M    | 4.2, 4.3, 4.4 |
 | 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | 📋 ToDo | P0       | M    | 4.5           |
 | 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | 📋 ToDo | P0       | M    | 4.6           |
@@ -425,7 +425,7 @@ row Progress to `3 / 7` in docs/DEVELOPMENT_PLAN.md, append `- 4.3 ✅ <date> �
 
 ### Task 4.4 — Template registry + alternate renderers (Handlebars/MJML/React Email)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: —
@@ -438,15 +438,15 @@ only (subject/text raw).
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/templates.ts` exports `TEMPLATES` — at least `otp_code`, `otp_password_reset`,
+- [x] `apps/api/src/notification/templates.ts` exports `TEMPLATES` — at least `otp_code`, `otp_password_reset`,
       `welcome` (each `subject` + `html` + `text`), registered per `name::locale` with an `en` fallback, referencing the
       `CANONICAL_EMAIL_TEMPLATES` names so providers/templates agree on the wire.
-- [ ] `apps/api/src/notification/renderers/{handlebars,mjml,react-email}.renderer.ts` each implement
+- [x] `apps/api/src/notification/renderers/{handlebars,mjml,react-email}.renderer.ts` each implement
       `IEmailTemplateRenderer` (adapted from the library's `docs/templates/*.example.md`), exported for the providers panel
       to showcase in a later phase.
-- [ ] A unit spec proves the **default** renderer (`new DefaultTemplateRenderer({ templates: TEMPLATES })`)
+- [x] A unit spec proves the **default** renderer (`new DefaultTemplateRenderer({ templates: TEMPLATES })`)
       HTML-escapes an injected `<script>` in the **html** body but leaves subject + text raw, and falls back to `en`.
-- [ ] `handlebars`, `mjml`, `@react-email/*` added as apps/api deps; `tsc --noEmit` exits 0.
+- [x] `handlebars`, `mjml`, `@react-email/*` added as apps/api deps; `tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -900,3 +900,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 - 4.1 ✅ 2026-06-23 — NotificationLog schema + migration + seed
 - 4.2 ✅ 2026-06-23 — PrismaNotificationLogRepository (write side)
 - 4.3 ✅ 2026-06-23 — email providers + resolver
+- 4.4 ✅ 2026-06-23 — template registry + alternate renderers

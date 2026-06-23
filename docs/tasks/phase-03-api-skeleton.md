@@ -1,6 +1,6 @@
 # Phase 3 — API Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 3 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -78,7 +78,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 | --- | ------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
 | 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health`              | ✅ Done | P0       | M    | —                  |
 | 3.2 | `NotificationException` → HTTP exception filter                     | ✅ Done | P0       | S    | 3.1                |
-| 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | 📋 ToDo | P0       | M    | 3.1                |
+| 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | ✅ Done | P0       | M    | 3.1                |
 | 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | 📋 ToDo | P0       | M    | 3.1                |
 | 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | 📋 ToDo | P1       | M    | 3.1                |
 | 3.6 | Wire `AppModule` + boot-with/without-Redis verification             | 📋 ToDo | P0       | M    | 3.2, 3.3, 3.4, 3.5 |
@@ -329,7 +329,7 @@ Completion Protocol:
 
 ### Task 3.3 — `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 3.1
@@ -341,16 +341,15 @@ tenant from the `x-tenant-id` header (defaulting to `default`, never from the bo
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/common/tenant-id.decorator.ts` exposes a `@TenantId()` param decorator that returns the
+- [x] `apps/api/src/common/tenant-id.decorator.ts` exposes a `@TenantId()` param decorator that returns the
       `x-tenant-id` header (a multi-value header collapses to its first entry; absence → `'default'`); the tenant is **never**
       read from the request body.
-- [ ] `apps/api/src/common/zod-validation.pipe.ts` is a generic `ZodValidationPipe<TSchema extends ZodType>` that
+- [x] `apps/api/src/common/zod-validation.pipe.ts` is a generic `ZodValidationPipe<TSchema extends ZodType>` that
       `safeParse`s the value and throws `BadRequestException({ message: 'Validation failed', errors: [...] })` on failure
       (issues capped, path + message only — never the rejected value).
-- [ ] Unit tests cover: tenant present (single + array header), tenant absent (→ `'default'`), pipe success, pipe
+- [x] Unit tests cover: tenant present (single + array header), tenant absent (→ `'default'`), pipe success, pipe
       failure (BadRequest with bounded issues) — 100% per file.
-- [ ] An (optional) `apps/api/src/common/common.module.ts` barrels these if it keeps `AppModule` tidy; otherwise they are
-      importable directly.
+- [x] These are importable directly from `common/`; no `common.module.ts` barrel is needed to keep `AppModule` tidy.
 
 #### Files to create / modify
 
@@ -807,3 +806,4 @@ If any DoD bullet is unmet or CI is red, set P3 to `🟡 Partial`, not `✅`.
 
 - 3.1 ✅ 2026-06-23 — main.ts bootstrap + AppModule skeleton + /health
 - 3.2 ✅ 2026-06-23 — NotificationException → HTTP exception filter
+- 3.3 ✅ 2026-06-23 — tenant-id guard/decorator + zod validation pipe

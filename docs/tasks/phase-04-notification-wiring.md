@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 1 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 2 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -77,7 +77,7 @@ adapt** them rather than inventing configs.
 | ID  | Task                                                                  | Status  | Priority | Size | Depends on    |
 | --- | --------------------------------------------------------------------- | ------- | -------- | ---- | ------------- |
 | 4.1 | `NotificationLog` Prisma schema + migration + seed                    | ✅ Done | P0       | M    | —             |
-| 4.2 | `PrismaNotificationLogRepository` (write side)                        | 📋 ToDo | P0       | S    | 4.1           |
+| 4.2 | `PrismaNotificationLogRepository` (write side)                        | ✅ Done | P0       | S    | 4.1           |
 | 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | 📋 ToDo | P0       | M    | —             |
 | 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | 📋 ToDo | P1       | M    | —             |
 | 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | 📋 ToDo | P0       | M    | 4.2, 4.3, 4.4 |
@@ -206,7 +206,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 4.2 — `PrismaNotificationLogRepository` (write side)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: S
 - **Depends on**: 4.1
@@ -218,14 +218,14 @@ through the interface, with a unit spec proving the `NotificationLogEntry → ro
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/providers/prisma-notification-log.repository.ts` implements
+- [x] `apps/api/src/notification/providers/prisma-notification-log.repository.ts` implements
       `INotificationLogRepository` (`readonly name = 'prisma'`, `async create(entry): Promise<void>`), injects
       `PrismaService`, and maps every `NotificationLogEntry` field to a `notificationLog.create` row (nullables → `null`,
       `metadata` → `undefined` when absent, `timestamp` → `new Date(entry.timestamp)`).
-- [ ] No OTP code, no stack trace, and no unmasked-PII column is written (the entry arrives already masked).
-- [ ] A unit spec asserts the field mapping (with a mocked `PrismaService`) at 100% coverage and that
+- [x] No OTP code, no stack trace, and no unmasked-PII column is written (the entry arrives already masked).
+- [x] A unit spec asserts the field mapping (with a mocked `PrismaService`) at 100% coverage and that
       `JSON.stringify(row)` never contains a sample code.
-- [ ] `tsc --noEmit` exits 0; the repository is exported for the config to import.
+- [x] `tsc --noEmit` exits 0; the repository is exported for the config to import.
 
 #### Files to create / modify
 
@@ -898,3 +898,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
 - 4.1 ✅ 2026-06-23 — NotificationLog schema + migration + seed
+- 4.2 ✅ 2026-06-23 — PrismaNotificationLogRepository (write side)

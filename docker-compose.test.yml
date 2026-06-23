@@ -16,7 +16,9 @@ services:
     ports:
       - '127.0.0.1:55432:5432'
     tmpfs:
-      - /var/lib/postgresql
+      # Mount at the data dir itself: the postgres image declares a volume at
+      # /var/lib/postgresql/data, which would shadow a tmpfs on the parent.
+      - /var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER:-postgres} -d notification_example_test']
       interval: 3s

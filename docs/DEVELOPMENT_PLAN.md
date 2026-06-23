@@ -63,7 +63,7 @@ structural template, reconciled with the current vault standard.
 | ID  | Phase                                        | Tasks file                          | Status | Progress | Size | Last updated |
 | --- | -------------------------------------------- | ----------------------------------- | ------ | -------- | ---- | ------------ |
 | P0  | Foundation, Tooling & CI Skeleton            | `phase-00-foundation-ci.md`         | ✅     | 7 / 7    | L    | 2026-06-23   |
-| P1  | Local Stack & Environment                    | `phase-01-local-stack.md`           | 🔄     | 2 / 5    | M    | 2026-06-23   |
+| P1  | Local Stack & Environment                    | `phase-01-local-stack.md`           | 🔄     | 3 / 5    | M    | 2026-06-23   |
 | P2  | Library Consumption & Export Audit           | `phase-02-library-consumption.md`   | 📋     | 0 / 4    | M    | —            |
 | P3  | API Skeleton                                 | `phase-03-api-skeleton.md`          | 📋     | 0 / 6    | M    | —            |
 | P4  | Notification Wiring & Audit Store            | `phase-04-notification-wiring.md`   | 📋     | 0 / 7    | L    | —            |

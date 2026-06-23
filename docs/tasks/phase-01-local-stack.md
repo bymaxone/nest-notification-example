@@ -1,6 +1,6 @@
 # Phase 1 — Local Stack & Environment
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 3 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P1
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,7 +76,7 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 | --- | ---------------------------------------- | ------- | -------- | ---- | ---------- |
 | 1.1 | `apps/api` skeleton package              | ✅ Done | P0       | S    | —          |
 | 1.2 | Docker Compose dev stack + Postgres init | ✅ Done | P0       | M    | 1.1        |
-| 1.3 | Docker Compose test stack (high ports)   | 📋 ToDo | P1       | S    | 1.2        |
+| 1.3 | Docker Compose test stack (high ports)   | ✅ Done | P1       | S    | 1.2        |
 | 1.4 | `.env.example` + infra scripts           | 📋 ToDo | P0       | S    | 1.2        |
 | 1.5 | Zod env schema + failure-path unit test  | 📋 ToDo | P0       | M    | 1.1, 1.4   |
 
@@ -329,7 +329,7 @@ Completion Protocol:
 
 ### Task 1.3 — Docker Compose test stack (high ports)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 1.2
@@ -342,11 +342,11 @@ collision.
 
 #### Acceptance criteria
 
-- [ ] `docker-compose.test.yml` — `name: nest-notification-example-test`, a `ci` bridge network; `postgres`
+- [x] `docker-compose.test.yml` — `name: nest-notification-example-test`, a `ci` bridge network; `postgres`
       (`postgres:18-alpine`) on `127.0.0.1:55432:5432` with `POSTGRES_DB: notification_example_test` and `tmpfs`; `redis`
       (`redis:7-alpine`) on `127.0.0.1:56379:6379` with `tmpfs`; both healthchecked with short intervals.
-- [ ] No Mailpit in the test stack (the test tier mocks the email provider) — note this in a comment.
-- [ ] `docker compose -f docker-compose.test.yml config` validates; `docker compose -f docker-compose.test.yml up -d
+- [x] No Mailpit in the test stack (the test tier mocks the email provider) — note this in a comment.
+- [x] `docker compose -f docker-compose.test.yml config` validates; `docker compose -f docker-compose.test.yml up -d
 --wait` returns healthy on the high ports without touching the dev stack.
 
 #### Files to create / modify
@@ -747,5 +747,6 @@ If any DoD bullet is unmet or CI is red, set P1 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
+- 1.3 ✅ 2026-06-23 — docker compose test stack (high ports: postgres 55432, redis 56379)
 - 1.2 ✅ 2026-06-23 — docker compose dev stack (postgres/redis/mailpit) + init.sql
 - 1.1 ✅ 2026-06-23 — apps/api skeleton package

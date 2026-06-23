@@ -24,13 +24,19 @@ browser-reachable way to exercise it, not just a probe reference.
 ## Getting started
 
 ```bash
+# Build the sibling library first (consumed pre-publish via file: — must be built before pnpm install)
+cd ../nest-notification && pnpm install && pnpm build && cd ../nest-notification-example
+
 pnpm install
 pnpm infra:up        # local Postgres + Redis + Mailpit (added with the app)
 pnpm dev             # starts the API + console once those apps are added (a no-op until then)
 ```
 
-The library is consumed pre-publish via a local `file:` link to the sibling
-`../nest-notification` checkout — build that checkout first.
+`@bymax-one/nest-notification` is consumed pre-publish via `file:../../../nest-notification`.
+Build that sibling checkout before running `pnpm install` here — the library ships no
+`dependencies`, resolving only from its built `dist/` via the `exports` map. Rebuild with
+`pnpm -C ../nest-notification build` whenever the library source changes. Use `file:` (not
+`link:`) to avoid pulling the sibling tree into every test worker's module graph.
 
 ## Verification — run before every PR
 

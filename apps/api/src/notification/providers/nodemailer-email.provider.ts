@@ -25,6 +25,29 @@ import type {
 type SmtpTransporter = ReturnType<typeof createTransport>
 
 /**
+ * Builds Nodemailer's `from` field, honoring an optional display name.
+ *
+ * Nodemailer accepts either a plain address string or a structured
+ * `{ name, address }` object; only the structured form surfaces a display name in
+ * the outgoing message. So when both an address and a `fromName` are present the
+ * structured form is used; when only the address is present the plain string is
+ * kept; and when no address is present the field is omitted entirely.
+ *
+ * @param options - Send options carrying `from` (address) and optional `fromName`.
+ * @returns `{ name, address }` when both `from` and `fromName` are set, the plain
+ *   address string when only `from` is set, or `undefined` when `from` is absent.
+ */
+function resolveFromField(options: EmailSendOptions): SendMailOptions['from'] {
+  if (options.from === undefined) {
+    return undefined
+  }
+  if (options.fromName !== undefined) {
+    return { name: options.fromName, address: options.from }
+  }
+  return options.from
+}
+
+/**
  * Delivers transactional email through a Nodemailer SMTP transport.
  *
  * Construction is cheap and connection-less — Nodemailer opens the socket lazily on
@@ -62,11 +85,12 @@ export class NodemailerEmailProvider implements IEmailProvider {
    * @throws Error When the transport rejects; `EmailService` maps it to `EMAIL_SEND_FAILED`.
    */
   async send(options: EmailSendOptions): Promise<EmailSendResult> {
+    const from = resolveFromField(options)
     const message: SendMailOptions = {
       to: options.to,
       subject: options.subject,
       html: options.html,
-      ...(options.from !== undefined ? { from: options.from } : {}),
+      ...(from !== undefined ? { from } : {}),
       ...(options.text !== undefined ? { text: options.text } : {}),
       ...(options.replyTo !== undefined ? { replyTo: options.replyTo } : {}),
       ...(options.cc !== undefined ? { cc: options.cc } : {}),

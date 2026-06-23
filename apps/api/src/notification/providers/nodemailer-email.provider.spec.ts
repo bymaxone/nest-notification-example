@@ -4,8 +4,9 @@
  * `nodemailer` is mocked via `jest.unstable_mockModule` so no SMTP socket opens:
  * the fake `createTransport` returns a `sendMail` spy. Proves the provider returns the
  * transport's `messageId`, rethrows a transport failure (so `EmailService` can map it
- * to `EMAIL_SEND_FAILED`), forwards every populated envelope field, and omits absent
- * optionals.
+ * to `EMAIL_SEND_FAILED`), forwards every populated envelope field, builds the
+ * structured `{ name, address }` `from` when a display name is configured (and the
+ * plain address string otherwise), and omits absent optionals.
  */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import type { EmailSendOptions } from '@bymax-one/nest-notification'
@@ -62,13 +63,35 @@ describe('NodemailerEmailProvider', () => {
       to: 'jane@acme.com',
       subject: 'Welcome',
       html: '<p>Hi</p>',
-      from: 'no-reply@notification.local',
+      from: { name: 'Bymax', address: 'no-reply@notification.local' },
       text: 'Hi',
       replyTo: 'support@acme.com',
       cc: 'cc@acme.com',
       bcc: 'bcc@acme.com',
       headers: { 'X-Test': '1' },
       attachments: [{ filename: 'a.txt', content: 'hi' }],
+    })
+  })
+
+  it('sets a plain-address "from" string when no display name is configured', async () => {
+    /**
+     * With `from` present but `fromName` absent, the message keeps the plain address
+     * string rather than a structured `{ name, address }` object.
+     */
+    const provider = new NodemailerEmailProvider('smtp://localhost:1025')
+
+    await provider.send({
+      to: 'jane@acme.com',
+      from: 'no-reply@notification.local',
+      subject: 'Hi',
+      html: '<p>x</p>',
+    })
+
+    expect(sendMail).toHaveBeenCalledWith({
+      to: 'jane@acme.com',
+      from: 'no-reply@notification.local',
+      subject: 'Hi',
+      html: '<p>x</p>',
     })
   })
 

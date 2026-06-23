@@ -9,18 +9,22 @@
 import type { ConfigService } from '@nestjs/config'
 import { describe, expect, it, jest } from '@jest/globals'
 
+import type { Env } from '../config/env.schema.js'
 import { PrismaService } from './prisma.service.js'
 
 /** Build a `ConfigService` double whose `getOrThrow` returns the supplied URL for DATABASE_URL. */
-function buildConfig(url: string): { config: ConfigService; getOrThrow: jest.Mock } {
+function buildConfig(url: string): {
+  config: ConfigService<Env, true>
+  getOrThrow: jest.Mock
+} {
   const getOrThrow = jest.fn((key: unknown) => {
     if (key === 'DATABASE_URL') return url
     throw new Error(`unexpected key: ${String(key)}`)
   })
-  return { config: { getOrThrow } as unknown as ConfigService, getOrThrow }
+  return { config: { getOrThrow } as unknown as ConfigService<Env, true>, getOrThrow }
 }
 
-const TEST_URL = 'postgresql://user:pass@db.internal:5432/app'
+const TEST_URL = 'postgresql://stub-user:stub-pass@db.internal:5432/stub-db'
 
 describe('PrismaService', () => {
   it('reads DATABASE_URL through ConfigService.getOrThrow to wire the adapter', () => {
@@ -41,7 +45,7 @@ describe('PrismaService', () => {
     /** `onModuleInit` must open the connection by delegating to the inherited `$connect`. */
     const { config } = buildConfig(TEST_URL)
     const service = new PrismaService(config)
-    const connect = jest.spyOn(service, '$connect').mockResolvedValue(undefined as never)
+    const connect = jest.spyOn(service, '$connect').mockImplementation(() => Promise.resolve())
 
     await service.onModuleInit()
 
@@ -52,7 +56,9 @@ describe('PrismaService', () => {
     /** `onApplicationShutdown` must release the pool by delegating to `$disconnect`. */
     const { config } = buildConfig(TEST_URL)
     const service = new PrismaService(config)
-    const disconnect = jest.spyOn(service, '$disconnect').mockResolvedValue(undefined as never)
+    const disconnect = jest
+      .spyOn(service, '$disconnect')
+      .mockImplementation(() => Promise.resolve())
 
     await service.onApplicationShutdown()
 

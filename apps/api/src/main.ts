@@ -42,7 +42,10 @@ async function bootstrap(): Promise<void> {
 
   // Allow the console (a separate origin in dev, locked to WEB_ORIGIN) to call the API
   // with the trusted `x-tenant-id` header, and expose `Retry-After` so the browser can
-  // read the OTP resend cooldown surfaced on a 429.
+  // read the OTP resend cooldown surfaced on a 429. `x-role` is permitted for the
+  // header-based demo RBAC the console sends; it is client-supplied and informational
+  // only — it must never drive an authorization decision without server-side
+  // verification (a real deployment wires `@bymax-one/nest-auth` for that).
   app.enableCors({
     origin: config.get('WEB_ORIGIN', { infer: true }),
     allowedHeaders: ['Content-Type', 'Accept', 'x-tenant-id', 'x-role'],
@@ -53,7 +56,14 @@ async function bootstrap(): Promise<void> {
   const shutdown = (): void => {
     if (isShuttingDown) return // idempotent: if both signals arrive, run the sequence once
     isShuttingDown = true
-    void app.close().finally(() => process.exit(0))
+    void app
+      .close()
+      // Surface a failed lifecycle hook so the shutdown is diagnosable, then exit
+      // cleanly regardless — the process must not hang on a rejected close().
+      .catch((error: unknown) => {
+        process.stderr.write(`Shutdown error: ${String(error)}\n`)
+      })
+      .finally(() => process.exit(0))
   }
   process.once('SIGTERM', shutdown)
   process.once('SIGINT', shutdown)

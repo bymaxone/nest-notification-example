@@ -13,3 +13,19 @@ allowBuilds:
   '@prisma/engines': true
   prisma: true
   unrs-resolver: true
+
+# Force patched versions of transitive dependencies carrying known high-severity
+# advisories that the upstream graph (the notification library's mail chain and the
+# Express platform adapter) still resolves to vulnerable ranges:
+#   - nodemailer < 9.0.1 — raw-message option bypasses file/URL access guards (SSRF + file read)
+#   - multer < 2.2.0     — DoS via deeply nested multipart field names
+# Both pins are backward-compatible patch/minor bumps.
+#
+# `html-minifier <= 4.0.0` (ReDoS, GHSA-pfq8-rq6v-vf5m) is NOT pinned here: it is
+# unmaintained with no published patch (4.0.0 is the latest), reached only transitively
+# through `mjml > mjml-cli`. It is unreachable from this API skeleton (no MJML rendering
+# of caller-controlled HTML in the request path) and must be resolved upstream in the
+# notification library's `mjml` chain, not by an unsatisfiable consumer override.
+overrides:
+  nodemailer: '>=9.0.1'
+  multer: '>=2.2.0'

@@ -23,8 +23,8 @@ export const RETRY_BACKOFF_STEP_MS = 200
 export const RETRY_BACKOFF_CAP_MS = 2_000
 
 /**
- * Exponential-ish back-off capped at {@link RETRY_BACKOFF_CAP_MS}: early retries grow
- * linearly so transient blips recover quickly without hammering Redis.
+ * Linear back-off capped at {@link RETRY_BACKOFF_CAP_MS}: the delay grows by a fixed
+ * step per attempt so transient blips recover quickly without hammering Redis.
  *
  * @param times - The reconnect attempt count (1-based).
  * @returns The delay in milliseconds before the next reconnect attempt.

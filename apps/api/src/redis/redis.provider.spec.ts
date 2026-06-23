@@ -5,7 +5,7 @@
  * options) and `REDIS_URL` unset (returns `null`, never throws). `ioredis` is mocked
  * so no real TCP connection is opened.
  */
-import { jest } from '@jest/globals'
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 
 const mockRedisConstructor = jest.fn()
 

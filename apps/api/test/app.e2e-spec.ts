@@ -26,7 +26,8 @@ jest.unstable_mockModule('ioredis', () => ({
 
 // DATABASE_URL is mandatory and is validated when ConfigModule.forRoot is called —
 // set it before importing AppModule (whose @Module metadata calls forRoot at import).
-process.env['DATABASE_URL'] = 'postgresql://user:pass@localhost:5432/app'
+// The value is a non-secret stub: PrismaService is overridden so no connection opens.
+process.env['DATABASE_URL'] = 'postgresql://stub-user:stub-pass@localhost:5432/stub-db'
 delete process.env['REDIS_URL']
 
 const request = (await import('supertest')).default

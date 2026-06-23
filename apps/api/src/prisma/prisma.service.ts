@@ -13,12 +13,22 @@ import { ConfigService } from '@nestjs/config'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 
+import type { Env } from '../config/env.schema.js'
+
 /** Prisma database client, injectable into any NestJS provider. */
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnApplicationShutdown {
-  constructor(config: ConfigService) {
+  /**
+   * Wire the `@prisma/adapter-pg` driver adapter from the validated environment.
+   *
+   * `DATABASE_URL` is resolved eagerly via `getOrThrow`, so a missing or invalid URL
+   * fails fast at module initialisation rather than on the first query.
+   *
+   * @param config - The schema-typed configuration service.
+   */
+  constructor(config: ConfigService<Env, true>) {
     const adapter = new PrismaPg({
-      connectionString: config.getOrThrow<string>('DATABASE_URL'),
+      connectionString: config.getOrThrow('DATABASE_URL'),
     })
     super({ adapter })
   }

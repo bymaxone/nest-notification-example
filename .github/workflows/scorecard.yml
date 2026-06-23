@@ -21,6 +21,10 @@ permissions:
 
 jobs:
   analysis:
+    # Publishing the score (and the SARIF upload) requires a public repository;
+    # gate to public so the private skeleton stays green and Scorecard activates
+    # automatically once the repo is published.
+    if: github.event.repository.visibility == 'public'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 

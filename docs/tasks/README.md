@@ -16,7 +16,7 @@
 | P4    | `phase-04-notification-wiring.md`   | `forRootAsync`, providers/renderer, audit store + interceptor                       | ✅     |
 | P5    | `phase-05-otp-email-controllers.md` | `/otp/*`, `/email/*`, `/dispatch`, `/channels`, `/debug/key`                        | ✅     |
 | P6    | `phase-06-audit-read-api.md`        | `/audit/{logs,stream,aggregate}` (keyset + SSE)                                     | ✅     |
-| P7    | `phase-07-roadmap-rejection.md`     | `/admin/try-configure-{sms,push,async-useclass}`                                    | 🔄     |
+| P7    | `phase-07-roadmap-rejection.md`     | `/admin/try-configure-{sms,push,async-useclass}`                                    | ✅     |
 | P8    | `phase-08-web-skeleton.md`          | Next.js shell + **verbatim** design system + global controls                        | 📋     |
 | P9    | `phase-09-console-core.md`          | Overview · Trigger Center · Audit Explorer (+ live tail)                            | 📋     |
 | P10   | `phase-10-otp-providers-panels.md`  | OTP-verify · provider matrix · email preview · roadmap · settings                   | 📋     |

@@ -37,10 +37,11 @@ jobs:
 
   build-and-push:
     needs: validate
-    # The image build consumes apps/api + apps/web sources, which do not exist in the
-    # empty skeleton. Run only on a real tag (release) or once the app manifests exist,
-    # so a manual dispatch validates the workflow without a guaranteed-failing build.
-    if: github.ref_type == 'tag' || hashFiles('apps/api/package.json', 'apps/web/package.json') != ''
+    # Build images only on a real release tag (where the app sources exist). A manual
+    # workflow_dispatch then runs the validate job to check the scaffolding and skips
+    # this job, instead of failing on the empty skeleton. (hashFiles cannot be used in
+    # a job-level if — it runs before checkout, with no workspace — so gate on ref_type.)
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

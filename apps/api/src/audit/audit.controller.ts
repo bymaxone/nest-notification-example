@@ -125,20 +125,19 @@ export class AuditController {
    * @throws {GoneException} HTTP 410 when the cursor is stale or malformed.
    */
   private keysetClause(cursor: string): Prisma.NotificationLogWhereInput {
-    let decoded
     try {
-      decoded = this.audit.decodeCursor(cursor)
+      const decoded = this.audit.decodeCursor(cursor)
+      return {
+        OR: [
+          { timestamp: { lt: decoded.timestamp } },
+          { timestamp: decoded.timestamp, id: { lt: decoded.id } },
+        ],
+      }
     } catch (error) {
       if (error instanceof StaleCursorError) {
         throw new GoneException('cursor is stale; restart pagination from the top')
       }
       throw error
-    }
-    return {
-      OR: [
-        { timestamp: { lt: decoded.timestamp } },
-        { timestamp: decoded.timestamp, id: { lt: decoded.id } },
-      ],
     }
   }
 }

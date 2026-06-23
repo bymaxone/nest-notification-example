@@ -15,9 +15,9 @@
  * linked (local `file:`/`link:`) before this runs. When no `apps/` source files
  * exist yet, the audit is a no-op and exits 0.
  *
- * Exit codes: 0 = every non-ignored export referenced (or no apps/ corpus yet);
- * 1 = unused export(s); 2 = infrastructure error (declaration file missing or
- * ignore-list unreadable).
+ * Exit codes: 0 = every non-ignored export referenced (or no apps/ corpus / library
+ * not linked yet); 1 = unused export(s); 2 = infrastructure error (the library is
+ * linked but a declaration file is missing, or the ignore-list is unreadable).
  *
  * @module scripts/audit-library-exports
  */
@@ -25,8 +25,11 @@ import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import process from 'node:process'
 
+/** Root of the linked library package (absent until an apps/ package adds the `file:` dependency). */
+const LIB_ROOT = 'node_modules/@bymax-one/nest-notification'
+
 /** Root of the linked library's compiled output. */
-const PKG = 'node_modules/@bymax-one/nest-notification/dist'
+const PKG = join(LIB_ROOT, 'dist')
 
 /** The three published subpaths, each with its declaration file. */
 const SUBPATHS = [
@@ -117,6 +120,16 @@ if (sources.length === 0) {
   process.exit(0)
 }
 
+// The library is linked only once an apps/ package declares the `file:` dependency.
+// Until then there is nothing to audit, so the gate is a no-op; once the package IS
+// linked, a missing subpath declaration is a real build error (the loop below exits 2).
+if (!existsSync(LIB_ROOT)) {
+  console.log(
+    '• @bymax-one/nest-notification not linked yet — export-usage audit is a no-op (exit 0)',
+  )
+  process.exit(0)
+}
+
 const corpus = sources.map((f) => readFileSync(f, 'utf8'))
 
 /**
@@ -143,9 +156,9 @@ try {
 let unused = 0
 for (const { name: subpath, dts } of SUBPATHS) {
   if (!existsSync(dts)) {
-    console.warn(`⚠ missing declaration file: ${dts} — library not yet linked (exit 0)`)
-    console.warn('  Link @bymax-one/nest-notification via "file:" before running this audit.')
-    process.exit(0)
+    console.error(`✗ missing declaration file: ${dts} — the library is linked but its dist/`)
+    console.error('  is not built; run `pnpm --dir ../nest-notification build` first.')
+    process.exit(2)
   }
   const exports = [...extractExports(readFileSync(dts, 'utf8'))].sort()
   console.log(`\n# @bymax-one/nest-notification '${subpath}' — ${exports.length} exports`)

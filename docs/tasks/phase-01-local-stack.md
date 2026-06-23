@@ -1,6 +1,6 @@
 # Phase 1 — Local Stack & Environment
 
-> **Status**: 🔄 In Progress · **Progress**: 3 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 4 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P1
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -77,7 +77,7 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 | 1.1 | `apps/api` skeleton package              | ✅ Done | P0       | S    | —          |
 | 1.2 | Docker Compose dev stack + Postgres init | ✅ Done | P0       | M    | 1.1        |
 | 1.3 | Docker Compose test stack (high ports)   | ✅ Done | P1       | S    | 1.2        |
-| 1.4 | `.env.example` + infra scripts           | 📋 ToDo | P0       | S    | 1.2        |
+| 1.4 | `.env.example` + infra scripts           | ✅ Done | P0       | S    | 1.2        |
 | 1.5 | Zod env schema + failure-path unit test  | 📋 ToDo | P0       | M    | 1.1, 1.4   |
 
 ---
@@ -437,7 +437,7 @@ Completion Protocol:
 
 ### Task 1.4 — `.env.example` + infra scripts
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: S
 - **Depends on**: 1.2
@@ -450,18 +450,18 @@ compose stacks.
 
 #### Acceptance criteria
 
-- [ ] `.env.example` documents every variable from OVERVIEW §9: `PORT`, `DATABASE_URL`, `REDIS_URL`, `SMTP_URL`,
+- [x] `.env.example` documents every variable from OVERVIEW §9: `PORT`, `DATABASE_URL`, `REDIS_URL`, `SMTP_URL`,
       `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`, `DEFAULT_LOCALE`, `OTP_DEFAULT_TTL_SECONDS`,
       `OTP_RESEND_COOLDOWN_SECONDS`, `AUDIT_MASK_RECIPIENT`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL` — each with an inline
       comment naming its service + purpose, grouped by section, defaults matching §9 (e.g. `PORT=3001`,
       `SMTP_URL=smtp://localhost:1025`, `WEB_ORIGIN=http://localhost:3003`, `NEXT_PUBLIC_API_URL=http://localhost:3001`).
-- [ ] `REDIS_URL` and `RESEND_API_KEY` are present but commented/empty (unset ⇒ in-memory OTP / Nodemailer→Mailpit) so
+- [x] `REDIS_URL` and `RESEND_API_KEY` are present but commented/empty (unset ⇒ in-memory OTP / Nodemailer→Mailpit) so
       the documented behavior is clear.
-- [ ] Root `package.json` scripts: `infra:up` (`docker compose up -d --wait`), `infra:down` (`docker compose down`),
+- [x] Root `package.json` scripts: `infra:up` (`docker compose up -d --wait`), `infra:down` (`docker compose down`),
       `infra:nuke` (`docker compose down -v`), `infra:logs` (`docker compose logs -f`), `infra:test:up`
       (`docker compose -f docker-compose.test.yml up -d --wait --wait-timeout 180`), `infra:test:down`
       (`docker compose -f docker-compose.test.yml down -v`).
-- [ ] `.env.example` is git-tracked; `.env` is git-ignored (already in `.gitignore` from P0 — verify).
+- [x] `.env.example` is git-tracked; `.env` is git-ignored (already in `.gitignore` from P0 — verify).
 
 #### Files to create / modify
 
@@ -747,6 +747,7 @@ If any DoD bullet is unmet or CI is red, set P1 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
+- 1.4 ✅ 2026-06-23 — .env.example (all 13 OVERVIEW §9 vars) + infra:* scripts in root package.json
 - 1.3 ✅ 2026-06-23 — docker compose test stack (high ports: postgres 55432, redis 56379)
 - 1.2 ✅ 2026-06-23 — docker compose dev stack (postgres/redis/mailpit) + init.sql
 - 1.1 ✅ 2026-06-23 — apps/api skeleton package

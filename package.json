@@ -22,6 +22,10 @@
     "audit:error-codes": "node scripts/audit-error-codes.mjs",
     "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose down",
+    "infra:nuke": "docker compose down -v",
+    "infra:logs": "docker compose logs -f",
+    "infra:test:up": "docker compose -f docker-compose.test.yml up -d --wait --wait-timeout 180",
+    "infra:test:down": "docker compose -f docker-compose.test.yml down -v",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -23,5 +23,7 @@ module.exports = {
   testEnvironment: 'node',
   // NestJS module bootstrap is slower than a unit test; allow generous head-room.
   testTimeout: 30000,
-  maxWorkers: 2,
+  // Bounded worker pool, matching the unit Jest config — keeps memory predictable
+  // when sibling-library-consuming suites reload the module graph per worker.
+  maxWorkers: '50%',
 }

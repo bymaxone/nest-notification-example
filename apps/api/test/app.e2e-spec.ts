@@ -24,6 +24,14 @@ jest.unstable_mockModule('ioredis', () => ({
   Redis: mockRedisConstructor,
 }))
 
+// Snapshot the env vars this suite mutates BEFORE overwriting them, so they can be
+// restored in afterAll — preventing order-dependent leakage into other e2e suites.
+// `undefined` records a key that was originally unset (it is deleted on restore).
+const originalEnv: Record<string, string | undefined> = {
+  DATABASE_URL: process.env['DATABASE_URL'],
+  REDIS_URL: process.env['REDIS_URL'],
+}
+
 // DATABASE_URL is mandatory and is validated when ConfigModule.forRoot is called —
 // set it before importing AppModule (whose @Module metadata calls forRoot at import).
 // The value is a non-secret stub: PrismaService is overridden so no connection opens.
@@ -124,5 +132,15 @@ describe('Application chassis (e2e)', () => {
 
   afterAll(async () => {
     await healthApp.close()
+
+    // Restore the original environment: delete keys that were originally unset,
+    // otherwise put the snapshotted value back so no mutation leaks out of this suite.
+    for (const [key, value] of Object.entries(originalEnv)) {
+      if (value === undefined) {
+        delete process.env[key]
+      } else {
+        process.env[key] = value
+      }
+    }
   })
 })

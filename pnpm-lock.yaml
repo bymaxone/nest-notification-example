@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  nodemailer: '>=9.0.1'
   multer: '>=2.2.0'
 
 importers:
@@ -50,7 +49,7 @@ importers:
     dependencies:
       '@bymax-one/nest-notification':
         specifier: file:../../../nest-notification
-        version: file:../nest-notification(@nestjs/common@11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@react-email/render@1.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@types/express@5.0.6)(express@5.2.1)(handlebars@4.7.9)(ioredis@5.11.1)(mjml@4.18.0)(nodemailer@9.0.1)(react@19.2.7)(reflect-metadata@0.2.2)(resend@4.8.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(rxjs@7.8.2)
+        version: file:../nest-notification(@nestjs/common@11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@react-email/render@1.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@types/express@5.0.6)(express@5.2.1)(handlebars@4.7.9)(ioredis@5.11.1)(mjml@4.18.0)(react@19.2.7)(reflect-metadata@0.2.2)(resend@4.8.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(rxjs@7.8.2)
       '@nestjs/common':
         specifier: ^11
         version: 11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -87,9 +86,6 @@ importers:
       mjml:
         specifier: ^4
         version: 4.18.0
-      nodemailer:
-        specifier: '>=9.0.1'
-        version: 9.0.1
       pg:
         specifier: ^8
         version: 8.22.0
@@ -124,9 +120,6 @@ importers:
       '@types/node':
         specifier: ^24
         version: 24.13.2
-      '@types/nodemailer':
-        specifier: ^6
-        version: 6.4.24
       '@types/supertest':
         specifier: ^7
         version: 7.2.0
@@ -368,7 +361,7 @@ packages:
       ioredis: ^5.0.0
       mailgun.js: ^11.0.0
       mjml: ^4.0.0
-      nodemailer: '>=9.0.1'
+      nodemailer: ^7.0.0
       react: ^19.0.0
       reflect-metadata: ^0.2.0
       resend: ^4.0.0
@@ -1198,9 +1191,6 @@ packages:
 
   '@types/node@26.0.0':
     resolution: {integrity: sha512-vf2YFi1iY9lHGwNJMs01biZFbKJkrZR1T6/MlzjhJLPdntOHLhTrDSnSVcdtvjihi4VQNlrFRIxLsDBlQpAipA==}
-
-  '@types/nodemailer@6.4.24':
-    resolution: {integrity: sha512-Ww4u0rT9wQNXh4JiQaIwx3QWdcOFXzOjQA2zc+jtFYNmQiT4mIUqcDin51bDFdkzKubFnQCZNK7FIHlPKQ/q9w==}
 
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
@@ -3196,10 +3186,6 @@ packages:
     resolution: {integrity: sha512-1uz8041X6LoI6ZSdZacM9lVY28vuzDlSKitnpbSNK0RfKoIJkX29NBPVEFXhnuSuEOA9Ww0xnPJ+ILWbGAv8DA==}
     engines: {node: '>=18'}
 
-  nodemailer@9.0.1:
-    resolution: {integrity: sha512-Gwv8SQewT616ZM/URn0H54b8PWo/Wum7md3EW2aWy1lO27+WZCX+Xyak3J+NlmHUjDh5ME+uesJUDRbR3Ye8Bw==}
-    engines: {node: '>=6.0.0'}
-
   nopt@7.2.1:
     resolution: {integrity: sha512-taM24ViiimT/XntxbPyJQzCG+p4EKOpgD3mxFwW38mGjVUrfERQOeY4EDHjdnptttfHuHQXFx+lTP08Q+mLa/w==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -4392,7 +4378,7 @@ snapshots:
 
   '@borewit/text-codec@0.2.2': {}
 
-  '@bymax-one/nest-notification@file:../nest-notification(@nestjs/common@11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@react-email/render@1.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@types/express@5.0.6)(express@5.2.1)(handlebars@4.7.9)(ioredis@5.11.1)(mjml@4.18.0)(nodemailer@9.0.1)(react@19.2.7)(reflect-metadata@0.2.2)(resend@4.8.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(rxjs@7.8.2)':
+  '@bymax-one/nest-notification@file:../nest-notification(@nestjs/common@11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(@react-email/render@1.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@types/express@5.0.6)(express@5.2.1)(handlebars@4.7.9)(ioredis@5.11.1)(mjml@4.18.0)(react@19.2.7)(reflect-metadata@0.2.2)(resend@4.8.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(rxjs@7.8.2)':
     dependencies:
       '@nestjs/common': 11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.27(@nestjs/common@11.1.27(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.27)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -4405,7 +4391,6 @@ snapshots:
       handlebars: 4.7.9
       ioredis: 5.11.1
       mjml: 4.18.0
-      nodemailer: 9.0.1
       react: 19.2.7
       resend: 4.8.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
@@ -5400,10 +5385,6 @@ snapshots:
   '@types/node@26.0.0':
     dependencies:
       undici-types: 8.3.0
-
-  '@types/nodemailer@6.4.24':
-    dependencies:
-      '@types/node': 24.13.2
 
   '@types/pg@8.20.0':
     dependencies:
@@ -7830,8 +7811,6 @@ snapshots:
   node-int64@0.4.0: {}
 
   node-releases@2.0.48: {}
-
-  nodemailer@9.0.1: {}
 
   nopt@7.2.1:
     dependencies:

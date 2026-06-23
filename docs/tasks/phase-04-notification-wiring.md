@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).

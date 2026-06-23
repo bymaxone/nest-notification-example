@@ -65,7 +65,7 @@ structural template, reconciled with the current vault standard.
 | P0  | Foundation, Tooling & CI Skeleton            | `phase-00-foundation-ci.md`         | ✅     | 7 / 7    | L    | 2026-06-23   |
 | P1  | Local Stack & Environment                    | `phase-01-local-stack.md`           | ✅     | 5 / 5    | M    | 2026-06-23   |
 | P2  | Library Consumption & Export Audit           | `phase-02-library-consumption.md`   | ✅     | 4 / 4    | M    | 2026-06-23   |
-| P3  | API Skeleton                                 | `phase-03-api-skeleton.md`          | 🔄     | 3 / 6    | M    | 2026-06-23   |
+| P3  | API Skeleton                                 | `phase-03-api-skeleton.md`          | 🔄     | 4 / 6    | M    | 2026-06-23   |
 | P4  | Notification Wiring & Audit Store            | `phase-04-notification-wiring.md`   | 📋     | 0 / 7    | L    | —            |
 | P5  | OTP & Email Controllers                      | `phase-05-otp-email-controllers.md` | 📋     | 0 / 6    | L    | —            |
 | P6  | Audit Read-API (keyset + SSE)                | `phase-06-audit-read-api.md`        | 📋     | 0 / 5    | M    | —            |

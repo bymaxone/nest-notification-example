@@ -1,6 +1,6 @@
 # Phase 3 — API Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 3 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 4 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -79,7 +79,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 | 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health`              | ✅ Done | P0       | M    | —                  |
 | 3.2 | `NotificationException` → HTTP exception filter                     | ✅ Done | P0       | S    | 3.1                |
 | 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | ✅ Done | P0       | M    | 3.1                |
-| 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | 📋 ToDo | P0       | M    | 3.1                |
+| 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | ✅ Done | P0       | M    | 3.1                |
 | 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | 📋 ToDo | P1       | M    | 3.1                |
 | 3.6 | Wire `AppModule` + boot-with/without-Redis verification             | 📋 ToDo | P0       | M    | 3.2, 3.3, 3.4, 3.5 |
 
@@ -437,7 +437,7 @@ Completion Protocol:
 
 ### Task 3.4 — `RedisModule` — `REDIS` `Symbol` token → client or `null`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 3.1
@@ -449,14 +449,15 @@ Add the global `RedisModule` that provides the `REDIS` `Symbol` DI token, resolv
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/redis/redis.module.ts` exports a `Symbol` token `export const REDIS = Symbol('REDIS')` and a
-      `@Global()` module providing it via a `useFactory` injecting `ConfigService`.
-- [ ] The factory returns a `new Redis(url, { lazyConnect, maxRetriesPerRequest: null, retryStrategy })` when
+- [x] `apps/api/src/redis/redis.module.ts` exports a `Symbol` token `REDIS` (defined in `redis.token.ts` to avoid the
+      module↔provider import cycle, re-exported from the module) and a `@Global()` module providing it via a `useFactory`
+      injecting `ConfigService`.
+- [x] The factory returns a `new Redis(url, { lazyConnect, maxRetriesPerRequest: null, retryStrategy })` when
       `REDIS_URL` is set, and **`null`** when it is unset — it never throws on a missing URL.
-- [ ] On `onApplicationShutdown`, the module calls `redis.quit()` **only when** the injected client is non-`null`.
-- [ ] Unit tests cover both branches: `REDIS_URL` present (factory returns a client; shutdown quits it) and absent
+- [x] On `onApplicationShutdown`, the module calls `redis.quit()` **only when** the injected client is non-`null`.
+- [x] Unit tests cover both branches: `REDIS_URL` present (factory returns a client; shutdown quits it) and absent
       (factory returns `null`; shutdown is a no-op) — 100% on the module/provider files.
-- [ ] The token + module are exported so P4's `forRootAsync({ inject: [REDIS] })` can consume them.
+- [x] The token + module are exported so P4's `forRootAsync({ inject: [REDIS] })` can consume them.
 
 #### Files to create / modify
 
@@ -807,3 +808,4 @@ If any DoD bullet is unmet or CI is red, set P3 to `🟡 Partial`, not `✅`.
 - 3.1 ✅ 2026-06-23 — main.ts bootstrap + AppModule skeleton + /health
 - 3.2 ✅ 2026-06-23 — NotificationException → HTTP exception filter
 - 3.3 ✅ 2026-06-23 — tenant-id guard/decorator + zod validation pipe
+- 3.4 ✅ 2026-06-23 — RedisModule (REDIS Symbol token → client or null)

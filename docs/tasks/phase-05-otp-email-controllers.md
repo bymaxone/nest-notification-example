@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 🔄 In Progress · **Progress**: 5 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -102,7 +102,7 @@ the notification-domain behavior.
 | 5.3 | Email controller — send + send-template (+ attachment guard)                | ✅ Done | P0       | M    | —                  |
 | 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | ✅ Done | P1       | M    | 5.3                |
 | 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | ✅ Done | P2       | S    | —                  |
-| 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | 📋 ToDo | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
+| 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | ✅ Done | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
 
 ---
 
@@ -694,7 +694,7 @@ row Progress to `5 / 6` in DEVELOPMENT_PLAN.md, append `- 5.5 ✅ <date> — GET
 
 ### Task 5.6 — e2e suite — full OTP+email+dispatch HTTP surface
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 5.2, 5.3, 5.4, 5.5
@@ -707,21 +707,21 @@ then run the full local gate and close the phase.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/test/otp.e2e-spec.ts` proves the OTP lifecycle over HTTP: generate → `{ expiresAt, cooldownSeconds }`;
+- [x] `apps/api/test/otp.e2e-spec.ts` proves the OTP lifecycle over HTTP: generate → `{ expiresAt, cooldownSeconds }`;
       verify wrong code → 401 with decreasing `remainingAttempts`; the `(defaultMaxAttempts + 1)`th wrong attempt → 429
       (`max_attempts`, with NO `Retry-After` — verify carries no cooldown) where the attempt count is read from the
       configured `otp.defaultMaxAttempts` (default 5), not a magic literal; a second **generate** in the cooldown window →
       429 + `Retry-After` (the only Retry-After path); consume → idempotent; status → state without the code; verify a
       correct code → 200; expired/unknown → 404.
-- [ ] `apps/api/test/email.e2e-spec.ts` proves `/email/send` + `/email/send-template` return `{ messageId }`, an oversize
+- [x] `apps/api/test/email.e2e-spec.ts` proves `/email/send` + `/email/send-template` return `{ messageId }`, an oversize
       attachment → 413, an XSS-payload template escapes the html body only, and a `pt-BR` request with only `en` registered
       falls back to `en` (`TEMPLATE_NOT_FOUND` when neither exists).
-- [ ] `apps/api/test/dispatch.e2e-spec.ts` proves `/dispatch` (email + otp), `/channels` → `['email','otp']`,
+- [x] `apps/api/test/dispatch.e2e-spec.ts` proves `/dispatch` (email + otp), `/channels` → `['email','otp']`,
       `/config/status` → the resolved-config shape (enabled channels + provider/storage/renderer names + flags, no secrets),
       and the `EMAIL_MISSING_BODY` + `CHANNEL_DISABLED` error paths; `apps/api/test/debug.e2e-spec.ts` proves `/debug/key`
       returns the 64-hex key.
-- [ ] The e2e app uses `InMemoryOtpStorage` + a mocked transport (no Mailpit/Resend needed); `x-tenant-id` is exercised.
-- [ ] `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov && pnpm audit:exports && pnpm audit:error-codes`
+- [x] The e2e app uses `InMemoryOtpStorage` + a mocked transport (no Mailpit/Resend needed); `x-tenant-id` is exercised.
+- [x] `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov && pnpm audit:exports && pnpm audit:error-codes`
       all pass; `apps/api` coverage is 100% on all four metrics.
 
 #### Files to create / modify
@@ -830,3 +830,4 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 - 5.3 ✅ 2026-06-23 — email controller (send + send-template + 413)
 - 5.4 ✅ 2026-06-23 — dispatch façade + channels + config/status
 - 5.5 ✅ 2026-06-23 — GET /debug/key (sha256 storage key)
+- 5.6 ✅ 2026-06-23 — e2e suite for the full OTP+email+dispatch surface

@@ -211,7 +211,12 @@ describe('GET /audit/stream', () => {
           resolve()
         },
       )
-      req.on('error', () => undefined)
+      // A failed connection must reject deterministically (and tear the socket down) instead
+      // of hanging the promise until Jest times out.
+      req.on('error', (error) => {
+        req.destroy()
+        reject(error instanceof Error ? error : new Error(String(error)))
+      })
     })
   })
 })

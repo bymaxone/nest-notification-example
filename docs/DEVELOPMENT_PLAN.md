@@ -68,7 +68,7 @@ structural template, reconciled with the current vault standard.
 | P3  | API Skeleton                                 | `phase-03-api-skeleton.md`          | ✅     | 6 / 6    | M    | 2026-06-23   |
 | P4  | Notification Wiring & Audit Store            | `phase-04-notification-wiring.md`   | ✅     | 7 / 7    | L    | 2026-06-23   |
 | P5  | OTP & Email Controllers                      | `phase-05-otp-email-controllers.md` | ✅     | 6 / 6    | L    | 2026-06-23   |
-| P6  | Audit Read-API (keyset + SSE)                | `phase-06-audit-read-api.md`        | 🔄     | 0 / 5    | M    | 2026-06-23   |
+| P6  | Audit Read-API (keyset + SSE)                | `phase-06-audit-read-api.md`        | 🔄     | 1 / 5    | M    | 2026-06-23   |
 | P7  | Roadmap Rejection Endpoints                  | `phase-07-roadmap-rejection.md`     | 📋     | 0 / 3    | S    | —            |
 | P8  | Web Skeleton & Design System                 | `phase-08-web-skeleton.md`          | 📋     | 0 / 6    | M    | —            |
 | P9  | Console Core (Overview · Trigger · Explorer) | `phase-09-console-core.md`          | 📋     | 0 / 6    | L    | —            |

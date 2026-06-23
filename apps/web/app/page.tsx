@@ -1,13 +1,15 @@
 /**
  * @fileoverview Overview page — the notification console landing view.
  *
- * A thin Server Component shell that renders the app chrome with a placeholder
- * body. Overview charts and KPI data will be added in a later iteration.
+ * A thin Server Component shell that renders the app chrome around the
+ * `'use client'` delivery-health dashboard. Marked `force-dynamic` so the
+ * URL-driven global controls (tenant / role / live) are read per request.
  *
  * @module app/page
  */
 
 import { AppShell } from '@/components/layout/app-shell'
+import { OverviewContent } from '@/components/charts/overview-content'
 
 // URL-driven console: global controls (tenant/role/live) read search params.
 export const dynamic = 'force-dynamic'
@@ -15,16 +17,12 @@ export const dynamic = 'force-dynamic'
 /**
  * Overview landing page.
  *
- * @returns The Overview placeholder inside the app shell.
+ * @returns The delivery-health dashboard inside the app shell.
  */
 export default function OverviewPage() {
   return (
     <AppShell>
-      <section className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-sm text-white/55">
-          Overview — charts and KPI data coming in a later iteration.
-        </p>
-      </section>
+      <OverviewContent />
     </AppShell>
   )
 }

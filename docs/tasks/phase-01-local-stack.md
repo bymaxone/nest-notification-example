@@ -1,6 +1,6 @@
 # Phase 1 — Local Stack & Environment
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 1 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P1
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -74,7 +74,7 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 
 | ID  | Task                                     | Status  | Priority | Size | Depends on |
 | --- | ---------------------------------------- | ------- | -------- | ---- | ---------- |
-| 1.1 | `apps/api` skeleton package              | 📋 ToDo | P0       | S    | —          |
+| 1.1 | `apps/api` skeleton package              | ✅ Done | P0       | S    | —          |
 | 1.2 | Docker Compose dev stack + Postgres init | 📋 ToDo | P0       | M    | 1.1        |
 | 1.3 | Docker Compose test stack (high ports)   | 📋 ToDo | P1       | S    | 1.2        |
 | 1.4 | `.env.example` + infra scripts           | 📋 ToDo | P0       | S    | 1.2        |
@@ -86,7 +86,7 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 
 ### Task 1.1 — `apps/api` skeleton package
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: S
 - **Depends on**: —
@@ -99,12 +99,12 @@ a package-scoped `tsconfig.json` extending the base, and the `zod` dependency th
 
 #### Acceptance criteria
 
-- [ ] `apps/api/package.json` — private, `"type": "module"`, `"name": "@nest-notification-example/api"`, version `0.0.0`; a `typecheck` script
+- [x] `apps/api/package.json` — private, `"type": "module"`, `"name": "@nest-notification-example/api"`, version `0.0.0`; a `typecheck` script
       (`tsc --noEmit -p tsconfig.json`) and a placeholder `test` script; `zod` as a dependency.
-- [ ] `apps/api/tsconfig.json` extends `../../tsconfig.base.json`, sets `rootDir: src`, `outDir: dist`, and includes
+- [x] `apps/api/tsconfig.json` extends `../../tsconfig.base.json`, sets `rootDir: src`, `outDir: dist`, and includes
       `src`.
-- [ ] The package is picked up by the workspace: `pnpm -F api exec tsc --version` resolves; `pnpm install` succeeds.
-- [ ] `pnpm typecheck` (root) still exits 0 (the package has no source other than what Task 1.5 adds; an empty `src`
+- [x] The package is picked up by the workspace: `pnpm -F api exec tsc --version` resolves; `pnpm install` succeeds.
+- [x] `pnpm typecheck` (root) still exits 0 (the package has no source other than what Task 1.5 adds; an empty `src`
       must not break `tsc` — add the env schema's directory on demand, do not pre-create empty dirs).
 
 #### Files to create / modify
@@ -747,4 +747,4 @@ If any DoD bullet is unmet or CI is red, set P1 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 1.1 ✅ 2026-06-23 — apps/api skeleton package

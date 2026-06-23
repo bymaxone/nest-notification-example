@@ -1,6 +1,6 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 4 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 5 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -68,7 +68,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 | 0.2 | Lint, format & commit governance                  | ✅ Done | P0       | S    | 0.1        |
 | 0.3 | Mandatory repo & community-health files           | ✅ Done | P1       | S    | 0.1        |
 | 0.4 | GitHub config & Copilot review                    | ✅ Done | P0       | M    | 0.1        |
-| 0.5 | Core CI workflow + audit-script stubs             | 📋 ToDo | P0       | M    | 0.1, 0.2   |
+| 0.5 | Core CI workflow + audit-script stubs             | ✅ Done | P0       | M    | 0.1, 0.2   |
 | 0.6 | Security & supply-chain workflows                 | 📋 ToDo | P0       | M    | 0.5        |
 | 0.7 | Mutation/release workflow skeletons + Dockerfiles | 📋 ToDo | P1       | M    | 0.5        |
 
@@ -403,7 +403,7 @@ DEVELOPMENT_PLAN, append `- 0.4 ✅ <date> — github config + copilot review`, 
 
 ### Task 0.5 — Core CI workflow + audit-script stubs
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 0.1, 0.2
@@ -415,18 +415,18 @@ pass trivially on the empty `apps/` and grow with the codebase.
 
 #### Acceptance criteria
 
-- [ ] `.github/workflows/ci.yml` triggers on PR + push to `main`/`next`, with `install` → `lint` → `typecheck` →
+- [x] `.github/workflows/ci.yml` triggers on PR + push to `main`/`next`, with `install` → `lint` → `typecheck` →
       `unit` (placeholder, no-op until apps exist) → `export-usage-check` (runs both audit scripts) → `dependency-review`
       (PR only) jobs; least-privilege `permissions`, `concurrency` cancel-in-progress, pinned `actions/*` + `pnpm/action-setup`
   - `setup-node` (Node 24, pnpm before node), `--frozen-lockfile`, `timeout-minutes` per job. Job names match Appendix D.
-- [ ] `scripts/audit-library-exports.mjs` — dependency-free Node ESM that parses the linked lib's
+- [x] `scripts/audit-library-exports.mjs` — dependency-free Node ESM that parses the linked lib's
       `dist/{server,shared,react}/index.d.ts`, word-boundary-searches `apps/**`, exits 0 when all referenced (or
       allow-listed), 1 when an export is unused, 2 on infra error; reads `.audit-ignore.json`. On the empty tree it exits 0
       (no apps yet) with an informational note.
-- [ ] `scripts/audit-error-codes.mjs` — asserts every `NOTIFICATION_ERROR_CODES` key is referenced in `apps/web`; exits
+- [x] `scripts/audit-error-codes.mjs` — asserts every `NOTIFICATION_ERROR_CODES` key is referenced in `apps/web`; exits
       0 on the empty tree.
-- [ ] `.audit-ignore.json` present (`{ "ignored": [] }`).
-- [ ] `pnpm audit:exports` and `pnpm audit:error-codes` exit 0 locally; `ci.yml` is valid (parses) and would run green.
+- [x] `.audit-ignore.json` present (`{ "ignored": [] }`).
+- [x] `pnpm audit:exports` and `pnpm audit:error-codes` exit 0 locally; `ci.yml` is valid (parses) and would run green.
 
 #### Files to create / modify
 
@@ -665,3 +665,4 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 - 0.2 ✅ 2026-06-23 — lint/format/commit governance
 - 0.3 ✅ 2026-06-23 — repo & community-health files
 - 0.4 ✅ 2026-06-23 — github config + copilot review
+- 0.5 ✅ 2026-06-23 — core CI + audit script stubs

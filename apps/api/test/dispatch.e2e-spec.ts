@@ -74,6 +74,61 @@ describe('Dispatch façade (e2e)', () => {
     })
   })
 
+  it('records a masked, code-free __interceptor__ audit row for the HTTP boundary', async () => {
+    /**
+     * The whole reason the handler takes a prebuilt `DispatchInput`: the library's audit
+     * interceptor now narrows on it and writes one `sent` row stamped `providerName:
+     * '__interceptor__'` — the source the Explorer's interceptor facet reads. The row is masked
+     * (never the raw recipient) and carries no dispatched payload (so no OTP code can leak).
+     */
+    await http()
+      .post('/dispatch')
+      .set('x-tenant-id', TENANT)
+      .send({
+        channel: 'otp',
+        payload: {
+          recipient: 'jane@acme.com',
+          purpose: 'login',
+          action: 'generate',
+          deliverVia: 'manual',
+        },
+      })
+      .expect(201)
+
+    const interceptorRows = handle.auditRows.filter((r) => r['providerName'] === '__interceptor__')
+    expect(interceptorRows.length).toBeGreaterThan(0)
+    const row = interceptorRows[0] as Record<string, unknown>
+    expect(row['verb']).toBe('sent')
+    expect(row['channel']).toBe('otp')
+    expect(row['recipient']).not.toBe('jane@acme.com') // masked at the write seam
+    expect(row).not.toHaveProperty('code') // the audit log has no code column, ever
+  })
+
+  it('never logs a supplied OTP code in the interceptor audit row', async () => {
+    /**
+     * A verify dispatch carries a guessed `code`; even when it fails (no active OTP) the
+     * interceptor records a masked `failed` boundary row — and that row must never contain the
+     * supplied code (`JSON.stringify(row).includes(code) === false`).
+     */
+    const SECRET_CODE = '987654'
+    await http()
+      .post('/dispatch')
+      .set('x-tenant-id', TENANT)
+      .send({
+        channel: 'otp',
+        payload: {
+          recipient: 'jane@acme.com',
+          purpose: 'login',
+          action: 'verify',
+          code: SECRET_CODE,
+        },
+      })
+
+    const interceptorRows = handle.auditRows.filter((r) => r['providerName'] === '__interceptor__')
+    expect(interceptorRows.length).toBeGreaterThan(0)
+    expect(JSON.stringify(interceptorRows)).not.toContain(SECRET_CODE)
+  })
+
   it('lists the enabled channels', async () => {
     /** GET /channels reports exactly the configured channels. */
     const res = await http().get('/channels').set('x-tenant-id', TENANT).expect(200)

@@ -1,6 +1,6 @@
 # Phase 6 — Audit Read-API (keyset + SSE)
 
-> **Status**: 🔄 In Progress · **Progress**: 5 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 5 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P6
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).

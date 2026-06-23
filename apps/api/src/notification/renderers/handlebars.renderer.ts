@@ -8,8 +8,11 @@
  * delegate) and the requested locale resolves with a hard fallback to `en`, matching
  * the library's `${templateName}::${locale}` keying convention.
  *
- * Security: prefer `{{var}}` (auto HTML-escaped) over the raw triple-stache
- * `{{{var}}}`; escape the html body only — the subject/text are not HTML contexts.
+ * Security: every template here — subject, html, AND text — is compiled with the
+ * standard Handlebars compiler, which HTML-escapes `{{var}}` interpolations by
+ * default; only the raw triple-stache `{{{var}}}` bypasses that escaping. Escaping
+ * all outputs by default is the safe choice and is intentionally left unchanged, so
+ * prefer `{{var}}` over `{{{var}}}` and never disable escaping with `noEscape`.
  *
  * @module
  */

@@ -20,10 +20,19 @@ import type { Response } from 'express'
  * whole seconds); every other catalog entry has no such detail, so this returns
  * `undefined` and no header is set.
  *
- * @param body - The exception's catalog body `{ error: { code, message, details } }`.
+ * `HttpException.getResponse()` is typed `string | object` and CAN return a bare
+ * string; reading `.error.details` off a string would throw mid-handling (degrading
+ * the catalog response to a 500). A non-object body therefore short-circuits to
+ * `undefined` (no header); only an object body is narrowed to the catalog shape.
+ *
+ * @param body - The exception's response body (`string | object`); the catalog body is
+ *   `{ error: { code, message, details } }`, but a plain string is also possible.
  * @returns The `Retry-After` value, or `undefined` when the body carries no cooldown.
  */
 function retryAfterOf(body: string | object): string | undefined {
+  if (typeof body !== 'object') {
+    return undefined
+  }
   const details = (body as NotificationErrorResponse).error.details
   const retryAfter = details?.['retryAfter']
   return typeof retryAfter === 'string' ? retryAfter : undefined

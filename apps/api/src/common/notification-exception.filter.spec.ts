@@ -65,4 +65,25 @@ describe('NotificationExceptionFilter', () => {
     expect(json).toHaveBeenCalledWith(exception.getResponse())
     expect(setHeader).toHaveBeenCalledWith('Retry-After', '30')
   })
+
+  it('forwards a string getResponse() body verbatim and sets no Retry-After', () => {
+    /**
+     * NestJS `HttpException.getResponse()` is typed `string | object` and may return a
+     * bare STRING. The filter must not read a nested `error.details` shape off a string
+     * (which would throw mid-handling and degrade the catalog response to a 500); it
+     * sets no Retry-After header and forwards the string body with the exception status.
+     */
+    const filter = new NotificationExceptionFilter()
+    const exception = {
+      getResponse: (): string => 'Service Unavailable',
+      getStatus: (): number => 503,
+    } as unknown as NotificationException
+    const { host, status, json, setHeader } = buildHost()
+
+    filter.catch(exception, host)
+
+    expect(setHeader).not.toHaveBeenCalled()
+    expect(status).toHaveBeenCalledWith(503)
+    expect(json).toHaveBeenCalledWith('Service Unavailable')
+  })
 })

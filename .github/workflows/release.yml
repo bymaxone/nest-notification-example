@@ -1,8 +1,9 @@
 name: Release
 
 # A `v*` tag builds and publishes the two GHCR images and records the release in
-# docs/RELEASES.md. A manual `workflow_dispatch` run validates the build WITHOUT
-# publishing (no registry push), so the pipeline can be exercised pre-release.
+# docs/RELEASES.md. A manual `workflow_dispatch` run exercises the workflow and the
+# version-tag guard (`validate` job); the image build is skipped until a real tag,
+# where the app sources exist.
 on:
   push:
     tags:

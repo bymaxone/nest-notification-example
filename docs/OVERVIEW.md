@@ -8,23 +8,23 @@
 >
 > **Coverage promise.** Every public export of `@bymax-one/nest-notification` (the `.`, `./shared`, and `./react`
 > subpaths) is exercised by this repository, and — the part that matters most — **exercisable from the browser**. A
-> symbol that is merely imported in a probe file is *not* considered demonstrated; the [Feature Coverage Matrix](#6-feature-coverage-matrix)
+> symbol that is merely imported in a probe file is _not_ considered demonstrated; the [Feature Coverage Matrix](#6-feature-coverage-matrix)
 > maps each export to a real, clickable journey in the dashboard. If a feature is documented but not demonstrable in
 > the UI, that is a CI-tracked gap, not a finished row.
 >
 > **Library-API reconciliation.** The facts below are reconciled against the shipped `0.1.0` types, not the prose in
 > older drafts. The corrections a reader must respect:
 >
-> | Symbol / behavior | Shipped `0.1.0` truth (authoritative) | Correction applied |
-> | --- | --- | --- |
-> | Channels implemented | **email + OTP only** | SMS / Push interfaces ship but configuring those channels **throws at startup** (v0.2). |
-> | `forRootAsync` | **`useFactory` + `inject` + `imports` only** (`useFactory` is typed `(...args: never[]) => …`, so factory params **must be annotated**) | `useClass` / `useExisting` are rejected at startup (`assertUseFactory`); deferred to v0.2. |
-> | Provider/storage **class form** in async mode | `instantiate()` throws for any class with required constructor params | the class form works only for **zero-arg** adapters (`NoOpEmailProvider`, `InMemoryOtpStorage`); DI-dependent adapters must be passed as **instances**. |
-> | OTP attempt counting | **atomic** `storage.consumeAttempt()` (one Redis Lua / single-threaded in-memory) | a non-atomic `get`+`update` would let `maxAttempts` be bypassed under concurrency. |
-> | Resend cooldown | **atomic** `storage.tryAcquireCooldown()` (`SET NX EX`), released on delivery failure | a bounced send must not lock the user out. |
-> | `OtpService.verify` | **never throws** for bad/missing/exhausted codes — returns a discriminated `OtpVerifyResult` | mapping to HTTP `OTP_*` codes is the **consumer controller's** job. Expiry is reported as `not_found` (the library never emits `OTP_EXPIRED`). |
-> | Error catalog size | **22** `NOTIFICATION_ERROR_CODES` keys | several are catalog-only (declared for consumers / future channels), **not** all thrown by the library — see §6 row 52. |
-> | `recipient` normalization | the library does **not** normalize | callers pass `email.trim().toLowerCase()`; `A@x.com` and `a@x.com` are distinct keys. |
+> | Symbol / behavior                             | Shipped `0.1.0` truth (authoritative)                                                                                                   | Correction applied                                                                                                                                      |
+> | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | Channels implemented                          | **email + OTP only**                                                                                                                    | SMS / Push interfaces ship but configuring those channels **throws at startup** (v0.2).                                                                 |
+> | `forRootAsync`                                | **`useFactory` + `inject` + `imports` only** (`useFactory` is typed `(...args: never[]) => …`, so factory params **must be annotated**) | `useClass` / `useExisting` are rejected at startup (`assertUseFactory`); deferred to v0.2.                                                              |
+> | Provider/storage **class form** in async mode | `instantiate()` throws for any class with required constructor params                                                                   | the class form works only for **zero-arg** adapters (`NoOpEmailProvider`, `InMemoryOtpStorage`); DI-dependent adapters must be passed as **instances**. |
+> | OTP attempt counting                          | **atomic** `storage.consumeAttempt()` (one Redis Lua / single-threaded in-memory)                                                       | a non-atomic `get`+`update` would let `maxAttempts` be bypassed under concurrency.                                                                      |
+> | Resend cooldown                               | **atomic** `storage.tryAcquireCooldown()` (`SET NX EX`), released on delivery failure                                                   | a bounced send must not lock the user out.                                                                                                              |
+> | `OtpService.verify`                           | **never throws** for bad/missing/exhausted codes — returns a discriminated `OtpVerifyResult`                                            | mapping to HTTP `OTP_*` codes is the **consumer controller's** job. Expiry is reported as `not_found` (the library never emits `OTP_EXPIRED`).          |
+> | Error catalog size                            | **22** `NOTIFICATION_ERROR_CODES` keys                                                                                                  | several are catalog-only (declared for consumers / future channels), **not** all thrown by the library — see §6 row 52.                                 |
+> | `recipient` normalization                     | the library does **not** normalize                                                                                                      | callers pass `email.trim().toLowerCase()`; `A@x.com` and `a@x.com` are distinct keys.                                                                   |
 
 ---
 
@@ -65,7 +65,7 @@ console. It is three things at once:
    landing in a local inbox, the OTP entered in a segmented input, the delivery row appearing in the audit log.
 2. **A knowledge base.** It references every public symbol of the library from real code, and the
    [Feature Coverage Matrix](#6-feature-coverage-matrix) is enforced by a CI export-usage audit. It is the canonical
-   place to learn *how* to wire the library correctly — `forRoot` vs `forRootAsync`, pluggable providers, multi-tenant
+   place to learn _how_ to wire the library correctly — `forRoot` vs `forRootAsync`, pluggable providers, multi-tenant
    resolution, the atomic OTP contract, the audit interceptor.
 3. **A migration guide.** It shows how to replace a hand-rolled email-verification service (a controller reaching
    straight for an ORM to persist codes) with the cohesive `BymaxNotificationModule` — persistence behind
@@ -102,7 +102,7 @@ all demonstrable from a single API plus a tenant switcher in the UI.
 
 ### Non-Goals
 
-- **Not a starter template.** It optimizes for *teaching the library*, not for cloning into a product. It carries demo
+- **Not a starter template.** It optimizes for _teaching the library_, not for cloning into a product. It carries demo
   endpoints and toggles a real app would not.
 - **Not a notification platform.** It is not Novu/Courier/Knock. There is no workflow editor, no in-app inbox product,
   no managed provider store — only what the library actually ships.
@@ -112,7 +112,7 @@ all demonstrable from a single API plus a tenant switcher in the UI.
   interfaces and their startup-rejection**, honestly — it does not fake delivery.
 - **Not a full `@bymax-one/nest-auth` integration.** This example demonstrates `nest-notification` in isolation. The
   **boundary and the recommended composition** with `nest-auth` are documented (§14) and shown by one optional journey,
-  but the example does not bundle a complete auth stack — `nest-auth` is an *illustrative* peer, not a hard dependency.
+  but the example does not bundle a complete auth stack — `nest-auth` is an _illustrative_ peer, not a hard dependency.
 - **No cross-major back-compat.** It tracks one library minor at a time.
 
 ---
@@ -157,24 +157,24 @@ design in §10; the delivery pipeline in §11.
 Versions are the **latest stable as of June 2026**, pinned within the library's peer ranges. No newer major exists for
 any core framework (NestJS 11, Next.js 16, React 19, Tailwind 4, Prisma 7 are all current generations).
 
-| Layer | Technology | Version | Why |
-| --- | --- | --- | --- |
-| **Demonstrated library** | `@bymax-one/nest-notification` | `^0.1.0` (pre-publish `file:`/`link:`) | The subject of the demo. |
-| Backend framework | NestJS + Express | 11 (latest 11.x) / 5 | The library targets NestJS 11; `NotificationRequest` is Express/Fastify-agnostic. |
-| Runtime | Node.js | **24 (Active LTS)** | Library engine requirement (`>=24`); `node:crypto` only. Node 26 is "Current" but not LTS until Oct 2026 — pin the LTS. |
-| Language | TypeScript (strict) | 5.9 | `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, zero `any`. |
-| Audit persistence | Prisma / PostgreSQL | **7 (latest)** / **18** | The example's `INotificationLogRepository`. Prisma 7 is ESM-first — use the `@prisma/adapter-pg` driver adapter and align the API's module format (NestJS 11 runs ESM). PostgreSQL 18 (latest 18.x) is the current stable. The library never imports Prisma. |
-| OTP storage | `ioredis` (Redis) | ^5 / Redis 7 | `RedisOtpStorage` (atomic Lua); falls back to `InMemoryOtpStorage` with no Redis. |
-| Email sink (local) | Mailpit (SMTP catcher) + `nodemailer` | latest / ^7 | A **custom `IEmailProvider`** (BYO demo) renders into a browsable local inbox — zero credentials. |
-| Email provider (opt-in) | Resend | ^4 | The bundled `ResendEmailProvider`, gated by `RESEND_API_KEY`. |
-| Template engines | bundled `DefaultTemplateRenderer` + Handlebars / MJML / React Email | ^4 / ^4 / ^1 | Demonstrates `IEmailTemplateRenderer` swap-ability. |
-| Validation | Zod (+ `nestjs-zod`) | 4 | Request DTOs + env-schema fail-fast at boot. |
-| Frontend | Next.js (App Router) + React | **16.2.7** / **19** | First-class console; isomorphic `./shared` types in the browser. |
-| Styling | Tailwind CSS + shadcn `new-york` + Geist | **4.3** | The shared Bymax design system (forced dark, orange glass) — copied verbatim (§10). |
-| Data/UI libs | TanStack Query/Table/Virtual · Recharts · nuqs · sonner · lucide-react | current | Server-state, virtualized audit table, charts, URL-persisted controls, toasts. |
-| Real-time | Server-Sent Events (`@Sse`, `rxjs ^7.8`) | — | Live tail of the delivery audit log. |
-| Package manager | pnpm | **11.x** (latest) | Workspaces. The `@bymax-one/*` ecosystem currently standardizes on `10.8`; pnpm 11.x (Node ≥ 22) is the current latest and is adopted here for a fresh repo — see the decision note in §21. |
-| Tooling | Jest 30 (api) · Vitest 4 (web) · Playwright 1.6 · Stryker 9.6 | — | 100% coverage + mutation gate. |
+| Layer                    | Technology                                                             | Version                                | Why                                                                                                                                                                                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Demonstrated library** | `@bymax-one/nest-notification`                                         | `^0.1.0` (pre-publish `file:`/`link:`) | The subject of the demo.                                                                                                                                                                                                                                     |
+| Backend framework        | NestJS + Express                                                       | 11 (latest 11.x) / 5                   | The library targets NestJS 11; `NotificationRequest` is Express/Fastify-agnostic.                                                                                                                                                                            |
+| Runtime                  | Node.js                                                                | **24 (Active LTS)**                    | Library engine requirement (`>=24`); `node:crypto` only. Node 26 is "Current" but not LTS until Oct 2026 — pin the LTS.                                                                                                                                      |
+| Language                 | TypeScript (strict)                                                    | 5.9                                    | `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, zero `any`.                                                                                                                                                                              |
+| Audit persistence        | Prisma / PostgreSQL                                                    | **7 (latest)** / **18**                | The example's `INotificationLogRepository`. Prisma 7 is ESM-first — use the `@prisma/adapter-pg` driver adapter and align the API's module format (NestJS 11 runs ESM). PostgreSQL 18 (latest 18.x) is the current stable. The library never imports Prisma. |
+| OTP storage              | `ioredis` (Redis)                                                      | ^5 / Redis 7                           | `RedisOtpStorage` (atomic Lua); falls back to `InMemoryOtpStorage` with no Redis.                                                                                                                                                                            |
+| Email sink (local)       | Mailpit (SMTP catcher) + `nodemailer`                                  | latest / ^7                            | A **custom `IEmailProvider`** (BYO demo) renders into a browsable local inbox — zero credentials.                                                                                                                                                            |
+| Email provider (opt-in)  | Resend                                                                 | ^4                                     | The bundled `ResendEmailProvider`, gated by `RESEND_API_KEY`.                                                                                                                                                                                                |
+| Template engines         | bundled `DefaultTemplateRenderer` + Handlebars / MJML / React Email    | ^4 / ^4 / ^1                           | Demonstrates `IEmailTemplateRenderer` swap-ability.                                                                                                                                                                                                          |
+| Validation               | Zod (+ `nestjs-zod`)                                                   | 4                                      | Request DTOs + env-schema fail-fast at boot.                                                                                                                                                                                                                 |
+| Frontend                 | Next.js (App Router) + React                                           | **16.2.7** / **19**                    | First-class console; isomorphic `./shared` types in the browser.                                                                                                                                                                                             |
+| Styling                  | Tailwind CSS + shadcn `new-york` + Geist                               | **4.3**                                | The shared Bymax design system (forced dark, orange glass) — copied verbatim (§10).                                                                                                                                                                          |
+| Data/UI libs             | TanStack Query/Table/Virtual · Recharts · nuqs · sonner · lucide-react | current                                | Server-state, virtualized audit table, charts, URL-persisted controls, toasts.                                                                                                                                                                               |
+| Real-time                | Server-Sent Events (`@Sse`, `rxjs ^7.8`)                               | —                                      | Live tail of the delivery audit log.                                                                                                                                                                                                                         |
+| Package manager          | pnpm                                                                   | **11.x** (latest)                      | Workspaces. The `@bymax-one/*` ecosystem currently standardizes on `10.8`; pnpm 11.x (Node ≥ 22) is the current latest and is adopted here for a fresh repo — see the decision note in §21.                                                                  |
+| Tooling                  | Jest 30 (api) · Vitest 4 (web) · Playwright 1.6 · Stryker 9.6          | —                                      | 100% coverage + mutation gate.                                                                                                                                                                                                                               |
 
 ---
 
@@ -279,74 +279,75 @@ nest-notification-example/
 Every row maps to a public feature/export of `@bymax-one/nest-notification`. Each is exercised in this repository **and**
 reachable from the browser (the "Demonstrated in" column names the API surface and the dashboard surface that drives it).
 
-| #   | Library feature | Library surface | Demonstrated in | Status |
-| --- | --- | --- | --- | --- |
-| 1   | Synchronous registration | `BymaxNotificationModule.forRoot(options)` | `apps/api/test/forroot-sync.e2e-spec.ts` (isolated module — a global module cannot be re-registered from a live request) | ✅ |
-| 2   | Async registration with `ConfigService` | `forRootAsync({ imports, inject, useFactory })` typed by `BymaxNotificationModuleAsyncOptions` (factory params **annotated** — see §9) | `apps/api/src/app.module.ts` + `notification/notification.config.ts` | ✅ |
-| 3   | `forRootAsync` `useClass`/`useExisting` rejection | `assertUseFactory` + `BymaxNotificationModuleOptionsFactory` (declared) | `admin/` → `POST /admin/try-configure-async-useclass`; web **Roadmap** panel | ✅ |
-| 4   | Provider/storage as instance **or** class | `useValue` vs `useClass` resolution (async class form requires a **zero-arg** ctor) | `notification.config.ts` (instances) + `library-probe.ts` (zero-arg class form: `NoOpEmailProvider`/`InMemoryOtpStorage`) | ✅ |
-| 5   | Global module + DI tokens | `BYMAX_NOTIFICATION_OPTIONS` / `_EMAIL_PROVIDER` / `_OTP_STORAGE` / `_TEMPLATE_RENDERER` / `_LOG_REPOSITORY` | `library-probe.ts` (token resolution proof) | ✅ |
-| 6   | Fail-fast options validation | validation runs **inside** `forRoot`/`forRootAsync` (the `validateOptions` helper is internal, not exported) | `apps/api/test/options-validation.e2e-spec.ts` (isolated module with invalid options) | ✅ |
-| 7   | Raw email send | `EmailService.send(EmailSendInput)` → `{ messageId }` | `email/` → `POST /email/send`; web **Trigger Center → Send raw email** | ✅ |
-| 8   | Template email send | `EmailService.sendTemplate(EmailSendTemplateInput)` | `POST /email/send-template`; web **Send template** (template dropdown) | ✅ |
-| 9   | Channel readiness probe | `EmailService.isConfigured()` / `OtpService.isConfigured()` | `GET /channels`; web **Settings** status badges | ✅ |
-| 10  | Bring-your-own email provider | `IEmailProvider` (`send`/`isConfigured`/`name`) | `providers/nodemailer-email.provider.ts` (→ Mailpit) | ✅ |
-| 11  | Bundled Resend provider | `ResendEmailProvider({ apiKey })` | `notification.config.ts` (opt-in via `RESEND_API_KEY`); web **Providers** matrix | ✅ |
-| 12  | No-op dev provider | `NoOpEmailProvider` | `notification.config.ts` (fallback when no SMTP/Resend) | ✅ |
-| 13  | Attachment size guard | `maxAttachmentBytes` → `EMAIL_ATTACHMENTS_TOO_LARGE` (413) | `POST /email/send` (oversize); web **Trigger Center → oversize attachment** | ✅ |
-| 14  | Email envelope defaults | `defaultFrom`/`defaultFromName`/`defaultReplyTo`/`defaultTags` + `cc`/`bcc`/`tags` | `email/` send form; preview shows resolved envelope | ✅ |
-| 15  | Default template renderer (XSS-safe) | `DefaultTemplateRenderer` (`{{var}}`, HTML-escapes **html body only**) | `providers/page.tsx` **Email preview**: inject `<script>` → escaped html, raw subject/text | ✅ |
-| 16  | Template locale fallback | renderer locale resolution → `en` fallback; `TEMPLATE_NOT_FOUND` | **Send template** with `locale:'pt-BR'` when only `en` registered | ✅ |
-| 17  | Canonical template names | `CANONICAL_EMAIL_TEMPLATES` (10) | `templates.ts` registry; web template dropdown | ✅ |
-| 18  | Pluggable renderer (Handlebars/MJML/React Email) | `IEmailTemplateRenderer` (`render`/`hasTemplate`/`name`) | `renderers/*`; web **Providers** renderer switch | ✅ |
-| 19  | Renderer options | `onMissingVar` (`empty`/`throw`), `enableNestedPaths` | preview toggles for missing-var + `{{user.name}}` nested path | ✅ |
-| 20  | OTP generate + email delivery | `OtpService.generate({ deliverVia:'email' })` → `{ expiresAt, cooldownSeconds }` | `POST /otp/generate`; web **OTP panel** starts `useOtpCountdown({ expiresAt })` | ✅ |
-| 21  | OTP generate (manual delivery) | `OtpService.generate({ deliverVia:'manual' })` | `POST /otp/generate` manual toggle (code not returned) | ✅ |
-| 22  | OTP verify (atomic + constant-time) | `OtpService.verify` → `consumeAttempt` + `safeCompare`; returns `OtpVerifyResult` (never throws) | `POST /otp/verify`; web OTP box `onComplete` → verify | ✅ |
-| 23  | OTP resend (cooldown) | `OtpService.resend` → `{ expiresAt, cooldownSeconds }` | `POST /otp/resend`; web **Resend** (disabled until countdown low) | ✅ |
-| 24  | OTP consume (invalidate) | `OtpService.consume` | `POST /otp/consume`; web **Cancel code** | ✅ |
-| 25  | OTP status (never leaks code) | `OtpService.getStatus` → `OtpStatusResult` | `GET /otp/status`; web **Inspect OTP** panel | ✅ |
-| 26  | Code charset | `defaultCodeType` `numeric`/`alpha`/`alphanumeric` + `generateOtpCode` | per-purpose config drives OTP box `type`/`length` | ✅ |
-| 27  | OTP TTL / expiry | `defaultTtlSeconds` | countdown via `useOtpCountdown({ expiresAt })` | ✅ |
-| 28  | Max-attempts lockout (atomic) | `defaultMaxAttempts` → `reason:'max_attempts'` | wrong code ×N → decreasing `remainingAttempts` → 429 | ✅ |
-| 29  | Resend cooldown (atomic `SET NX EX`) | `resendCooldownSeconds` → `OTP_COOLDOWN_ACTIVE` (429) | **Spam generate** → 429 with `details.remainingSeconds` | ✅ |
-| 30  | Per-purpose overrides | `perPurpose` / `resolveForPurpose` | `password_reset` (len 8, alphanumeric, 900s) vs default | ✅ |
-| 31  | Consume-on-verify policy | `consumeOnVerify` (resolved once at boot) | Settings shows the configured value; toggling needs a second module variant (§10) | ✅ |
-| 32  | Canonical purposes | `NOTIFICATION_PURPOSES` (5) / `OtpPurpose` | purpose dropdown sourced from the const | ✅ |
-| 33  | OTP email auto-injection | `{ code, expiresInMinutes, purpose }` merged into render data | `otp_code` template renders the injected code | ✅ |
-| 34  | Bring-your-own OTP storage | `IOtpStorage` (**9 methods** + `name`; `consumeAttempt`/`tryAcquireCooldown` atomic) | documented in `PROVIDERS.md`; `InMemoryOtpStorage` is the reference | ✅ |
-| 35  | In-memory storage (dev) | `InMemoryOtpStorage` (+ `clear`/`size`) | default storage; e2e suites | ✅ |
-| 36  | Redis storage (prod, atomic) | `RedisOtpStorage({ redisClient })` | `notification.config.ts` (opt-in via `REDIS_URL`) | ✅ |
-| 37  | SHA-256 storage keys | `hashTenantRecipient(tenantId, recipient)` | `GET /debug/key`; web **Inspect OTP → storage key** (no PII) | ✅ |
-| 38  | Crypto utils | `generateOtpCode` / `safeCompare` | exercised transitively + `library-probe.ts` | ✅ |
-| 39  | Unified dispatch (email) | `NotificationService.dispatch({ channel:'email' })`; `EMAIL_MISSING_BODY` | `POST /dispatch`; web **Unified dispatch** tab | ✅ |
-| 40  | Unified dispatch (otp) | `NotificationService.dispatch({ channel:'otp', payload:{ action } })` | `POST /dispatch` action select | ✅ |
-| 41  | Enabled-channel introspection | `NotificationService.getEnabledChannels()` | `GET /channels`; web channel badges (proves no sms/push) | ✅ |
-| 42  | Disabled-channel guard | `getEmail()`/`getOtp()` → `CHANNEL_DISABLED` (501) | a channel-off config variant surfaces 501 | ✅ |
-| 43  | Tenant anti-spoofing | `tenantIdResolver(NotificationRequest)` overrides payload tenant **on the interceptor** | **Spoof tenant** toggle on `/dispatch` → audit shows resolver tenant, not forged | ✅ |
-| 44  | Multi-tenant isolation | `sha256(tenantId:recipient)` keying | **Tenant switcher**; same recipient under acme vs globex is isolated | ✅ |
-| 45  | Recipient masking | `audit.maskRecipient` | audit table shows `j***@acme.com`; toggle to compare | ✅ |
-| 46  | Never-log-codes invariant | audit entry never contains `code` (regression test) | **Explorer** detail asserts no code substring; surfaced as a green check | ✅ |
-| 47  | Audit repository (Prisma) | `INotificationLogRepository.create(NotificationLogEntry)` | `providers/prisma-notification-log.repository.ts`; **Explorer** | ✅ |
-| 48  | No-op audit sink (default) | `NoOpNotificationLogRepository` | used when `audit` unconfigured (Settings variant) | ✅ |
-| 49  | Audit interceptor (opt-in) | `NotificationAuditInterceptor` on `/dispatch` (emits `sent`/`failed`, `providerName:'__interceptor__'`) | `app.module.ts` `APP_INTERCEPTOR`; see §15 dual-source note | ✅ |
-| 50  | Audit fault policy | `swallowErrors` true/false → `AUDIT_LOG_FAILED` (500) | **Break audit sink** toggle (module variant) | ✅ |
-| 51  | Audit entry shape & verbs | `NotificationLogEntry` / `NotificationLogVerb` (`generated`/`sent`/`verified`/`failed`/`cooldown_blocked`/`max_attempts_exceeded`) | Explorer columns + detail drawer | ✅ |
-| 52  | Error catalog + exception (**22 codes**) | `NotificationException` + `NOTIFICATION_ERROR_DEFINITIONS` + `NOTIFICATION_ERROR_CODES` + types `NotificationErrorKey`/`NotificationErrorDefinition` | `common/` HTTP filter (codes the library throws); `audit-error-codes.mjs` (every code **localized** in the UI). See the note below on catalog-only codes. | ✅ |
-| 53  | Error response envelope (shared) | `NotificationErrorResponse` (`./shared`) | web imports `./shared` to localize each `error.code` | ✅ |
-| 54  | Cooldown presentation helpers | `toRetryAfterHeader` / `cooldownExpiresAt` / `formatCooldown` | API sets `Retry-After` on 429; web renders `formatCooldown` countdown | ✅ |
-| 55  | OTP input hook | `useOtpInput` → `{ values, setValue, onChange, onKeyDown, onPaste, refs, reset, code, isComplete }`; options `length`/`type`/`onComplete`/`autoSubmit`/`sanitizeOnPaste` | `otp/page.tsx` segmented 6-cell box (Settings exposes `autoSubmit`/`sanitizeOnPaste`) | ✅ |
-| 56  | OTP countdown hook | `useOtpCountdown({ expiresAt, tickIntervalMs?, onExpired? })` → `{ remainingSeconds, expired, formatted }` (`MM:SS`/`HH:MM:SS`) | expiry pill + resend gating | ✅ |
-| 57  | Isomorphic shared constants/types | `OtpPurpose` / `NotificationChannel` / `DEFAULT_TTLS` (`./shared`) | purpose/channel selectors + "expires in N min" hints | ✅ |
-| 58a | SMS channel rejection (roadmap) | `SmsChannelOptions` / `ISmsProvider` declared → configuring `sms` **throws at startup** | `POST /admin/try-configure-sms`; web **Roadmap** panel surfaces the error | ✅ |
-| 58b | Push channel rejection (roadmap) | `PushChannelOptions` / `IPushProvider` declared → configuring `push` **throws at startup** | `POST /admin/try-configure-push`; web **Roadmap** panel | ✅ |
-| 58c | Declared-only v0.2 surface | `BYMAX_NOTIFICATION_SMS_PROVIDER`/`_PUSH_PROVIDER` tokens, `SMS_*`/`PUSH_*` codes, `'sms'`/`'push'` union | `library-probe.ts` references (audit-satisfying, labeled v0.2) | ✅ |
-| 59  | Resolved-options types (advanced) | `ResolvedNotificationOptions` / `ResolvedGlobalOptions` / `ResolvedEmailOptions` / `ResolvedOtpOptions` / `ResolvedAuditOptions` | `library-probe.ts` (typed read of injected options) | ✅ |
-| 60  | Real-time delivery feed | audit rows over SSE | `audit/` `GET /audit/stream` (`@Sse`) + **Explorer** live tail | ✅ |
-| 61  | Delivery health charts | aggregation over `channel`/`verb`/`provider` | **Overview** (send/verify/failure rates, provider mix) ← `GET /audit/aggregate` | ✅ |
+| #   | Library feature                                   | Library surface                                                                                                                                                          | Demonstrated in                                                                                                                                           | Status |
+| --- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1   | Synchronous registration                          | `BymaxNotificationModule.forRoot(options)`                                                                                                                               | `apps/api/test/forroot-sync.e2e-spec.ts` (isolated module — a global module cannot be re-registered from a live request)                                  | ✅     |
+| 2   | Async registration with `ConfigService`           | `forRootAsync({ imports, inject, useFactory })` typed by `BymaxNotificationModuleAsyncOptions` (factory params **annotated** — see §9)                                   | `apps/api/src/app.module.ts` + `notification/notification.config.ts`                                                                                      | ✅     |
+| 3   | `forRootAsync` `useClass`/`useExisting` rejection | `assertUseFactory` + `BymaxNotificationModuleOptionsFactory` (declared)                                                                                                  | `admin/` → `POST /admin/try-configure-async-useclass`; web **Roadmap** panel                                                                              | ✅     |
+| 4   | Provider/storage as instance **or** class         | `useValue` vs `useClass` resolution (async class form requires a **zero-arg** ctor)                                                                                      | `notification.config.ts` (instances) + `library-probe.ts` (zero-arg class form: `NoOpEmailProvider`/`InMemoryOtpStorage`)                                 | ✅     |
+| 5   | Global module + DI tokens                         | `BYMAX_NOTIFICATION_OPTIONS` / `_EMAIL_PROVIDER` / `_OTP_STORAGE` / `_TEMPLATE_RENDERER` / `_LOG_REPOSITORY`                                                             | `library-probe.ts` (token resolution proof)                                                                                                               | ✅     |
+| 6   | Fail-fast options validation                      | validation runs **inside** `forRoot`/`forRootAsync` (the `validateOptions` helper is internal, not exported)                                                             | `apps/api/test/options-validation.e2e-spec.ts` (isolated module with invalid options)                                                                     | ✅     |
+| 7   | Raw email send                                    | `EmailService.send(EmailSendInput)` → `{ messageId }`                                                                                                                    | `email/` → `POST /email/send`; web **Trigger Center → Send raw email**                                                                                    | ✅     |
+| 8   | Template email send                               | `EmailService.sendTemplate(EmailSendTemplateInput)`                                                                                                                      | `POST /email/send-template`; web **Send template** (template dropdown)                                                                                    | ✅     |
+| 9   | Channel readiness probe                           | `EmailService.isConfigured()` / `OtpService.isConfigured()`                                                                                                              | `GET /channels`; web **Settings** status badges                                                                                                           | ✅     |
+| 10  | Bring-your-own email provider                     | `IEmailProvider` (`send`/`isConfigured`/`name`)                                                                                                                          | `providers/nodemailer-email.provider.ts` (→ Mailpit)                                                                                                      | ✅     |
+| 11  | Bundled Resend provider                           | `ResendEmailProvider({ apiKey })`                                                                                                                                        | `notification.config.ts` (opt-in via `RESEND_API_KEY`); web **Providers** matrix                                                                          | ✅     |
+| 12  | No-op dev provider                                | `NoOpEmailProvider`                                                                                                                                                      | `notification.config.ts` (fallback when no SMTP/Resend)                                                                                                   | ✅     |
+| 13  | Attachment size guard                             | `maxAttachmentBytes` → `EMAIL_ATTACHMENTS_TOO_LARGE` (413)                                                                                                               | `POST /email/send` (oversize); web **Trigger Center → oversize attachment**                                                                               | ✅     |
+| 14  | Email envelope defaults                           | `defaultFrom`/`defaultFromName`/`defaultReplyTo`/`defaultTags` + `cc`/`bcc`/`tags`                                                                                       | `email/` send form; preview shows resolved envelope                                                                                                       | ✅     |
+| 15  | Default template renderer (XSS-safe)              | `DefaultTemplateRenderer` (`{{var}}`, HTML-escapes **html body only**)                                                                                                   | `providers/page.tsx` **Email preview**: inject `<script>` → escaped html, raw subject/text                                                                | ✅     |
+| 16  | Template locale fallback                          | renderer locale resolution → `en` fallback; `TEMPLATE_NOT_FOUND`                                                                                                         | **Send template** with `locale:'pt-BR'` when only `en` registered                                                                                         | ✅     |
+| 17  | Canonical template names                          | `CANONICAL_EMAIL_TEMPLATES` (10)                                                                                                                                         | `templates.ts` registry; web template dropdown                                                                                                            | ✅     |
+| 18  | Pluggable renderer (Handlebars/MJML/React Email)  | `IEmailTemplateRenderer` (`render`/`hasTemplate`/`name`)                                                                                                                 | `renderers/*`; web **Providers** renderer switch                                                                                                          | ✅     |
+| 19  | Renderer options                                  | `onMissingVar` (`empty`/`throw`), `enableNestedPaths`                                                                                                                    | preview toggles for missing-var + `{{user.name}}` nested path                                                                                             | ✅     |
+| 20  | OTP generate + email delivery                     | `OtpService.generate({ deliverVia:'email' })` → `{ expiresAt, cooldownSeconds }`                                                                                         | `POST /otp/generate`; web **OTP panel** starts `useOtpCountdown({ expiresAt })`                                                                           | ✅     |
+| 21  | OTP generate (manual delivery)                    | `OtpService.generate({ deliverVia:'manual' })`                                                                                                                           | `POST /otp/generate` manual toggle (code not returned)                                                                                                    | ✅     |
+| 22  | OTP verify (atomic + constant-time)               | `OtpService.verify` → `consumeAttempt` + `safeCompare`; returns `OtpVerifyResult` (never throws)                                                                         | `POST /otp/verify`; web OTP box `onComplete` → verify                                                                                                     | ✅     |
+| 23  | OTP resend (cooldown)                             | `OtpService.resend` → `{ expiresAt, cooldownSeconds }`                                                                                                                   | `POST /otp/resend`; web **Resend** (disabled until countdown low)                                                                                         | ✅     |
+| 24  | OTP consume (invalidate)                          | `OtpService.consume`                                                                                                                                                     | `POST /otp/consume`; web **Cancel code**                                                                                                                  | ✅     |
+| 25  | OTP status (never leaks code)                     | `OtpService.getStatus` → `OtpStatusResult`                                                                                                                               | `GET /otp/status`; web **Inspect OTP** panel                                                                                                              | ✅     |
+| 26  | Code charset                                      | `defaultCodeType` `numeric`/`alpha`/`alphanumeric` + `generateOtpCode`                                                                                                   | per-purpose config drives OTP box `type`/`length`                                                                                                         | ✅     |
+| 27  | OTP TTL / expiry                                  | `defaultTtlSeconds`                                                                                                                                                      | countdown via `useOtpCountdown({ expiresAt })`                                                                                                            | ✅     |
+| 28  | Max-attempts lockout (atomic)                     | `defaultMaxAttempts` → `reason:'max_attempts'`                                                                                                                           | wrong code ×N → decreasing `remainingAttempts` → 429                                                                                                      | ✅     |
+| 29  | Resend cooldown (atomic `SET NX EX`)              | `resendCooldownSeconds` → `OTP_COOLDOWN_ACTIVE` (429)                                                                                                                    | **Spam generate** → 429 with `details.remainingSeconds`                                                                                                   | ✅     |
+| 30  | Per-purpose overrides                             | `perPurpose` / `resolveForPurpose`                                                                                                                                       | `password_reset` (len 8, alphanumeric, 900s) vs default                                                                                                   | ✅     |
+| 31  | Consume-on-verify policy                          | `consumeOnVerify` (resolved once at boot)                                                                                                                                | Settings shows the configured value; toggling needs a second module variant (§10)                                                                         | ✅     |
+| 32  | Canonical purposes                                | `NOTIFICATION_PURPOSES` (5) / `OtpPurpose`                                                                                                                               | purpose dropdown sourced from the const                                                                                                                   | ✅     |
+| 33  | OTP email auto-injection                          | `{ code, expiresInMinutes, purpose }` merged into render data                                                                                                            | `otp_code` template renders the injected code                                                                                                             | ✅     |
+| 34  | Bring-your-own OTP storage                        | `IOtpStorage` (**9 methods** + `name`; `consumeAttempt`/`tryAcquireCooldown` atomic)                                                                                     | documented in `PROVIDERS.md`; `InMemoryOtpStorage` is the reference                                                                                       | ✅     |
+| 35  | In-memory storage (dev)                           | `InMemoryOtpStorage` (+ `clear`/`size`)                                                                                                                                  | default storage; e2e suites                                                                                                                               | ✅     |
+| 36  | Redis storage (prod, atomic)                      | `RedisOtpStorage({ redisClient })`                                                                                                                                       | `notification.config.ts` (opt-in via `REDIS_URL`)                                                                                                         | ✅     |
+| 37  | SHA-256 storage keys                              | `hashTenantRecipient(tenantId, recipient)`                                                                                                                               | `GET /debug/key`; web **Inspect OTP → storage key** (no PII)                                                                                              | ✅     |
+| 38  | Crypto utils                                      | `generateOtpCode` / `safeCompare`                                                                                                                                        | exercised transitively + `library-probe.ts`                                                                                                               | ✅     |
+| 39  | Unified dispatch (email)                          | `NotificationService.dispatch({ channel:'email' })`; `EMAIL_MISSING_BODY`                                                                                                | `POST /dispatch`; web **Unified dispatch** tab                                                                                                            | ✅     |
+| 40  | Unified dispatch (otp)                            | `NotificationService.dispatch({ channel:'otp', payload:{ action } })`                                                                                                    | `POST /dispatch` action select                                                                                                                            | ✅     |
+| 41  | Enabled-channel introspection                     | `NotificationService.getEnabledChannels()`                                                                                                                               | `GET /channels`; web channel badges (proves no sms/push)                                                                                                  | ✅     |
+| 42  | Disabled-channel guard                            | `getEmail()`/`getOtp()` → `CHANNEL_DISABLED` (501)                                                                                                                       | a channel-off config variant surfaces 501                                                                                                                 | ✅     |
+| 43  | Tenant anti-spoofing                              | `tenantIdResolver(NotificationRequest)` overrides payload tenant **on the interceptor**                                                                                  | **Spoof tenant** toggle on `/dispatch` → audit shows resolver tenant, not forged                                                                          | ✅     |
+| 44  | Multi-tenant isolation                            | `sha256(tenantId:recipient)` keying                                                                                                                                      | **Tenant switcher**; same recipient under acme vs globex is isolated                                                                                      | ✅     |
+| 45  | Recipient masking                                 | `audit.maskRecipient`                                                                                                                                                    | audit table shows `j***@acme.com`; toggle to compare                                                                                                      | ✅     |
+| 46  | Never-log-codes invariant                         | audit entry never contains `code` (regression test)                                                                                                                      | **Explorer** detail asserts no code substring; surfaced as a green check                                                                                  | ✅     |
+| 47  | Audit repository (Prisma)                         | `INotificationLogRepository.create(NotificationLogEntry)`                                                                                                                | `providers/prisma-notification-log.repository.ts`; **Explorer**                                                                                           | ✅     |
+| 48  | No-op audit sink (default)                        | `NoOpNotificationLogRepository`                                                                                                                                          | used when `audit` unconfigured (Settings variant)                                                                                                         | ✅     |
+| 49  | Audit interceptor (opt-in)                        | `NotificationAuditInterceptor` on `/dispatch` (emits `sent`/`failed`, `providerName:'__interceptor__'`)                                                                  | `app.module.ts` `APP_INTERCEPTOR`; see §15 dual-source note                                                                                               | ✅     |
+| 50  | Audit fault policy                                | `swallowErrors` true/false → `AUDIT_LOG_FAILED` (500)                                                                                                                    | **Break audit sink** toggle (module variant)                                                                                                              | ✅     |
+| 51  | Audit entry shape & verbs                         | `NotificationLogEntry` / `NotificationLogVerb` (`generated`/`sent`/`verified`/`failed`/`cooldown_blocked`/`max_attempts_exceeded`)                                       | Explorer columns + detail drawer                                                                                                                          | ✅     |
+| 52  | Error catalog + exception (**22 codes**)          | `NotificationException` + `NOTIFICATION_ERROR_DEFINITIONS` + `NOTIFICATION_ERROR_CODES` + types `NotificationErrorKey`/`NotificationErrorDefinition`                     | `common/` HTTP filter (codes the library throws); `audit-error-codes.mjs` (every code **localized** in the UI). See the note below on catalog-only codes. | ✅     |
+| 53  | Error response envelope (shared)                  | `NotificationErrorResponse` (`./shared`)                                                                                                                                 | web imports `./shared` to localize each `error.code`                                                                                                      | ✅     |
+| 54  | Cooldown presentation helpers                     | `toRetryAfterHeader` / `cooldownExpiresAt` / `formatCooldown`                                                                                                            | API sets `Retry-After` on 429; web renders `formatCooldown` countdown                                                                                     | ✅     |
+| 55  | OTP input hook                                    | `useOtpInput` → `{ values, setValue, onChange, onKeyDown, onPaste, refs, reset, code, isComplete }`; options `length`/`type`/`onComplete`/`autoSubmit`/`sanitizeOnPaste` | `otp/page.tsx` segmented 6-cell box (Settings exposes `autoSubmit`/`sanitizeOnPaste`)                                                                     | ✅     |
+| 56  | OTP countdown hook                                | `useOtpCountdown({ expiresAt, tickIntervalMs?, onExpired? })` → `{ remainingSeconds, expired, formatted }` (`MM:SS`/`HH:MM:SS`)                                          | expiry pill + resend gating                                                                                                                               | ✅     |
+| 57  | Isomorphic shared constants/types                 | `OtpPurpose` / `NotificationChannel` / `DEFAULT_TTLS` (`./shared`)                                                                                                       | purpose/channel selectors + "expires in N min" hints                                                                                                      | ✅     |
+| 58a | SMS channel rejection (roadmap)                   | `SmsChannelOptions` / `ISmsProvider` declared → configuring `sms` **throws at startup**                                                                                  | `POST /admin/try-configure-sms`; web **Roadmap** panel surfaces the error                                                                                 | ✅     |
+| 58b | Push channel rejection (roadmap)                  | `PushChannelOptions` / `IPushProvider` declared → configuring `push` **throws at startup**                                                                               | `POST /admin/try-configure-push`; web **Roadmap** panel                                                                                                   | ✅     |
+| 58c | Declared-only v0.2 surface                        | `BYMAX_NOTIFICATION_SMS_PROVIDER`/`_PUSH_PROVIDER` tokens, `SMS_*`/`PUSH_*` codes, `'sms'`/`'push'` union                                                                | `library-probe.ts` references (audit-satisfying, labeled v0.2)                                                                                            | ✅     |
+| 59  | Resolved-options types (advanced)                 | `ResolvedNotificationOptions` / `ResolvedGlobalOptions` / `ResolvedEmailOptions` / `ResolvedOtpOptions` / `ResolvedAuditOptions`                                         | `library-probe.ts` (typed read of injected options)                                                                                                       | ✅     |
+| 60  | Real-time delivery feed                           | audit rows over SSE                                                                                                                                                      | `audit/` `GET /audit/stream` (`@Sse`) + **Explorer** live tail                                                                                            | ✅     |
+| 61  | Delivery health charts                            | aggregation over `channel`/`verb`/`provider`                                                                                                                             | **Overview** (send/verify/failure rates, provider mix) ← `GET /audit/aggregate`                                                                           | ✅     |
 
 > **On the 22-code catalog (row 52).** `NOTIFICATION_ERROR_CODES` has **22** keys, but they fall into two groups, and
 > the CI gate respects the difference:
+>
 > - **Library-thrown** (surfaced via the HTTP filter on a real request): `EMAIL_PROVIDER_NOT_CONFIGURED`,
 >   `EMAIL_SEND_FAILED`, `EMAIL_ATTACHMENTS_TOO_LARGE`, `EMAIL_MISSING_BODY`, `TEMPLATE_NOT_FOUND`,
 >   `TEMPLATE_RENDER_FAILED`, `OTP_STORAGE_NOT_CONFIGURED`, `OTP_EMAIL_DELIVERY_NOT_CONFIGURED`, `OTP_COOLDOWN_ACTIVE`,
@@ -388,9 +389,9 @@ Each app's `package.json` declares the library as a `file:`/`link:` to the sibli
 // apps/api/package.json
 {
   "dependencies": {
-    "@bymax-one/nest-notification": "file:../../../nest-notification"
+    "@bymax-one/nest-notification": "file:../../../nest-notification",
     // from apps/api/, the sibling lib is three levels up
-  }
+  },
 }
 ```
 
@@ -430,11 +431,16 @@ provider/storage/renderer SDKs marked `optional`). The consumer app installs the
 ```jsonc
 // apps/api — required peers + the optional ones this example lights up
 {
-  "@nestjs/common": "^11", "@nestjs/core": "^11", "reflect-metadata": "^0.2", "rxjs": "^7.8",
-  "ioredis": "^5",            // RedisOtpStorage (opt-in)
-  "resend": "^4",             // ResendEmailProvider (opt-in)
-  "nodemailer": "^7",         // the example's custom IEmailProvider → Mailpit
-  "handlebars": "^4", "mjml": "^4", "@react-email/render": "^1"  // alternate renderers
+  "@nestjs/common": "^11",
+  "@nestjs/core": "^11",
+  "reflect-metadata": "^0.2",
+  "rxjs": "^7.8",
+  "ioredis": "^5", // RedisOtpStorage (opt-in)
+  "resend": "^4", // ResendEmailProvider (opt-in)
+  "nodemailer": "^7", // the example's custom IEmailProvider → Mailpit
+  "handlebars": "^4",
+  "mjml": "^4",
+  "@react-email/render": "^1", // alternate renderers
 }
 ```
 
@@ -462,11 +468,11 @@ probe is the floor, not the ceiling.
 The happy path runs with **zero external credentials**. Three local containers make delivery tangible, each with a
 healthcheck so `pnpm infra:up` only returns when the stack is ready:
 
-| Service | Image | Host port | Purpose | Healthcheck |
-| --- | --- | --- | --- | --- |
-| PostgreSQL | `postgres:18` | `5432` | The `NotificationLog` audit store (`PrismaNotificationLogRepository`). | `pg_isready` |
-| Redis | `redis:7` | `6379` | `RedisOtpStorage` (atomic Lua). Optional — absent ⇒ `InMemoryOtpStorage`. | `redis-cli ping` |
-| Mailpit | `axllent/mailpit` | SMTP `1025`, UI `8025` | A local SMTP inbox; the custom `IEmailProvider` sends here, so every rendered email is browsable at `http://localhost:8025`. | TCP `:1025` / HTTP `:8025` |
+| Service    | Image             | Host port              | Purpose                                                                                                                      | Healthcheck                |
+| ---------- | ----------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| PostgreSQL | `postgres:18`     | `5432`                 | The `NotificationLog` audit store (`PrismaNotificationLogRepository`).                                                       | `pg_isready`               |
+| Redis      | `redis:7`         | `6379`                 | `RedisOtpStorage` (atomic Lua). Optional — absent ⇒ `InMemoryOtpStorage`.                                                    | `redis-cli ping`           |
+| Mailpit    | `axllent/mailpit` | SMTP `1025`, UI `8025` | A local SMTP inbox; the custom `IEmailProvider` sends here, so every rendered email is browsable at `http://localhost:8025`. | TCP `:1025` / HTTP `:8025` |
 
 `apps/api` listens on **`3001`**, `apps/web` on **`3003`** (both bound to `127.0.0.1`). The test stack
 (`docker-compose.test.yml`) uses deliberately high ports — Postgres `55432`, Redis `56379` — so it never contends with
@@ -507,19 +513,19 @@ Every variable is `UPPER_SNAKE_CASE`, browser-exposed ones are `NEXT_PUBLIC_`, a
 with **Zod at boot** (a missing/invalid var aborts startup with a precise message). The root `.env.example` documents
 each variable; `docs/ENVIRONMENT.md` carries the full reference table.
 
-| Variable | Service | Default (dev) | Used for |
-| --- | --- | --- | --- |
-| `PORT` | api | `3001` | `app.listen` |
-| `DATABASE_URL` | api | `postgresql://…@localhost:5432/notification_example` | Prisma audit store |
-| `REDIS_URL` | api | *(unset ⇒ in-memory OTP)* | `RedisOtpStorage` when present |
-| `SMTP_URL` | api | `smtp://localhost:1025` | the custom Nodemailer→Mailpit provider |
-| `RESEND_API_KEY` | api | *(unset ⇒ Nodemailer/NoOp)* | switches the email provider to `ResendEmailProvider` |
-| `MAIL_FROM` / `MAIL_FROM_NAME` | api | `no-reply@notification.local` / `Bymax Notification Example` | `defaultFrom` / `defaultFromName` |
-| `DEFAULT_LOCALE` | api | `en` | template locale fallback |
-| `OTP_DEFAULT_TTL_SECONDS` / `OTP_RESEND_COOLDOWN_SECONDS` | api | `600` / `60` | OTP defaults (overridable per-purpose) |
-| `AUDIT_MASK_RECIPIENT` | api | `true` | toggles `maskRecipient` for the demo |
-| `WEB_ORIGIN` | api | `http://localhost:3003` | CORS allow-origin (+ exposes `Retry-After`) |
-| `NEXT_PUBLIC_API_URL` | web | `http://localhost:3001` | the console's API base |
+| Variable                                                  | Service | Default (dev)                                                | Used for                                             |
+| --------------------------------------------------------- | ------- | ------------------------------------------------------------ | ---------------------------------------------------- |
+| `PORT`                                                    | api     | `3001`                                                       | `app.listen`                                         |
+| `DATABASE_URL`                                            | api     | `postgresql://…@localhost:5432/notification_example`         | Prisma audit store                                   |
+| `REDIS_URL`                                               | api     | _(unset ⇒ in-memory OTP)_                                    | `RedisOtpStorage` when present                       |
+| `SMTP_URL`                                                | api     | `smtp://localhost:1025`                                      | the custom Nodemailer→Mailpit provider               |
+| `RESEND_API_KEY`                                          | api     | _(unset ⇒ Nodemailer/NoOp)_                                  | switches the email provider to `ResendEmailProvider` |
+| `MAIL_FROM` / `MAIL_FROM_NAME`                            | api     | `no-reply@notification.local` / `Bymax Notification Example` | `defaultFrom` / `defaultFromName`                    |
+| `DEFAULT_LOCALE`                                          | api     | `en`                                                         | template locale fallback                             |
+| `OTP_DEFAULT_TTL_SECONDS` / `OTP_RESEND_COOLDOWN_SECONDS` | api     | `600` / `60`                                                 | OTP defaults (overridable per-purpose)               |
+| `AUDIT_MASK_RECIPIENT`                                    | api     | `true`                                                       | toggles `maskRecipient` for the demo                 |
+| `WEB_ORIGIN`                                              | api     | `http://localhost:3003`                                      | CORS allow-origin (+ exposes `Retry-After`)          |
+| `NEXT_PUBLIC_API_URL`                                     | web     | `http://localhost:3001`                                      | the console's API base                               |
 
 ### Canonical wiring
 
@@ -539,7 +545,7 @@ BymaxNotificationModule.forRootAsync({
   inject: [ConfigService, REDIS, PrismaService],
   useFactory: (config: ConfigService, redis: Redis | null, prisma: PrismaService) => ({
     global: {
-      redisNamespace: 'notification',                  // the lib appends ':' → keys are 'notification:…'; isolated from nest-auth's 'auth:' namespace (§14)
+      redisNamespace: 'notification', // the lib appends ':' → keys are 'notification:…'; isolated from nest-auth's 'auth:' namespace (§14)
       defaultLocale: config.get('DEFAULT_LOCALE', 'en'),
       // Trust the tenant from a gateway-verified header — never the request body.
       tenantIdResolver: (req) => {
@@ -548,7 +554,7 @@ BymaxNotificationModule.forRootAsync({
       },
     },
     email: {
-      provider: resolveEmailProvider(config),          // Resend | Nodemailer→Mailpit | NoOp
+      provider: resolveEmailProvider(config), // Resend | Nodemailer→Mailpit | NoOp
       defaultFrom: config.getOrThrow('MAIL_FROM'),
       defaultFromName: config.get('MAIL_FROM_NAME'),
       templateRenderer: new DefaultTemplateRenderer({ templates: TEMPLATES }),
@@ -565,9 +571,9 @@ BymaxNotificationModule.forRootAsync({
       },
     },
     audit: {
-      repository: new PrismaNotificationLogRepository(prisma),   // pass an INSTANCE (DI-dependent ctor)
+      repository: new PrismaNotificationLogRepository(prisma), // pass an INSTANCE (DI-dependent ctor)
       swallowErrors: true,
-      maskRecipient: maybeMask(config),                // jane@acme.com → j***@acme.com
+      maskRecipient: maybeMask(config), // jane@acme.com → j***@acme.com
     },
   }),
 })
@@ -585,21 +591,21 @@ BymaxNotificationModule.forRootAsync({
 The library ships **no controllers and no DTOs** — that is the consumer's job. `apps/api` authors a thin, honest
 controller surface (Zod-validated) over the services; `apps/web` is the console that drives it. The endpoint surface:
 
-| Route | Library call | Purpose |
-| --- | --- | --- |
-| `POST /otp/generate` | `OtpService.generate` | issue an OTP (email or manual delivery) → `{ expiresAt, cooldownSeconds }` |
-| `POST /otp/verify` | `OtpService.verify` | the **controller** maps `OtpVerifyResult` → HTTP (200; `invalid_code`→401; `not_found`→404; `max_attempts`→429) |
-| `POST /otp/resend` | `OtpService.resend` | resend under cooldown (429 + `Retry-After` when active) |
-| `POST /otp/consume` | `OtpService.consume` | invalidate a code |
-| `GET /otp/status` | `OtpService.getStatus` | inspect state (never the code) |
-| `POST /email/send` | `EmailService.send` | raw email (subject + html) |
-| `POST /email/send-template` | `EmailService.sendTemplate` | rendered template email |
-| `POST /dispatch` | `NotificationService.dispatch` | unified channel-agnostic façade (audited by the interceptor) |
-| `GET /channels` | `NotificationService.getEnabledChannels` | which channels are live |
-| `GET /audit/logs` · `GET /audit/stream` | reads `NotificationLog` | keyset list + SSE live tail |
-| `GET /audit/aggregate` | reads `NotificationLog` | delivery-health charts |
-| `POST /admin/try-configure-{sms,push,async-useclass}` | isolated `forRoot`/`forRootAsync` | proves the startup rejections |
-| `GET /debug/key` | `hashTenantRecipient` | shows the `sha256(tenantId:recipient)` key (dev-only) |
+| Route                                                 | Library call                             | Purpose                                                                                                         |
+| ----------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `POST /otp/generate`                                  | `OtpService.generate`                    | issue an OTP (email or manual delivery) → `{ expiresAt, cooldownSeconds }`                                      |
+| `POST /otp/verify`                                    | `OtpService.verify`                      | the **controller** maps `OtpVerifyResult` → HTTP (200; `invalid_code`→401; `not_found`→404; `max_attempts`→429) |
+| `POST /otp/resend`                                    | `OtpService.resend`                      | resend under cooldown (429 + `Retry-After` when active)                                                         |
+| `POST /otp/consume`                                   | `OtpService.consume`                     | invalidate a code                                                                                               |
+| `GET /otp/status`                                     | `OtpService.getStatus`                   | inspect state (never the code)                                                                                  |
+| `POST /email/send`                                    | `EmailService.send`                      | raw email (subject + html)                                                                                      |
+| `POST /email/send-template`                           | `EmailService.sendTemplate`              | rendered template email                                                                                         |
+| `POST /dispatch`                                      | `NotificationService.dispatch`           | unified channel-agnostic façade (audited by the interceptor)                                                    |
+| `GET /channels`                                       | `NotificationService.getEnabledChannels` | which channels are live                                                                                         |
+| `GET /audit/logs` · `GET /audit/stream`               | reads `NotificationLog`                  | keyset list + SSE live tail                                                                                     |
+| `GET /audit/aggregate`                                | reads `NotificationLog`                  | delivery-health charts                                                                                          |
+| `POST /admin/try-configure-{sms,push,async-useclass}` | isolated `forRoot`/`forRootAsync`        | proves the startup rejections                                                                                   |
+| `GET /debug/key`                                      | `hashTenantRecipient`                    | shows the `sha256(tenantId:recipient)` key (dev-only)                                                           |
 
 The OTP **verify mapping lives in the controller** — the library's `verify` returns a discriminated `OtpVerifyResult`
 and never throws for a wrong/missing/exhausted code. `not_found` is mapped to **404** (the library deliberately makes
@@ -612,15 +618,15 @@ Seven left-nav destinations, all under the **shared Bymax design system** (force
 **tenant switcher** (sets the trusted `x-tenant-id`), a **role switcher** (Viewer/Operator/Admin RBAC demo), and a
 **live toggle** for the SSE tail.
 
-| Route | Page | Job |
-| --- | --- | --- |
-| `/` | **Overview** | Delivery health — send/verify/failure rates, latency-to-sent, provider mix, channel badges. |
-| `/trigger` | **Trigger Center** | The Playground — fire every feature (send email, generate+verify OTP, trip cooldown, force max-attempts, oversize attachment, break audit sink, spoof tenant, dispatch), each auto-pivoting the Explorer to the resulting row. |
-| `/explorer` | **Audit Explorer** | Search/filter the delivery log (by tenant/channel/verb/recipient/purpose + a **source** facet, §15), virtualized table, detail drawer (Overview / Raw entry / **never-contains-code proof**), and a **live tail** over SSE. |
-| `/otp` | **OTP Verify** | The end-to-end OTP UX — `useOtpInput` segmented 6-cell box (paste, auto-advance, backspace nav) + `useOtpCountdown` expiry pill + cooldown-gated resend; surfaces `remainingAttempts` and every `OTP_*` error localized from `./shared`. |
-| `/providers` | **Providers & Templates** | The provider matrix (email provider + storage + renderer, each with health/active state) and an **email preview** (Rendered / HTML / Text / Metadata tabs) proving the HTML-escape-html-body-only behavior. |
-| `/roadmap` | **Roadmap** | Honest v0.2 preview — clicking "Enable SMS" / "Enable Push" / "Use useClass" surfaces the library's **actual startup-rejection error string**, proving the interfaces exist but the channels are rejected. |
-| `/settings` | **Settings** | Channel/provider config status and the RBAC roles. Note: `consumeOnVerify` and `swallowErrors` are resolved **once at boot** (frozen options), so the Settings page **shows the configured value**; flipping them at runtime is demonstrated by booting a second module variant, not a live mutation. |
+| Route        | Page                      | Job                                                                                                                                                                                                                                                                                                   |
+| ------------ | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`          | **Overview**              | Delivery health — send/verify/failure rates, latency-to-sent, provider mix, channel badges.                                                                                                                                                                                                           |
+| `/trigger`   | **Trigger Center**        | The Playground — fire every feature (send email, generate+verify OTP, trip cooldown, force max-attempts, oversize attachment, break audit sink, spoof tenant, dispatch), each auto-pivoting the Explorer to the resulting row.                                                                        |
+| `/explorer`  | **Audit Explorer**        | Search/filter the delivery log (by tenant/channel/verb/recipient/purpose + a **source** facet, §15), virtualized table, detail drawer (Overview / Raw entry / **never-contains-code proof**), and a **live tail** over SSE.                                                                           |
+| `/otp`       | **OTP Verify**            | The end-to-end OTP UX — `useOtpInput` segmented 6-cell box (paste, auto-advance, backspace nav) + `useOtpCountdown` expiry pill + cooldown-gated resend; surfaces `remainingAttempts` and every `OTP_*` error localized from `./shared`.                                                              |
+| `/providers` | **Providers & Templates** | The provider matrix (email provider + storage + renderer, each with health/active state) and an **email preview** (Rendered / HTML / Text / Metadata tabs) proving the HTML-escape-html-body-only behavior.                                                                                           |
+| `/roadmap`   | **Roadmap**               | Honest v0.2 preview — clicking "Enable SMS" / "Enable Push" / "Use useClass" surfaces the library's **actual startup-rejection error string**, proving the interfaces exist but the channels are rejected.                                                                                            |
+| `/settings`  | **Settings**              | Channel/provider config status and the RBAC roles. Note: `consumeOnVerify` and `swallowErrors` are resolved **once at boot** (frozen options), so the Settings page **shows the configured value**; flipping them at runtime is demonstrated by booting a second module variant, not a live mutation. |
 
 > The full information architecture, the panel/chart catalog, the backing-API table, the SSE follow-mode UX, and the
 > notification-domain rendering of every design-system primitive (the OTP box, the countdown pill, the provider matrix,
@@ -670,19 +676,19 @@ on the public surface.
 
 Every external boundary is an interface; the example wires a real adapter for each and documents how to bring your own.
 
-| Boundary | Contract | Bundled reference | This example wires | Bring-your-own examples |
-| --- | --- | --- | --- | --- |
-| Email transport | `IEmailProvider` | `ResendEmailProvider`, `NoOpEmailProvider` | a **custom Nodemailer→Mailpit** provider (zero-cred default) + Resend (opt-in) | SendGrid, AWS SES, Mailgun (`PROVIDERS.md`) |
-| OTP storage | `IOtpStorage` (atomic; 9 methods + `name`) | `RedisOtpStorage`, `InMemoryOtpStorage` | Redis (opt-in) or in-memory | DynamoDB, any KV (`PROVIDERS.md`) |
-| Template rendering | `IEmailTemplateRenderer` | `DefaultTemplateRenderer` | Default + **Handlebars / MJML / React Email** demos | any engine (`TEMPLATING.md`) |
-| Audit sink | `INotificationLogRepository` | `NoOpNotificationLogRepository` | **Prisma/Postgres** | Mongo, ClickHouse, BigQuery (`DATABASE.md`) |
+| Boundary           | Contract                                   | Bundled reference                          | This example wires                                                             | Bring-your-own examples                     |
+| ------------------ | ------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------- |
+| Email transport    | `IEmailProvider`                           | `ResendEmailProvider`, `NoOpEmailProvider` | a **custom Nodemailer→Mailpit** provider (zero-cred default) + Resend (opt-in) | SendGrid, AWS SES, Mailgun (`PROVIDERS.md`) |
+| OTP storage        | `IOtpStorage` (atomic; 9 methods + `name`) | `RedisOtpStorage`, `InMemoryOtpStorage`    | Redis (opt-in) or in-memory                                                    | DynamoDB, any KV (`PROVIDERS.md`)           |
+| Template rendering | `IEmailTemplateRenderer`                   | `DefaultTemplateRenderer`                  | Default + **Handlebars / MJML / React Email** demos                            | any engine (`TEMPLATING.md`)                |
+| Audit sink         | `INotificationLogRepository`               | `NoOpNotificationLogRepository`            | **Prisma/Postgres**                                                            | Mongo, ClickHouse, BigQuery (`DATABASE.md`) |
 
 The custom Nodemailer provider is the headline "bring-your-own-provider" lesson: a ~30-line class implementing
 `send`/`isConfigured`/`name` that the module wires with zero changes to any call site — and it makes the demo's emails
 **actually appear** in a browsable inbox. Writing a provider/storage/renderer is documented end-to-end in
 `docs/PROVIDERS.md` and `docs/TEMPLATING.md`, including the **atomicity requirements** on `consumeAttempt` and
 `tryAcquireCooldown` (the one place a naive implementation introduces a security bug). In **async** mode a provider
-passed as a *class* must have a zero-arg constructor; DI-dependent adapters (`PrismaNotificationLogRepository`,
+passed as a _class_ must have a zero-arg constructor; DI-dependent adapters (`PrismaNotificationLogRepository`,
 `RedisOtpStorage`) are passed as instances.
 
 ---
@@ -713,7 +719,7 @@ Full treatment in `docs/MULTI_TENANCY.md`.
 ## 14. Ecosystem Fit — Coexistence with `@bymax-one/nest-auth`
 
 In a real Bymax product, this library runs **alongside [`@bymax-one/nest-auth`](https://github.com/bymaxone/nest-auth)**
-(the full-stack auth library). A fair question is: *nest-auth also has OTP — do the two conflict?* **No.** They operate
+(the full-stack auth library). A fair question is: _nest-auth also has OTP — do the two conflict?_ **No.** They operate
 at different layers with clear ownership, and they share Redis safely. This section is the authoritative boundary; a
 deeper walkthrough lives in `docs/AUTH_INTEGRATION.md`.
 
@@ -730,20 +736,20 @@ its **own** `OtpService` (numeric codes for email verification + password reset,
 
 ### Why there is no conflict
 
-| Concern | `@bymax-one/nest-auth` owns | `@bymax-one/nest-notification` owns |
-| --- | --- | --- |
-| **Auth OTP** (login email verification, password reset) | ✅ generates + verifies its own codes, tied to user state | ✗ (do not duplicate for the same purpose) |
-| **MFA / TOTP** (authenticator app, recovery codes) | ✅ | ✗ (out of scope — TOTP ≠ delivered OTP) |
-| **Email delivery / rendering / templates** | ✗ delegates via its `IEmailProvider` port | ✅ the single mailer + template registry + audit log |
-| **General/transactional OTP** (step-up for a sensitive action, phone verification, non-login confirmation, magic-link) | ✗ | ✅ `OtpService` with pluggable storage + per-purpose config |
-| **App transactional emails** (welcome, receipts, alerts) | ✗ | ✅ `EmailService` |
+| Concern                                                                                                                | `@bymax-one/nest-auth` owns                               | `@bymax-one/nest-notification` owns                         |
+| ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
+| **Auth OTP** (login email verification, password reset)                                                                | ✅ generates + verifies its own codes, tied to user state | ✗ (do not duplicate for the same purpose)                   |
+| **MFA / TOTP** (authenticator app, recovery codes)                                                                     | ✅                                                        | ✗ (out of scope — TOTP ≠ delivered OTP)                     |
+| **Email delivery / rendering / templates**                                                                             | ✗ delegates via its `IEmailProvider` port                 | ✅ the single mailer + template registry + audit log        |
+| **General/transactional OTP** (step-up for a sensitive action, phone verification, non-login confirmation, magic-link) | ✗                                                         | ✅ `OtpService` with pluggable storage + per-purpose config |
+| **App transactional emails** (welcome, receipts, alerts)                                                               | ✗                                                         | ✅ `EmailService`                                           |
 
 Three concrete reasons they don't collide:
 
 1. **Different ownership of the OTP lifecycle.** `nest-auth` **generates and verifies its own** auth OTPs internally; it
    only delegates the **sending** of the resulting code. You do **not** route auth-OTP generation through
    `nest-notification`. Conversely, `nest-notification`'s `OtpService` serves OTP needs that are **not** auth concerns.
-   The only real "conflict" would be running *both* libraries' OTP for the *same* purpose (two codes for one email
+   The only real "conflict" would be running _both_ libraries' OTP for the _same_ purpose (two codes for one email
    verification) — that is an integration choice to avoid, not a technical clash. **Rule of thumb:** if it's a login /
    email-verification / password-reset / MFA concern → `nest-auth`; anything else → `nest-notification`.
 2. **Isolated Redis namespaces.** `nest-auth` prefixes every key with its `redisNamespace` (default `auth:` → e.g.
@@ -758,26 +764,48 @@ Three concrete reasons they don't collide:
 
 ```typescript
 // apps/api/src/notification/auth-email.provider.ts (OPTIONAL integration adapter)
-import type { IEmailProvider as IAuthEmailProvider, SessionInfo, InviteData } from '@bymax-one/nest-auth'
+import type {
+  IEmailProvider as IAuthEmailProvider,
+  SessionInfo,
+  InviteData,
+} from '@bymax-one/nest-auth'
 import { EmailService } from '@bymax-one/nest-notification'
 
 @Injectable()
 export class NotificationAuthEmailProvider implements IAuthEmailProvider {
-  constructor(private readonly email: EmailService, private readonly tenants: TenantContext) {}
+  constructor(
+    private readonly email: EmailService,
+    private readonly tenants: TenantContext,
+  ) {}
 
   // nest-auth generates the OTP; we only render + send + audit it via nest-notification.
   async sendEmailVerificationOtp(to: string, otp: string, locale = 'en'): Promise<void> {
     await this.email.sendTemplate({
-      tenantId: this.tenants.current(), to, template: 'otp_code', locale,
+      tenantId: this.tenants.current(),
+      to,
+      template: 'otp_code',
+      locale,
       data: { code: otp, purpose: 'email_verification', appName: 'Bymax' },
     })
   }
-  async sendPasswordResetOtp(to: string, otp: string, locale = 'en'): Promise<void> { /* template: 'otp_password_reset' */ }
-  async sendMfaEnabledNotification(to: string, locale = 'en'): Promise<void> { /* template: 'mfa_enabled' */ }
-  async sendMfaDisabledNotification(to: string, locale = 'en'): Promise<void> { /* template: 'mfa_disabled' */ }
-  async sendNewSessionAlert(to: string, info: SessionInfo, locale = 'en'): Promise<void> { /* template: 'new_login_alert' */ }
-  async sendInvitation(to: string, invite: InviteData, locale = 'en'): Promise<void> { /* template: 'welcome'/'invitation' */ }
-  async sendPasswordResetToken(to: string, token: string, locale = 'en'): Promise<void> { /* link email */ }
+  async sendPasswordResetOtp(to: string, otp: string, locale = 'en'): Promise<void> {
+    /* template: 'otp_password_reset' */
+  }
+  async sendMfaEnabledNotification(to: string, locale = 'en'): Promise<void> {
+    /* template: 'mfa_enabled' */
+  }
+  async sendMfaDisabledNotification(to: string, locale = 'en'): Promise<void> {
+    /* template: 'mfa_disabled' */
+  }
+  async sendNewSessionAlert(to: string, info: SessionInfo, locale = 'en'): Promise<void> {
+    /* template: 'new_login_alert' */
+  }
+  async sendInvitation(to: string, invite: InviteData, locale = 'en'): Promise<void> {
+    /* template: 'welcome'/'invitation' */
+  }
+  async sendPasswordResetToken(to: string, token: string, locale = 'en'): Promise<void> {
+    /* link email */
+  }
 }
 // bound in nest-auth via: { provide: BYMAX_AUTH_EMAIL_PROVIDER, useClass: NotificationAuthEmailProvider }
 ```
@@ -852,19 +880,19 @@ log** — a first-class, queryable record of every notification event.
 
 ## 17. Testing Strategy
 
-| Layer | Tool | Scope |
-| --- | --- | --- |
-| API unit | Jest 30 (ts-jest, native ESM) | every service-consuming controller, the config factory, the custom provider/repository, the error filter |
-| API e2e | Jest + supertest | the full HTTP surface against `InMemoryOtpStorage` + a mocked transport (no Mailpit/Resend needed); the startup-rejection isolated-module tests |
-| Web unit | Vitest 4 (jsdom, v8) | every `lib/**` + `components/**` file; the OTP box, countdown pill, audit table, error-code localization |
-| Web e2e | Playwright 1.6 | the live journeys (generate → Mailpit → verify) against a running stack |
-| Mutation | Stryker 9.6 | configured **api `break: 100`, web `break: 95`** (`lib/**` 100); the **mandatory floor is ≥ 95** on both, driven toward 100; survivors documented as equivalents (the library itself runs `break: 95`) |
+| Layer    | Tool                          | Scope                                                                                                                                                                                                  |
+| -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| API unit | Jest 30 (ts-jest, native ESM) | every service-consuming controller, the config factory, the custom provider/repository, the error filter                                                                                               |
+| API e2e  | Jest + supertest              | the full HTTP surface against `InMemoryOtpStorage` + a mocked transport (no Mailpit/Resend needed); the startup-rejection isolated-module tests                                                        |
+| Web unit | Vitest 4 (jsdom, v8)          | every `lib/**` + `components/**` file; the OTP box, countdown pill, audit table, error-code localization                                                                                               |
+| Web e2e  | Playwright 1.6                | the live journeys (generate → Mailpit → verify) against a running stack                                                                                                                                |
+| Mutation | Stryker 9.6                   | configured **api `break: 100`, web `break: 95`** (`lib/**` 100); the **mandatory floor is ≥ 95** on both, driven toward 100; survivors documented as equivalents (the library itself runs `break: 95`) |
 
 The quality floor is **100% coverage** (all four metrics) in both workspaces, with non-executable glue (`*.module.ts`,
 `main.ts`, `*.dto.ts`, `*.d.ts`) stripped from the coverage scope so the number stays meaningful. The
 `maxWorkers: '50%'` caps from §8 are baked into the Jest/Vitest configs. A sample assertion style: every `it()` carries
-a block comment naming the scenario and the rule it protects (e.g. *"verify returns invalid_code with remainingAttempts
-— protects the atomic attempt counter from off-by-one"*).
+a block comment naming the scenario and the rule it protects (e.g. _"verify returns invalid_code with remainingAttempts
+— protects the atomic attempt counter from off-by-one"_).
 
 CI gates (`.github/workflows/ci.yml`): `lint` · `typecheck` · `unit` (coverage) · `e2e` · `export-usage-check`
 (`audit:exports` + `audit:error-codes`). Mutation runs incrementally per-PR (`mutation.yml`) and fully on a weekly
@@ -896,10 +924,10 @@ the repo root) via `release.yml` on a `v*` tag, pushed to GHCR with OIDC. A prod
 
 The example tracks **one library minor at a time**. `docs/RELEASES.md` records which version each branch tracks.
 
-| Branch | Tracks library version | Notes |
-| --- | --- | --- |
-| `main` | `@bymax-one/nest-notification` `local link` → `^0.1.0` | pre-publish today via `file:`; pins the semver range once the library ships. |
-| `next` | upcoming minor | tracks v0.2 (SMS + Push) when the library implements those channels — the roadmap panel becomes real delivery. |
+| Branch | Tracks library version                                 | Notes                                                                                                          |
+| ------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `main` | `@bymax-one/nest-notification` `local link` → `^0.1.0` | pre-publish today via `file:`; pins the semver range once the library ships.                                   |
+| `next` | upcoming minor                                         | tracks v0.2 (SMS + Push) when the library implements those channels — the roadmap panel becomes real delivery. |
 
 When the library publishes, the release job records the exact tested version per commit, and the roadmap panel's
 rejection demos are replaced by live SMS/Push journeys.

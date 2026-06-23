@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P1
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -72,13 +72,13 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 1.1 | `apps/api` skeleton package | 📋 ToDo | P0 | S | — |
-| 1.2 | Docker Compose dev stack + Postgres init | 📋 ToDo | P0 | M | 1.1 |
-| 1.3 | Docker Compose test stack (high ports) | 📋 ToDo | P1 | S | 1.2 |
-| 1.4 | `.env.example` + infra scripts | 📋 ToDo | P0 | S | 1.2 |
-| 1.5 | Zod env schema + failure-path unit test | 📋 ToDo | P0 | M | 1.1, 1.4 |
+| ID  | Task                                     | Status  | Priority | Size | Depends on |
+| --- | ---------------------------------------- | ------- | -------- | ---- | ---------- |
+| 1.1 | `apps/api` skeleton package              | 📋 ToDo | P0       | S    | —          |
+| 1.2 | Docker Compose dev stack + Postgres init | 📋 ToDo | P0       | M    | 1.1        |
+| 1.3 | Docker Compose test stack (high ports)   | 📋 ToDo | P1       | S    | 1.2        |
+| 1.4 | `.env.example` + infra scripts           | 📋 ToDo | P0       | S    | 1.2        |
+| 1.5 | Zod env schema + failure-path unit test  | 📋 ToDo | P0       | M    | 1.1, 1.4   |
 
 ---
 
@@ -100,12 +100,12 @@ a package-scoped `tsconfig.json` extending the base, and the `zod` dependency th
 #### Acceptance criteria
 
 - [ ] `apps/api/package.json` — private, `"type": "module"`, `"name": "@nest-notification-example/api"`, version `0.0.0`; a `typecheck` script
-  (`tsc --noEmit -p tsconfig.json`) and a placeholder `test` script; `zod` as a dependency.
+      (`tsc --noEmit -p tsconfig.json`) and a placeholder `test` script; `zod` as a dependency.
 - [ ] `apps/api/tsconfig.json` extends `../../tsconfig.base.json`, sets `rootDir: src`, `outDir: dist`, and includes
-  `src`.
+      `src`.
 - [ ] The package is picked up by the workspace: `pnpm -F api exec tsc --version` resolves; `pnpm install` succeeds.
 - [ ] `pnpm typecheck` (root) still exits 0 (the package has no source other than what Task 1.5 adds; an empty `src`
-  must not break `tsc` — add the env schema's directory on demand, do not pre-create empty dirs).
+      must not break `tsc` — add the env schema's directory on demand, do not pre-create empty dirs).
 
 #### Files to create / modify
 
@@ -211,7 +211,7 @@ zero-credential local backend the API connects to.
 - [ ] `docker/postgres/init.sql` — re-run-safe (`\gexec` guard) `CREATE DATABASE notification_example`.
 - [ ] A named network (`local-dev`) + named volumes (`pg-data`, `redis-data`).
 - [ ] `docker compose -f docker-compose.yml config` validates; `docker compose up -d --wait` returns only when all three
-  are healthy; `curl -fsS http://localhost:8025/api/v1/info` returns 200.
+      are healthy; `curl -fsS http://localhost:8025/api/v1/info` returns 200.
 
 #### Files to create / modify
 
@@ -343,11 +343,11 @@ collision.
 #### Acceptance criteria
 
 - [ ] `docker-compose.test.yml` — `name: nest-notification-example-test`, a `ci` bridge network; `postgres`
-  (`postgres:18-alpine`) on `127.0.0.1:55432:5432` with `POSTGRES_DB: notification_example_test` and `tmpfs`; `redis`
-  (`redis:7-alpine`) on `127.0.0.1:56379:6379` with `tmpfs`; both healthchecked with short intervals.
+      (`postgres:18-alpine`) on `127.0.0.1:55432:5432` with `POSTGRES_DB: notification_example_test` and `tmpfs`; `redis`
+      (`redis:7-alpine`) on `127.0.0.1:56379:6379` with `tmpfs`; both healthchecked with short intervals.
 - [ ] No Mailpit in the test stack (the test tier mocks the email provider) — note this in a comment.
 - [ ] `docker compose -f docker-compose.test.yml config` validates; `docker compose -f docker-compose.test.yml up -d
-  --wait` returns healthy on the high ports without touching the dev stack.
+--wait` returns healthy on the high ports without touching the dev stack.
 
 #### Files to create / modify
 
@@ -451,16 +451,16 @@ compose stacks.
 #### Acceptance criteria
 
 - [ ] `.env.example` documents every variable from OVERVIEW §9: `PORT`, `DATABASE_URL`, `REDIS_URL`, `SMTP_URL`,
-  `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`, `DEFAULT_LOCALE`, `OTP_DEFAULT_TTL_SECONDS`,
-  `OTP_RESEND_COOLDOWN_SECONDS`, `AUDIT_MASK_RECIPIENT`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL` — each with an inline
-  comment naming its service + purpose, grouped by section, defaults matching §9 (e.g. `PORT=3001`,
-  `SMTP_URL=smtp://localhost:1025`, `WEB_ORIGIN=http://localhost:3003`, `NEXT_PUBLIC_API_URL=http://localhost:3001`).
+      `RESEND_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`, `DEFAULT_LOCALE`, `OTP_DEFAULT_TTL_SECONDS`,
+      `OTP_RESEND_COOLDOWN_SECONDS`, `AUDIT_MASK_RECIPIENT`, `WEB_ORIGIN`, `NEXT_PUBLIC_API_URL` — each with an inline
+      comment naming its service + purpose, grouped by section, defaults matching §9 (e.g. `PORT=3001`,
+      `SMTP_URL=smtp://localhost:1025`, `WEB_ORIGIN=http://localhost:3003`, `NEXT_PUBLIC_API_URL=http://localhost:3001`).
 - [ ] `REDIS_URL` and `RESEND_API_KEY` are present but commented/empty (unset ⇒ in-memory OTP / Nodemailer→Mailpit) so
-  the documented behavior is clear.
+      the documented behavior is clear.
 - [ ] Root `package.json` scripts: `infra:up` (`docker compose up -d --wait`), `infra:down` (`docker compose down`),
-  `infra:nuke` (`docker compose down -v`), `infra:logs` (`docker compose logs -f`), `infra:test:up`
-  (`docker compose -f docker-compose.test.yml up -d --wait --wait-timeout 180`), `infra:test:down`
-  (`docker compose -f docker-compose.test.yml down -v`).
+      `infra:nuke` (`docker compose down -v`), `infra:logs` (`docker compose logs -f`), `infra:test:up`
+      (`docker compose -f docker-compose.test.yml up -d --wait --wait-timeout 180`), `infra:test:down`
+      (`docker compose -f docker-compose.test.yml down -v`).
 - [ ] `.env.example` is git-tracked; `.env` is git-ignored (already in `.gitignore` from P0 — verify).
 
 #### Files to create / modify
@@ -570,17 +570,17 @@ covering both the happy path (defaults applied) and the failure path (an invalid
 #### Acceptance criteria
 
 - [ ] `apps/api/src/config/env.schema.ts` exports `envSchema`, the inferred `Env` type, and a `validateEnv(config)`
-  function used as the `ConfigModule.forRoot({ validate })` entrypoint; it validates every OVERVIEW §9 variable
-  (`PORT` coerced int, `DATABASE_URL` URL, `REDIS_URL` optional URL, `SMTP_URL` URL with default,
-  `RESEND_API_KEY` optional, `MAIL_FROM` string, `MAIL_FROM_NAME` optional, `DEFAULT_LOCALE` default `en`,
-  `OTP_DEFAULT_TTL_SECONDS` / `OTP_RESEND_COOLDOWN_SECONDS` coerced int with defaults, `AUDIT_MASK_RECIPIENT` coerced
-  boolean default `true`, `WEB_ORIGIN` URL default `http://localhost:3003`, plus `NODE_ENV` enum).
+      function used as the `ConfigModule.forRoot({ validate })` entrypoint; it validates every OVERVIEW §9 variable
+      (`PORT` coerced int, `DATABASE_URL` URL, `REDIS_URL` optional URL, `SMTP_URL` URL with default,
+      `RESEND_API_KEY` optional, `MAIL_FROM` string, `MAIL_FROM_NAME` optional, `DEFAULT_LOCALE` default `en`,
+      `OTP_DEFAULT_TTL_SECONDS` / `OTP_RESEND_COOLDOWN_SECONDS` coerced int with defaults, `AUDIT_MASK_RECIPIENT` coerced
+      boolean default `true`, `WEB_ORIGIN` URL default `http://localhost:3003`, plus `NODE_ENV` enum).
 - [ ] Production guards (`superRefine`): in `production`, `DATABASE_URL` / `REDIS_URL` must not be loopback and
-  `WEB_ORIGIN` must be `https://`; `validateEnv` throws an `Error` whose message aggregates every offending key + reason.
+      `WEB_ORIGIN` must be `https://`; `validateEnv` throws an `Error` whose message aggregates every offending key + reason.
 - [ ] Every export carries JSDoc; zero `any`, zero suppression comments.
 - [ ] `apps/api/src/config/env.schema.spec.ts` — covers: defaults applied on a minimal valid env; a missing required var
-  throws; an invalid value (e.g. non-URL `DATABASE_URL`) throws with the key named; the production loopback +
-  non-https guards fire. The file passes under the api test runner.
+      throws; an invalid value (e.g. non-URL `DATABASE_URL`) throws with the key named; the production loopback +
+      non-https guards fire. The file passes under the api test runner.
 - [ ] `pnpm -F api typecheck` exits 0; the spec passes (the failure path is asserted — see the DoD).
 
 #### Files to create / modify

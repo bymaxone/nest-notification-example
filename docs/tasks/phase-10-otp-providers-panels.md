@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P10
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -17,7 +17,7 @@ Explorer** (with the SSE live tail). The backend surface (P5–P7) is complete: 
 `/dispatch`, `/channels`, `/admin/try-configure-{sms,push,async-useclass}`, and `/debug/key` all respond.
 
 **P10 fills in the four notification-specific destinations that have no sibling analog** — the surfaces that make this
-the *notification* example and not a generic console:
+the _notification_ example and not a generic console:
 
 - **`/otp` — OTP Verify**: the end-to-end OTP UX. The library's `useOtpInput` (segmented 6-cell box with paste,
   auto-advance, Backspace navigation, `reset`, `isComplete`) + `useOtpCountdown` (expiry pill, `MM:SS`) drive a **real
@@ -25,7 +25,7 @@ the *notification* example and not a generic console:
   `./shared`. The hooks are state/UX only — issuing the request is the app's job.
 - **`/providers` — Providers & Templates**: the provider / storage / renderer **matrix** (each row with health + active
   state, read from `GET /channels` + config status) and an **email preview** with **Rendered / HTML / Text / Metadata**
-  tabs that prove the *html-body-only* HTML-escape behavior (journey 6).
+  tabs that prove the _html-body-only_ HTML-escape behavior (journey 6).
 - **`/roadmap` — Roadmap**: an honest v0.2 preview — "Enable SMS / Push / useClass" posts to
   `/admin/try-configure-*` and surfaces the library's **actual startup-rejection error string** (journey 12).
 - **`/settings` — Settings**: channel / provider config status + the RBAC roles, and the **boot-frozen** display of
@@ -88,14 +88,14 @@ re-implement the hooks.
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 10.1 | Error-code localization map + OTP API client helpers | 📋 ToDo | P0 | M | — |
-| 10.2 | OTP Verify panel — segmented box + countdown + live verify | 📋 ToDo | P0 | L | 10.1 |
-| 10.3 | Providers & Templates — matrix + email preview tabs | 📋 ToDo | P1 | L | 10.1 |
-| 10.4 | Roadmap panel — startup-rejection preview | 📋 ToDo | P1 | M | 10.1 |
-| 10.5 | Settings panel — config status + boot-frozen options | 📋 ToDo | P2 | M | 10.1 |
-| 10.6 | Error-code audit reconciliation + matrix close-out | 📋 ToDo | P0 | M | 10.2, 10.3, 10.4, 10.5 |
+| ID   | Task                                                       | Status  | Priority | Size | Depends on             |
+| ---- | ---------------------------------------------------------- | ------- | -------- | ---- | ---------------------- |
+| 10.1 | Error-code localization map + OTP API client helpers       | 📋 ToDo | P0       | M    | —                      |
+| 10.2 | OTP Verify panel — segmented box + countdown + live verify | 📋 ToDo | P0       | L    | 10.1                   |
+| 10.3 | Providers & Templates — matrix + email preview tabs        | 📋 ToDo | P1       | L    | 10.1                   |
+| 10.4 | Roadmap panel — startup-rejection preview                  | 📋 ToDo | P1       | M    | 10.1                   |
+| 10.5 | Settings panel — config status + boot-frozen options       | 📋 ToDo | P2       | M    | 10.1                   |
+| 10.6 | Error-code audit reconciliation + matrix close-out         | 📋 ToDo | P0       | M    | 10.2, 10.3, 10.4, 10.5 |
 
 ---
 
@@ -117,16 +117,16 @@ for the OTP routes (`generate` / `verify` / `resend` / `status`). All pure, all 
 #### Acceptance criteria
 
 - [ ] `apps/web/lib/error-codes.ts` exports `localizeNotificationError(code: string): string` and
-  `NOTIFICATION_ERROR_MESSAGES` — a `Record<NotificationErrorCode, string>` covering **all 22** keys from
-  `NOTIFICATION_ERROR_CODES`, with a safe fallback for an unknown code. It matches on `error.code`, never HTTP status.
+      `NOTIFICATION_ERROR_MESSAGES` — a `Record<NotificationErrorCode, string>` covering **all 22** keys from
+      `NOTIFICATION_ERROR_CODES`, with a safe fallback for an unknown code. It matches on `error.code`, never HTTP status.
 - [ ] `apps/web/lib/cooldown.ts` exports `formatCooldown(seconds: number): string` → `MM:SS` (clamps negatives to
-  `00:00`), mirroring the library's `useOtpCountdown.formatted` style for consistency.
+      `00:00`), mirroring the library's `useOtpCountdown.formatted` style for consistency.
 - [ ] `apps/web/lib/api/otp.ts` exports typed `generateOtp` / `verifyOtp` / `resendOtp` / `getOtpStatus` wrappers over
-  the P8 `api-client` (sending `x-tenant-id`, surfacing `Retry-After` on 429 and the `NotificationErrorResponse` body).
+      the P8 `api-client` (sending `x-tenant-id`, surfacing `Retry-After` on 429 and the `NotificationErrorResponse` body).
 - [ ] A type-level assertion guarantees the message map stays exhaustive (a `satisfies Record<NotificationErrorCode,
-  string>` so a future library code addition fails `tsc`).
+string>` so a future library code addition fails `tsc`).
 - [ ] Unit tests cover 100% of the three files (every code mapped, the fallback, `formatCooldown` boundaries, each
-  client helper's success + error path).
+      client helper's success + error path).
 
 #### Files to create / modify
 
@@ -241,24 +241,24 @@ which is seconds-only and carries no length/type), a cooldown-gated resend, `rem
 #### Acceptance criteria
 
 - [ ] `apps/web/components/otp/otp-input-box.tsx` renders an N-slot box from `useOtpInput`: each slot has
-  `autoComplete="one-time-code"`, `inputMode` matching the purpose's type, `maxLength={1}`, `aria-label`; paste on slot
-  0 only; auto-advance, Backspace nav, and `reset` work. The wrapper consumes the documented `useOtpInput` surface
-  (`values`, `refs`, `onChange`, `onKeyDown`, `onPaste`, `reset`, `setValue`, `code`, `isComplete`, `autoSubmit`,
-  `sanitizeOnPaste`) per `src/react/types.ts` — never re-implement any of it.
+      `autoComplete="one-time-code"`, `inputMode` matching the purpose's type, `maxLength={1}`, `aria-label`; paste on slot
+      0 only; auto-advance, Backspace nav, and `reset` work. The wrapper consumes the documented `useOtpInput` surface
+      (`values`, `refs`, `onChange`, `onKeyDown`, `onPaste`, `reset`, `setValue`, `code`, `isComplete`, `autoSubmit`,
+      `sanitizeOnPaste`) per `src/react/types.ts` — never re-implement any of it.
 - [ ] `apps/web/components/otp/otp-countdown-pill.tsx` renders `useOtpCountdown.formatted` and an `expired` state.
 - [ ] `apps/web/components/otp/otp-verify-panel.tsx` ties it together: a purpose selector driven by an **app-local
-  purpose map** (in `apps/web`) that mirrors the backend OVERVIEW §9 `perPurpose` config (`email_verification` →
-  6-digit/60min, `password_reset` → **8-char alphanumeric / 900s (15 min)**, etc.) — length/type/TTL come from this
-  local map, **never** derived from `DEFAULT_TTLS` (seconds-only, no length/type); a generate action, the box whose
-  `onComplete` calls `verifyOtp`, a resend button **disabled while cooldown > 0** (showing `formatCooldown`),
-  `remainingAttempts` on a wrong code, and a localized message for `OTP_INVALID_CODE` / `OTP_MAX_ATTEMPTS_EXCEEDED` /
-  `OTP_NOT_FOUND` / `OTP_COOLDOWN_ACTIVE` / `OTP_EXPIRED`. The `max_attempts` 429 carries **no** Retry-After (only
-  generate/resend surface a cooldown), so the lockout message shows no countdown.
+      purpose map** (in `apps/web`) that mirrors the backend OVERVIEW §9 `perPurpose` config (`email_verification` →
+      6-digit/60min, `password_reset` → **8-char alphanumeric / 900s (15 min)**, etc.) — length/type/TTL come from this
+      local map, **never** derived from `DEFAULT_TTLS` (seconds-only, no length/type); a generate action, the box whose
+      `onComplete` calls `verifyOtp`, a resend button **disabled while cooldown > 0** (showing `formatCooldown`),
+      `remainingAttempts` on a wrong code, and a localized message for `OTP_INVALID_CODE` / `OTP_MAX_ATTEMPTS_EXCEEDED` /
+      `OTP_NOT_FOUND` / `OTP_COOLDOWN_ACTIVE` / `OTP_EXPIRED`. The `max_attempts` 429 carries **no** Retry-After (only
+      generate/resend surface a cooldown), so the lockout message shows no countdown.
 - [ ] `apps/web/app/otp/page.tsx` mounts the panel under the shared layout.
 - [ ] The code never appears in a URL/`nuqs` param, a log, or any rendered debug surface (verified by a test asserting
-  the rendered DOM + any captured request URL never contain the typed code).
+      the rendered DOM + any captured request URL never contain the typed code).
 - [ ] On a successful verify the panel shows a success state and offers `consume`; a fresh generate resets the box and
-  restarts the countdown.
+      restarts the countdown.
 - [ ] 100% coverage on every new `components/otp/**` file.
 
 #### Files to create / modify
@@ -384,15 +384,15 @@ adapter, and a health/active badge from `GET /channels` **and** the `GET /config
 #### Acceptance criteria
 
 - [ ] `apps/web/components/providers/provider-matrix.tsx` renders the four boundaries from §12 (Email transport / OTP
-  storage / Template rendering / Audit sink) with: contract name, bundled reference, **this example wires**, and a
-  health/active badge derived from `GET /channels` **and** the `GET /config/status` endpoint (added in P5.4).
+      storage / Template rendering / Audit sink) with: contract name, bundled reference, **this example wires**, and a
+      health/active badge derived from `GET /channels` **and** the `GET /config/status` endpoint (added in P5.4).
 - [ ] `apps/web/components/providers/email-preview.tsx` renders a `send-template` result in **four tabs** — **Rendered**
-  (sandboxed iframe / safe HTML), **HTML** (the raw escaped html source), **Text** (the plain-text body), **Metadata**
-  (subject, locale, template id, renderer). A variable containing `<script>…</script>` shows the **html body escaped**
-  while subject and text stay raw — proving the html-only escape (journey 6).
+      (sandboxed iframe / safe HTML), **HTML** (the raw escaped html source), **Text** (the plain-text body), **Metadata**
+      (subject, locale, template id, renderer). A variable containing `<script>…</script>` shows the **html body escaped**
+      while subject and text stay raw — proving the html-only escape (journey 6).
 - [ ] `apps/web/app/providers/page.tsx` mounts the matrix + preview under the shared layout.
 - [ ] The renderer demos (Default / Handlebars / MJML / React Email) are surfaced as selectable in the preview where the
-  backend exposes them.
+      backend exposes them.
 - [ ] 100% coverage on every new `components/providers/**` file.
 
 #### Files to create / modify
@@ -495,12 +495,12 @@ proving the v0.2 interfaces exist but the channels are deliberately rejected tod
 #### Acceptance criteria
 
 - [ ] `apps/web/lib/api/roadmap.ts` exports `tryConfigureSms` / `tryConfigurePush` / `tryConfigureAsyncUseClass`,
-  each POSTing to the matching `/admin/try-configure-*` route and returning the rejection `{ code, message }`.
+      each POSTing to the matching `/admin/try-configure-*` route and returning the rejection `{ code, message }`.
 - [ ] `apps/web/components/roadmap/roadmap-panel.tsx` renders three cards (SMS / Push / useClass), each with a button
-  that triggers the call and displays the **real** rejection message verbatim from the backend (not a hard-coded
-  string), with the localized code where one maps (`SMS_PROVIDER_NOT_CONFIGURED` / `PUSH_PROVIDER_NOT_CONFIGURED`).
+      that triggers the call and displays the **real** rejection message verbatim from the backend (not a hard-coded
+      string), with the localized code where one maps (`SMS_PROVIDER_NOT_CONFIGURED` / `PUSH_PROVIDER_NOT_CONFIGURED`).
 - [ ] A short "why" note frames these as declared-but-not-deliverable v0.2 surfaces (timeless wording — no roadmap-stage
-  jargon in the committed copy).
+      jargon in the committed copy).
 - [ ] `apps/web/app/roadmap/page.tsx` mounts the panel under the shared layout.
 - [ ] 100% coverage on every new `components/roadmap/**` and `lib/api/roadmap.ts` file.
 
@@ -512,7 +512,7 @@ proving the v0.2 interfaces exist but the channels are deliberately rejected tod
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend (React 19 / Next.js 16) engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — the public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP
@@ -572,7 +572,7 @@ Completion Protocol:
 3. Update the P10 row Progress to `4 / 6` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 10.4 ✅ <YYYY-MM-DD> — Roadmap startup-rejection panel`.
 5. Commit: `feat(web): roadmap panel surfacing real startup rejections` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -592,13 +592,13 @@ with an explanatory note, it is not a live toggle).
 #### Acceptance criteria
 
 - [ ] `apps/web/lib/api/settings.ts` exports `getConfigStatus()` (channels enabled from `GET /channels`,
-  provider/storage/renderer in use + `consumeOnVerify` + `swallowErrors` as configured + `maskRecipient` mode from the
-  `GET /config/status` endpoint added in P5.4) over the api-client; + `settings.test.ts`.
+      provider/storage/renderer in use + `consumeOnVerify` + `swallowErrors` as configured + `maskRecipient` mode from the
+      `GET /config/status` endpoint added in P5.4) over the api-client; + `settings.test.ts`.
 - [ ] `apps/web/components/settings/config-status.tsx` renders the channel/provider config and the RBAC role list
-  (Viewer / Operator / Admin) read from the global role switcher (P8).
+      (Viewer / Operator / Admin) read from the global role switcher (P8).
 - [ ] `apps/web/components/settings/frozen-options.tsx` renders `consumeOnVerify` / `swallowErrors` as **read-only**
-  badges with an explanatory note ("resolved once at boot; flipping them is demonstrated by booting a second module
-  variant, not a live mutation") — **no runtime mutation control**.
+      badges with an explanatory note ("resolved once at boot; flipping them is demonstrated by booting a second module
+      variant, not a live mutation") — **no runtime mutation control**.
 - [ ] `apps/web/app/settings/page.tsx` mounts both under the shared layout.
 - [ ] 100% coverage on every new `components/settings/**` and `lib/api/settings.ts` file.
 
@@ -610,7 +610,7 @@ with an explanatory note, it is not a live toggle).
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend (React 19 / Next.js 16) engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — the public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP
@@ -669,7 +669,7 @@ Completion Protocol:
 3. Update the P10 row Progress to `5 / 6` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 10.5 ✅ <YYYY-MM-DD> — Settings config status + frozen options`.
 5. Commit: `feat(web): settings panel with config status and boot-frozen options` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -689,17 +689,17 @@ the full local gate, and run the Per-phase Completion Protocol.
 #### Acceptance criteria
 
 - [ ] `pnpm audit:error-codes` exits 0 — every one of the 22 `NOTIFICATION_ERROR_CODES` keys is localized/referenced in
-  `apps/web` (the four panels collectively reference all of them; any key with no natural UI home is referenced in the
-  `error-codes` map and asserted by a test).
+      `apps/web` (the four panels collectively reference all of them; any key with no natural UI home is referenced in the
+      `error-codes` map and asserted by a test).
 - [ ] The `./react` hook allow-list entries that P2 added to `.audit-ignore.json` (`useOtpInput`, `useOtpCountdown`) are
-  **removed** — the hooks are now demonstrated in the `/otp` UI, so they no longer need an ignore entry — and
-  `pnpm audit:exports` is re-run.
+      **removed** — the hooks are now demonstrated in the `/otp` UI, so they no longer need an ignore entry — and
+      `pnpm audit:exports` is re-run.
 - [ ] `pnpm audit:exports` exits 0 — the React hooks (`useOtpInput`, `useOtpCountdown`) and the `./shared` symbols P10
-  consumes are all referenced; no allow-list entry is needed for a P10 export (or, if one is, it carries a reason).
+      consumes are all referenced; no allow-list entry is needed for a P10 export (or, if one is, it carries a reason).
 - [ ] The full local gate passes: `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov &&
-  pnpm audit:exports && pnpm audit:error-codes`, with `apps/web` at **100%** coverage on all four metrics.
+pnpm audit:exports && pnpm audit:error-codes`, with `apps/web` at **100%** coverage on all four metrics.
 - [ ] The Feature Coverage Matrix rows owned by P10 (15, 18, 19, 52, 53, 55, 56, 58a–c) are reconciled — each marked
-  demonstrated with its `apps/web` reference (per Appendix B).
+      demonstrated with its `apps/web` reference (per Appendix B).
 - [ ] The four P10 destinations are reachable from the left-nav and deep-link via `nuqs` (consistent with P9).
 
 #### Files to create / modify
@@ -712,7 +712,7 @@ the full local gate, and run the Per-phase Completion Protocol.
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend / quality engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — the public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP
@@ -777,7 +777,7 @@ PER-PHASE (see docs/tasks/README.md "Per-phase Completion Protocol"): once the P
 docs/DEVELOPMENT_PLAN.md set the P10 **Status to ✅** and **Progress `6 / 6`** + Last updated; advance **Active phase**
 to P11; recompute **Overall progress** to `10 / 15 phases (67%)`. Set this file's header **Status to ✅** and Progress
 `6 / 6 tasks`. Commit `docs(plan): P10 complete` (no Co-Authored-By).
-````
+```
 
 ---
 

@@ -1,9 +1,9 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 👀 Review · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -19,7 +19,7 @@ sibling workflows **plus** the go-public hardening — CodeQL, OpenSSF Scorecard
 GitHub Copilot review configuration, and the audit-script stubs. When P0 is done, `pnpm install --frozen-lockfile`,
 `pnpm typecheck`, `pnpm lint`, and `pnpm format:check` all pass on the empty workspace, `ci.yml` runs green on a PR, the
 security workflows run, `release.yml` validates without publishing, and the repo carries everything it needs to be made
-public. **No application logic is written in this phase.** The verbatim copy of the design-system *web* files
+public. **No application logic is written in this phase.** The verbatim copy of the design-system _web_ files
 (`globals.css`, `tailwind.config.ts`, `components.json`, `components/ui/*`) belongs to **P8** (it needs `apps/web`);
 `docs/design_system.html` is already the reference here.
 
@@ -62,15 +62,15 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 0.1 | pnpm workspace + TypeScript foundation | 📋 ToDo | P0 | M | — |
-| 0.2 | Lint, format & commit governance | 📋 ToDo | P0 | S | 0.1 |
-| 0.3 | Mandatory repo & community-health files | 📋 ToDo | P1 | S | 0.1 |
-| 0.4 | GitHub config & Copilot review | 📋 ToDo | P0 | M | 0.1 |
-| 0.5 | Core CI workflow + audit-script stubs | 📋 ToDo | P0 | M | 0.1, 0.2 |
-| 0.6 | Security & supply-chain workflows | 📋 ToDo | P0 | M | 0.5 |
-| 0.7 | Mutation/release workflow skeletons + Dockerfiles | 📋 ToDo | P1 | M | 0.5 |
+| ID  | Task                                              | Status  | Priority | Size | Depends on |
+| --- | ------------------------------------------------- | ------- | -------- | ---- | ---------- |
+| 0.1 | pnpm workspace + TypeScript foundation            | ✅ Done | P0       | M    | —          |
+| 0.2 | Lint, format & commit governance                  | ✅ Done | P0       | S    | 0.1        |
+| 0.3 | Mandatory repo & community-health files           | ✅ Done | P1       | S    | 0.1        |
+| 0.4 | GitHub config & Copilot review                    | ✅ Done | P0       | M    | 0.1        |
+| 0.5 | Core CI workflow + audit-script stubs             | ✅ Done | P0       | M    | 0.1, 0.2   |
+| 0.6 | Security & supply-chain workflows                 | ✅ Done | P0       | M    | 0.5        |
+| 0.7 | Mutation/release workflow skeletons + Dockerfiles | ✅ Done | P1       | M    | 0.5        |
 
 ---
 
@@ -78,7 +78,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 
 ### Task 0.1 — pnpm workspace + TypeScript foundation
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -90,16 +90,16 @@ empty tree, ready for `apps/*` to be added later.
 
 #### Acceptance criteria
 
-- [ ] `pnpm install --frozen-lockfile` succeeds on the empty workspace.
-- [ ] `pnpm-workspace.yaml` declares `packages: ['apps/*']`; root `package.json` sets `packageManager: pnpm@11.x`,
-  `engines: { node: '>=24', pnpm: '>=11' }`, `"type": "module"`, and the root scripts (`typecheck`, `lint`,
-  `format`, `format:check`, `test:cov`, `audit:exports`, `audit:error-codes`, `infra:up`, `infra:down` — placeholders
-  that no-op or fan out with `pnpm -r --workspace-concurrency=1`).
-- [ ] `tsconfig.base.json` enables `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`,
-  `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `isolatedModules`, `verbatimModuleSyntax`,
-  `moduleResolution: Bundler`, `target/lib` for Node 24.
-- [ ] `.nvmrc` = `24`; `.npmrc` has `frozen-lockfile=true`; `.editorconfig`, `.gitignore`, `.gitattributes` present.
-- [ ] `pnpm typecheck` exits 0 (a root `tsconfig.json` with `"files": []` to avoid TS18003 on the empty tree).
+- [x] `pnpm install --frozen-lockfile` succeeds on the empty workspace.
+- [x] `pnpm-workspace.yaml` declares `packages: ['apps/*']`; root `package.json` sets `packageManager: pnpm@11.x`,
+      `engines: { node: '>=24', pnpm: '>=11' }`, `"type": "module"`, and the root scripts (`typecheck`, `lint`,
+      `format`, `format:check`, `test:cov`, `audit:exports`, `audit:error-codes`, `infra:up`, `infra:down` — placeholders
+      that no-op or fan out with `pnpm -r --workspace-concurrency=1`).
+- [x] `tsconfig.base.json` enables `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`,
+      `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `isolatedModules`, `verbatimModuleSyntax`,
+      `moduleResolution: Bundler`, `target/lib` for Node 24.
+- [x] `.nvmrc` = `24`; `.npmrc` has `frozen-lockfile=true`; `.editorconfig`, `.gitignore`, `.gitattributes` present.
+- [x] `pnpm typecheck` exits 0 (a root `tsconfig.json` with `"files": []` to avoid TS18003 on the empty tree).
 
 #### Files to create / modify
 
@@ -108,7 +108,7 @@ empty tree, ready for `apps/*` to be added later.
 
 #### Agent prompt
 
-````
+```
 You are a senior TypeScript build/tooling engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — the public reference app for the @bymax-one/nest-notification library
@@ -155,13 +155,13 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 4. Update the P0 row Progress to `1 / 7` in docs/DEVELOPMENT_PLAN.md.
 5. Append to Completion log: `- 0.1 ✅ <YYYY-MM-DD> — pnpm workspace + TS foundation`.
 6. Commit: `chore(workspace): scaffold pnpm monorepo + tsconfig base` (no Co-Authored-By).
-````
+```
 
 ---
 
 ### Task 0.2 — Lint, format & commit governance
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: S
 - **Depends on**: 0.1
@@ -173,15 +173,15 @@ enforced locally and in CI.
 
 #### Acceptance criteria
 
-- [ ] `eslint.config.mjs` (flat) uses `typescript-eslint` `recommendedTypeChecked` via the project service,
-  `eslint-config-prettier` last, type-aware rules scoped to TS, relaxed unsafe/any rules only in test globs; runs with
-  `--max-warnings 0`.
-- [ ] `.prettierrc.mjs` + `.prettierignore` present; `pnpm format:check` passes on the tree.
-- [ ] `commitlint.config.mjs` extends `@commitlint/config-conventional`; `.gitmessage` documents allowed type/scope.
-- [ ] `.husky/pre-commit` → `lint-staged`; `.husky/commit-msg` → `commitlint --edit`; `lint-staged.config.mjs` runs
-  `prettier --write` + `eslint --fix` on staged files.
-- [ ] `.markdown-link-check.json` present.
-- [ ] `pnpm lint` and `pnpm format:check` exit 0; a non-conventional commit message is rejected by the hook.
+- [x] `eslint.config.mjs` (flat) uses `typescript-eslint` `recommendedTypeChecked` via the project service,
+      `eslint-config-prettier` last, type-aware rules scoped to TS, relaxed unsafe/any rules only in test globs; runs with
+      `--max-warnings 0`.
+- [x] `.prettierrc.mjs` + `.prettierignore` present; `pnpm format:check` passes on the tree.
+- [x] `commitlint.config.mjs` extends `@commitlint/config-conventional`; `.gitmessage` documents allowed type/scope.
+- [x] `.husky/pre-commit` → `lint-staged`; `.husky/commit-msg` → `commitlint --edit`; `lint-staged.config.mjs` runs
+      `prettier --write` + `eslint --fix` on staged files.
+- [x] `.markdown-link-check.json` present.
+- [x] `pnpm lint` and `pnpm format:check` exit 0; a non-conventional commit message is rejected by the hook.
 
 #### Files to create / modify
 
@@ -191,7 +191,7 @@ enforced locally and in CI.
 
 #### Agent prompt
 
-````
+```
 You are a senior TypeScript tooling engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. pnpm monorepo, Node 24,
@@ -233,13 +233,13 @@ Verification:
 Completion Protocol: set 0.2 ✅ (block + index), tick criteria, header Progress `2 / 7`, update the P0 row in
 DEVELOPMENT_PLAN to `2 / 7`, append `- 0.2 ✅ <date> — lint/format/commit governance`, commit
 `chore(tooling): eslint + prettier + commitlint + husky` (no Co-Authored-By).
-````
+```
 
 ---
 
 ### Task 0.3 — Mandatory repo & community-health files
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 0.1
@@ -251,14 +251,14 @@ ready to be made public.
 
 #### Acceptance criteria
 
-- [ ] `LICENSE` (MIT © Bymax One), `CHANGELOG.md` (Keep a Changelog, `## [Unreleased]`), `SECURITY.md` (report → email,
-  not a public issue), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 by reference link).
-- [ ] `CLAUDE.md` + `AGENTS.md` (repo invariants for AI agents — link to OVERVIEW/DEVELOPMENT_PLAN; the run/test/gate
-  cheat-sheet; **no phase/task references**).
-- [ ] `README.md` with the centered badge header (CI, coverage, mutation, license, TS-strict, Node, NestJS, Next,
-  React, Tailwind, Prisma), a one-line tagline, a nav-link row, `## Overview`, `## Quick start`, an architecture
-  diagram, a `## Documentation` table linking the `docs/*.md`, and `## License`.
-- [ ] `pnpm exec markdown-link-check` (or the CI step) reports no broken links.
+- [x] `LICENSE` (MIT © Bymax One), `CHANGELOG.md` (Keep a Changelog, `## [Unreleased]`), `SECURITY.md` (report → email,
+      not a public issue), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 by reference link).
+- [x] `CLAUDE.md` + `AGENTS.md` (repo invariants for AI agents — link to OVERVIEW/DEVELOPMENT_PLAN; the run/test/gate
+      cheat-sheet; **no phase/task references**).
+- [x] `README.md` with the centered badge header (CI, coverage, mutation, license, TS-strict, Node, NestJS, Next,
+      React, Tailwind, Prisma), a one-line tagline, a nav-link row, `## Overview`, `## Quick start`, an architecture
+      diagram, a `## Documentation` table linking the `docs/*.md`, and `## License`.
+- [x] `pnpm exec markdown-link-check` (or the CI step) reports no broken links.
 
 #### Files to create / modify
 
@@ -266,7 +266,7 @@ ready to be made public.
 
 #### Agent prompt
 
-````
+```
 You are a senior developer-experience engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email+OTP
@@ -312,13 +312,13 @@ Verification:
 Completion Protocol: set 0.3 ✅ (block + index), tick criteria, header Progress `3 / 7`, update the P0 row in
 DEVELOPMENT_PLAN, append `- 0.3 ✅ <date> — repo & community-health files`, commit
 `docs(repo): add license, readme, security, contributing, agent files` (no Co-Authored-By).
-````
+```
 
 ---
 
 ### Task 0.4 — GitHub config & Copilot review
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 0.1
@@ -330,16 +330,16 @@ Copilot code-review files customized for this stack, so every PR gets automated 
 
 #### Acceptance criteria
 
-- [ ] `.github/ISSUE_TEMPLATE/{bug_report.yml,feature_request.yml,config.yml}` (config links security reports to email,
-  not a public issue), `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`.
-- [ ] `.github/dependabot.yml` (npm + github-actions, weekly, PRs only) **and/or** `renovate.json` (match the sibling's
-  choice — the examples use `renovate.json`; pin `@bymax-one/nest-notification`).
-- [ ] The four Copilot review files: `.github/copilot-instructions.md`, `.github/instructions/code.instructions.md`,
-  `.github/instructions/tests.instructions.md`, `.github/agents/agent-code-reviewer.agent.md` — **customized for the
-  notification stack** (NestJS 11 + Next 16; the 100%-coverage/Stryker bar; the never-log-codes + multi-tenant rules;
-  the no-phase-refs rule; the design-system-verbatim rule).
-- [ ] The three `instructions/*.md` + `copilot-instructions.md` are each **< 4000 chars**; the `.agent.md` may exceed.
-- [ ] No phase/task references in any of these files; YAML is valid.
+- [x] `.github/ISSUE_TEMPLATE/{bug_report.yml,feature_request.yml,config.yml}` (config links security reports to email,
+      not a public issue), `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`.
+- [x] `.github/dependabot.yml` (npm + github-actions, weekly, PRs only) **and/or** `renovate.json` (match the sibling's
+      choice — the examples use `renovate.json`; pin `@bymax-one/nest-notification`).
+- [x] The four Copilot review files: `.github/copilot-instructions.md`, `.github/instructions/code.instructions.md`,
+      `.github/instructions/tests.instructions.md`, `.github/agents/agent-code-reviewer.agent.md` — **customized for the
+      notification stack** (NestJS 11 + Next 16; the 100%-coverage/Stryker bar; the never-log-codes + multi-tenant rules;
+      the no-phase-refs rule; the design-system-verbatim rule).
+- [x] The three `instructions/*.md` + `copilot-instructions.md` are each **< 4000 chars**; the `.agent.md` may exceed.
+- [x] No phase/task references in any of these files; YAML is valid.
 
 #### Files to create / modify
 
@@ -351,7 +351,7 @@ Copilot code-review files customized for this stack, so every PR gets automated 
 
 #### Agent prompt
 
-````
+```
 You are a senior DevEx / repository-configuration engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification, built by autonomous agents
@@ -397,13 +397,13 @@ Verification:
 Completion Protocol: set 0.4 ✅ (block + index), tick criteria, header Progress `4 / 7`, update the P0 row in
 DEVELOPMENT_PLAN, append `- 0.4 ✅ <date> — github config + copilot review`, commit
 `chore(github): issue/PR templates, CODEOWNERS, renovate, copilot review config` (no Co-Authored-By).
-````
+```
 
 ---
 
 ### Task 0.5 — Core CI workflow + audit-script stubs
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 0.1, 0.2
@@ -415,18 +415,18 @@ pass trivially on the empty `apps/` and grow with the codebase.
 
 #### Acceptance criteria
 
-- [ ] `.github/workflows/ci.yml` triggers on PR + push to `main`/`next`, with `install` → `lint` → `typecheck` →
-  `unit` (placeholder, no-op until apps exist) → `export-usage-check` (runs both audit scripts) → `dependency-review`
-  (PR only) jobs; least-privilege `permissions`, `concurrency` cancel-in-progress, pinned `actions/*` + `pnpm/action-setup`
-  + `setup-node` (Node 24, pnpm before node), `--frozen-lockfile`, `timeout-minutes` per job. Job names match Appendix D.
-- [ ] `scripts/audit-library-exports.mjs` — dependency-free Node ESM that parses the linked lib's
-  `dist/{server,shared,react}/index.d.ts`, word-boundary-searches `apps/**`, exits 0 when all referenced (or
-  allow-listed), 1 when an export is unused, 2 on infra error; reads `.audit-ignore.json`. On the empty tree it exits 0
-  (no apps yet) with an informational note.
-- [ ] `scripts/audit-error-codes.mjs` — asserts every `NOTIFICATION_ERROR_CODES` key is referenced in `apps/web`; exits
-  0 on the empty tree.
-- [ ] `.audit-ignore.json` present (`{ "ignored": [] }`).
-- [ ] `pnpm audit:exports` and `pnpm audit:error-codes` exit 0 locally; `ci.yml` is valid (parses) and would run green.
+- [x] `.github/workflows/ci.yml` triggers on PR + push to `main`/`next`, with `install` → `lint` → `typecheck` →
+      `unit` (placeholder, no-op until apps exist) → `export-usage-check` (runs both audit scripts) → `dependency-review`
+      (PR only) jobs; least-privilege `permissions`, `concurrency` cancel-in-progress, pinned `actions/*` + `pnpm/action-setup`
+  - `setup-node` (Node 24, pnpm before node), `--frozen-lockfile`, `timeout-minutes` per job. Job names match Appendix D.
+- [x] `scripts/audit-library-exports.mjs` — dependency-free Node ESM that parses the linked lib's
+      `dist/{server,shared,react}/index.d.ts`, word-boundary-searches `apps/**`, exits 0 when all referenced (or
+      allow-listed), 1 when an export is unused, 2 on infra error; reads `.audit-ignore.json`. On the empty tree it exits 0
+      (no apps yet) with an informational note.
+- [x] `scripts/audit-error-codes.mjs` — asserts every `NOTIFICATION_ERROR_CODES` key is referenced in `apps/web`; exits
+      0 on the empty tree.
+- [x] `.audit-ignore.json` present (`{ "ignored": [] }`).
+- [x] `pnpm audit:exports` and `pnpm audit:error-codes` exit 0 locally; `ci.yml` is valid (parses) and would run green.
 
 #### Files to create / modify
 
@@ -436,7 +436,7 @@ pass trivially on the empty `apps/` and grow with the codebase.
 
 #### Agent prompt
 
-````
+```
 You are a senior CI/CD engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification, agent-built; every PR must
@@ -480,13 +480,13 @@ Verification:
 Completion Protocol: set 0.5 ✅ (block + index), tick criteria, header Progress `5 / 7`, update the P0 row in
 DEVELOPMENT_PLAN, append `- 0.5 ✅ <date> — core CI + audit script stubs`, commit
 `ci: core pipeline (lint/typecheck/audits/dependency-review) + audit scripts` (no Co-Authored-By).
-````
+```
 
 ---
 
 ### Task 0.6 — Security & supply-chain workflows
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 0.5
@@ -498,13 +498,13 @@ scan — wired and running (informational) so the repo is safe to make public.
 
 #### Acceptance criteria
 
-- [ ] `.github/workflows/codeql.yml` — `javascript-typescript`, `security-extended` query set, on PR + push `main` +
-  weekly cron; `permissions: security-events: write` (only that job); SARIF → Security tab.
-- [ ] `.github/workflows/scorecard.yml` — OpenSSF Scorecard on push `main` + weekly cron + dispatch; publishes results;
-  `id-token: write` + `security-events: write` scoped to the job.
-- [ ] A secret scan (gitleaks action) wired — either a `secret-scan` job in `ci.yml` or a small `.github/workflows/secret-scan.yml`
-  — running on PR + push and failing on a detected secret.
-- [ ] All three run green/informational on a PR/push (no real secrets exist — only Mailpit/test fixtures later).
+- [x] `.github/workflows/codeql.yml` — `javascript-typescript`, `security-extended` query set, on PR + push `main` +
+      weekly cron; `permissions: security-events: write` (only that job); SARIF → Security tab.
+- [x] `.github/workflows/scorecard.yml` — OpenSSF Scorecard on push `main` + weekly cron + dispatch; publishes results;
+      `id-token: write` + `security-events: write` scoped to the job.
+- [x] A secret scan (gitleaks action) wired — either a `secret-scan` job in `ci.yml` or a small `.github/workflows/secret-scan.yml`
+      — running on PR + push and failing on a detected secret.
+- [x] All three run green/informational on a PR/push (no real secrets exist — only Mailpit/test fixtures later).
 
 #### Files to create / modify
 
@@ -512,7 +512,7 @@ scan — wired and running (informational) so the repo is safe to make public.
 
 #### Agent prompt
 
-````
+```
 You are a senior application-security / supply-chain engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. The repo is PRIVATE now and
@@ -554,13 +554,13 @@ Verification:
 Completion Protocol: set 0.6 ✅ (block + index), tick criteria, header Progress `6 / 7`, update the P0 row in
 DEVELOPMENT_PLAN, append `- 0.6 ✅ <date> — codeql + scorecard + secret-scan`, commit
 `ci(security): add codeql, scorecard, and secret-scan workflows` (no Co-Authored-By).
-````
+```
 
 ---
 
 ### Task 0.7 — Mutation/release workflow skeletons + Dockerfiles
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 0.5
@@ -572,16 +572,16 @@ so the full pipeline shape exists from day one and is filled in by later phases 
 
 #### Acceptance criteria
 
-- [ ] `.github/workflows/mutation.yml` — PR-triggered, `dorny/paths-filter` per workspace, runs `stryker run --incremental`
-  per changed app, caches the incremental file; no-ops cleanly while `apps/` is empty (guards on the path filter).
-- [ ] `.github/workflows/mutation-nightly.yml` — Monday 03:00 UTC + dispatch, `stryker run --force`; opens a
-  `mutation-drift`-labelled issue on failure (`issues: write`, idempotent).
-- [ ] `.github/workflows/release.yml` — on tag `v*`: validates tag ↔ version, OIDC (`id-token: write`, `packages: write`),
-  builds + pushes GHCR images `…-api` / `…-web`, then a `contents: write` job prepends a row to `docs/RELEASES.md`;
-  untrusted refs via `env:`. It **validates without publishing** when run pre-release (or is dispatch-guarded).
-- [ ] `apps/api/Dockerfile` + `apps/web/Dockerfile` — multi-stage skeletons (build from repo root) that are coherent but
-  not yet runnable (apps don't exist); `.dockerignore` present.
-- [ ] All workflows parse; `release.yml`'s tag↔version check passes on a dry run.
+- [x] `.github/workflows/mutation.yml` — PR-triggered, `dorny/paths-filter` per workspace, runs `stryker run --incremental`
+      per changed app, caches the incremental file; no-ops cleanly while `apps/` is empty (guards on the path filter).
+- [x] `.github/workflows/mutation-nightly.yml` — Monday 03:00 UTC + dispatch, `stryker run --force`; opens a
+      `mutation-drift`-labelled issue on failure (`issues: write`, idempotent).
+- [x] `.github/workflows/release.yml` — on tag `v*`: validates tag ↔ version, OIDC (`id-token: write`, `packages: write`),
+      builds + pushes GHCR images `…-api` / `…-web`, then a `contents: write` job prepends a row to `docs/RELEASES.md`;
+      untrusted refs via `env:`. It **validates without publishing** when run pre-release (or is dispatch-guarded).
+- [x] `apps/api/Dockerfile` + `apps/web/Dockerfile` — multi-stage skeletons (build from repo root) that are coherent but
+      not yet runnable (apps don't exist); `.dockerignore` present.
+- [x] All workflows parse; `release.yml`'s tag↔version check passes on a dry run.
 
 #### Files to create / modify
 
@@ -590,7 +590,7 @@ so the full pipeline shape exists from day one and is filled in by later phases 
 
 #### Agent prompt
 
-````
+```
 You are a senior release-engineering / CI engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. Two container images
@@ -636,7 +636,7 @@ DEVELOPMENT_PLAN, append `- 0.7 ✅ <date> — mutation/release skeletons + Dock
 PER-PHASE (see docs/tasks/README.md "Per-phase Completion Protocol"): once the PR is merged and CI is green, set the P0
 **Status to ✅** and Progress `7 / 7` in docs/DEVELOPMENT_PLAN.md, advance **Active phase** to P1, recompute
 **Overall progress** to `1 / 15 phases (7%)`, set this file's header Status to ✅, and commit `docs(plan): P0 complete`.
-````
+```
 
 ---
 
@@ -661,4 +661,10 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 0.1 ✅ 2026-06-23 — pnpm workspace + TS foundation
+- 0.2 ✅ 2026-06-23 — lint/format/commit governance
+- 0.3 ✅ 2026-06-23 — repo & community-health files
+- 0.4 ✅ 2026-06-23 — github config + copilot review
+- 0.5 ✅ 2026-06-23 — core CI + audit script stubs
+- 0.6 ✅ 2026-06-23 — codeql + scorecard + secret-scan
+- 0.7 ✅ 2026-06-23 — mutation/release skeletons + Dockerfiles

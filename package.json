@@ -1,0 +1,40 @@
+{
+  "name": "nest-notification-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.8.0",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present run dev",
+    "build": "pnpm -r --workspace-concurrency=1 --if-present run build",
+    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r --workspace-concurrency=1 --if-present run typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present run test",
+    "test:cov": "pnpm -r --workspace-concurrency=1 --if-present run test:cov",
+    "test:e2e": "pnpm -r --workspace-concurrency=1 --if-present run test:e2e",
+    "audit:exports": "node scripts/audit-library-exports.mjs",
+    "audit:error-codes": "node scripts/audit-error-codes.mjs",
+    "infra:up": "docker compose up -d --wait",
+    "infra:down": "docker compose down",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.6",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.60.0"
+  }
+}

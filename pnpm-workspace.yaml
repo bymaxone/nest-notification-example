@@ -5,5 +5,31 @@ packages:
 # the ESLint toolchain). Its build step only links the prebuilt platform binary shipped
 # as an optional dependency — no compiler toolchain is invoked — so it is safe to run.
 # (pnpm v11 build-approval map; replaces the deprecated onlyBuiltDependencies list.)
+#
+# Prisma's CLI and engine packages run a postinstall that fetches/links the query
+# engine the @prisma/adapter-pg driver client depends on — required so that
+# `prisma generate` and the generated client resolve.
 allowBuilds:
+  '@prisma/engines': true
+  prisma: true
   unrs-resolver: true
+
+# Force a patched version of a transitive dependency carrying a known high-severity
+# advisory that the upstream graph (the Express platform adapter) still resolves to a
+# vulnerable range:
+#   - multer < 2.2.0 — DoS via deeply nested multipart field names
+# The pin is a backward-compatible patch/minor bump.
+#
+# nodemailer is intentionally NOT pinned here: it is an OPTIONAL peer of the
+# notification library and this API skeleton does not yet wire email delivery, so the
+# peer stays unsatisfied and nothing pulls a (vulnerable) nodemailer into the graph.
+# The security pin (`>=9.0.1`, raw-message SSRF/file-read advisory) returns together
+# with nodemailer as a real dependency when email sending is wired.
+#
+# `html-minifier <= 4.0.0` (ReDoS, GHSA-pfq8-rq6v-vf5m) is NOT pinned here: it is
+# unmaintained with no published patch (4.0.0 is the latest), reached only transitively
+# through `mjml > mjml-cli`. It is unreachable from this API skeleton (no MJML rendering
+# of caller-controlled HTML in the request path) and must be resolved upstream in the
+# notification library's `mjml` chain, not by an unsatisfiable consumer override.
+overrides:
+  multer: '>=2.2.0'

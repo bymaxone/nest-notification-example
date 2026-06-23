@@ -7,19 +7,31 @@
     "node": ">=24"
   },
   "scripts": {
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "build": "nest build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.cjs",
-    "test:cov": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.cjs --coverage"
+    "test:cov": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.cjs --coverage",
+    "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config test/jest-e2e.config.cjs",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate"
   },
   "dependencies": {
     "@bymax-one/nest-notification": "file:../../../nest-notification",
     "@nestjs/common": "^11",
+    "@nestjs/config": "^4",
     "@nestjs/core": "^11",
+    "@nestjs/platform-express": "^11",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@react-email/render": "^1",
+    "express": "^5",
     "handlebars": "^4",
+    "helmet": "^8.2.0",
     "ioredis": "^5",
     "mjml": "^4",
-    "nodemailer": "^7",
+    "pg": "^8",
     "reflect-metadata": "^0.2",
     "resend": "^4",
     "rxjs": "^7.8",
@@ -27,10 +39,15 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.0.0",
+    "@nestjs/cli": "^11",
+    "@nestjs/testing": "^11",
+    "@types/express": "^5",
     "@types/jest": "^30.0.0",
     "@types/node": "^24",
-    "@types/nodemailer": "^6",
+    "@types/supertest": "^7",
     "jest": "^30.0.0",
+    "prisma": "^7.8.0",
+    "supertest": "^7",
     "ts-jest": "^29.0.0"
   }
 }

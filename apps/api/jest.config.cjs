@@ -11,7 +11,14 @@ module.exports = {
       'ts-jest',
       {
         useESM: true,
+        // Unit specs construct classes directly (no Nest DI container), so the
+        // `design:*` reflection metadata is unnecessary. Compiling without
+        // `emitDecoratorMetadata` (see tsconfig.spec.json) avoids emitting the
+        // `__metadata("design:paramtypes", …)` guards whose `: Object` fallback
+        // arms are unreachable phantom branches; combined with
+        // `ignoreCoverageForAllDecorators` this keeps the 100% gate meaningful.
         tsconfig: '<rootDir>/../tsconfig.spec.json',
+        ignoreCoverageForAllDecorators: true,
       },
     ],
   },

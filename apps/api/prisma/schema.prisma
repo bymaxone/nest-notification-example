@@ -1,0 +1,19 @@
+// Prisma schema for apps/api.
+//
+// The connection URL is intentionally kept OUT of this file (Prisma 7 no longer
+// accepts `url` in the datasource block): the runtime PrismaService wires it
+// from ConfigService through the @prisma/adapter-pg driver adapter, and the
+// Prisma CLI reads it from `prisma.config.ts`. The schema only declares the
+// datasource provider.
+//
+// No domain models are declared yet — the audit-store models are introduced
+// when the delivery pipeline persists its log. This schema is kept generatable
+// (with no models) so `@prisma/client` types resolve for the typecheck.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}

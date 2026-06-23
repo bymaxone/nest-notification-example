@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "types": ["node", "jest"],
-    "outDir": "./dist-test"
+    "outDir": "./dist-test",
+    "emitDecoratorMetadata": false
   },
   "include": ["src/**/*.ts", "src/**/*.spec.ts"],
   "exclude": ["node_modules", "dist"]

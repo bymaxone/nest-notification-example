@@ -1,6 +1,6 @@
 # Phase 1 — Local Stack & Environment
 
-> **Status**: 🔄 In Progress · **Progress**: 1 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 2 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P1
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -75,7 +75,7 @@ than inventing: `nest-logger-example` (compose dev/test, init.sql, env schema sh
 | ID  | Task                                     | Status  | Priority | Size | Depends on |
 | --- | ---------------------------------------- | ------- | -------- | ---- | ---------- |
 | 1.1 | `apps/api` skeleton package              | ✅ Done | P0       | S    | —          |
-| 1.2 | Docker Compose dev stack + Postgres init | 📋 ToDo | P0       | M    | 1.1        |
+| 1.2 | Docker Compose dev stack + Postgres init | ✅ Done | P0       | M    | 1.1        |
 | 1.3 | Docker Compose test stack (high ports)   | 📋 ToDo | P1       | S    | 1.2        |
 | 1.4 | `.env.example` + infra scripts           | 📋 ToDo | P0       | S    | 1.2        |
 | 1.5 | Zod env schema + failure-path unit test  | 📋 ToDo | P0       | M    | 1.1, 1.4   |
@@ -189,7 +189,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 1.2 — Docker Compose dev stack + Postgres init
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 1.1
@@ -202,15 +202,15 @@ zero-credential local backend the API connects to.
 
 #### Acceptance criteria
 
-- [ ] `docker-compose.yml` defines three services, all ports bound to `127.0.0.1`:
+- [x] `docker-compose.yml` defines three services, all ports bound to `127.0.0.1`:
   - `postgres` — `postgres:18-alpine`, port `5432`, persistent volume + `init.sql` mounted read-only, healthcheck
     `pg_isready`.
   - `redis` — `redis:7-alpine`, port `6379`, healthcheck `redis-cli ping`.
   - `mailpit` — `axllent/mailpit` (digest-pinned), SMTP `1025` + UI `8025`, healthcheck on the `:8025` HTTP info
     endpoint.
-- [ ] `docker/postgres/init.sql` — re-run-safe (`\gexec` guard) `CREATE DATABASE notification_example`.
-- [ ] A named network (`local-dev`) + named volumes (`pg-data`, `redis-data`).
-- [ ] `docker compose -f docker-compose.yml config` validates; `docker compose up -d --wait` returns only when all three
+- [x] `docker/postgres/init.sql` — re-run-safe (`\gexec` guard) `CREATE DATABASE notification_example`.
+- [x] A named network (`local-dev`) + named volumes (`pg-data`, `redis-data`).
+- [x] `docker compose -f docker-compose.yml config` validates; `docker compose up -d --wait` returns only when all three
       are healthy; `curl -fsS http://localhost:8025/api/v1/info` returns 200.
 
 #### Files to create / modify
@@ -747,4 +747,5 @@ If any DoD bullet is unmet or CI is red, set P1 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
+- 1.2 ✅ 2026-06-23 — docker compose dev stack (postgres/redis/mailpit) + init.sql
 - 1.1 ✅ 2026-06-23 — apps/api skeleton package

@@ -11,17 +11,28 @@
     "dev": "pnpm -r --parallel --if-present run dev",
     "build": "pnpm -r --workspace-concurrency=1 --if-present run build",
     "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r --workspace-concurrency=1 --if-present run typecheck",
-    "lint": "pnpm -r --workspace-concurrency=1 --if-present run lint",
-    "format": "pnpm -r --workspace-concurrency=1 --if-present run format",
-    "format:check": "pnpm -r --workspace-concurrency=1 --if-present run format:check",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "pnpm -r --workspace-concurrency=1 --if-present run test",
     "test:cov": "pnpm -r --workspace-concurrency=1 --if-present run test:cov",
     "audit:exports": "node scripts/audit-library-exports.mjs",
     "audit:error-codes": "node scripts/audit-error-codes.mjs",
     "infra:up": "docker compose up -d --wait",
-    "infra:down": "docker compose down"
+    "infra:down": "docker compose down",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.6",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.60.0"
   }
 }

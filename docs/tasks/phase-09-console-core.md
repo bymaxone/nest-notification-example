@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P9
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -75,21 +75,21 @@ the SSE follow-mode live tail. The notification domain replaces logger concepts:
 - Sibling gold sources (copy & adapt — do not invent): `~/Documents/MyApps/bymax-one/nest-logger-example/apps/web/`
   — `app/{page.tsx,trigger/page.tsx,explorer/page.tsx}`, `components/{charts,explorer,trigger,controls,common}`,
   `hooks/{use-aggregate.ts,use-facets.ts,use-follow-mode.ts,use-logs.ts}`, `lib/{use-event-source.ts,explorer-link.ts,
-  trigger-api.ts,api-client.ts}`.
+trigger-api.ts,api-client.ts}`.
 - `/bymax-workflow:standards` skill — universal coding rules.
 
 ---
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 9.1 | Audit data layer — `lib/` clients, types, hooks, pivot helper | 📋 ToDo | P0 | M | — |
-| 9.2 | Overview page — delivery-health charts | 📋 ToDo | P1 | L | 9.1 |
-| 9.3 | Audit Explorer — facets, query bar, virtualized table | 📋 ToDo | P0 | L | 9.1 |
-| 9.4 | Live tail — SSE stream + follow-mode | 📋 ToDo | P0 | M | 9.3 |
-| 9.5 | Detail drawer + never-contains-code proof | 📋 ToDo | P1 | M | 9.3 |
-| 9.6 | Trigger Center — fire-every-feature grid that auto-pivots | 📋 ToDo | P0 | L | 9.1, 9.3 |
+| ID  | Task                                                          | Status  | Priority | Size | Depends on |
+| --- | ------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
+| 9.1 | Audit data layer — `lib/` clients, types, hooks, pivot helper | 📋 ToDo | P0       | M    | —          |
+| 9.2 | Overview page — delivery-health charts                        | 📋 ToDo | P1       | L    | 9.1        |
+| 9.3 | Audit Explorer — facets, query bar, virtualized table         | 📋 ToDo | P0       | L    | 9.1        |
+| 9.4 | Live tail — SSE stream + follow-mode                          | 📋 ToDo | P0       | M    | 9.3        |
+| 9.5 | Detail drawer + never-contains-code proof                     | 📋 ToDo | P1       | M    | 9.3        |
+| 9.6 | Trigger Center — fire-every-feature grid that auto-pivots     | 📋 ToDo | P0       | L    | 9.1, 9.3   |
 
 ---
 
@@ -111,24 +111,24 @@ deep-link builder. This is the data spine every page reads from.
 #### Acceptance criteria
 
 - [ ] `lib/types.ts` (or extension) declares `NotificationLog` (`id`, `timestamp` (epoch number, per the P4 Prisma
-  model — there is **no** `createdAt` column), `tenantId`, `channel`, `verb`, `provider`/`providerName`,
-  `recipient` masked, `purpose`, `locale`, `template`, `status`, `errorCode`, `errorMessage`, `cursor`). Import **only**
-  `NotificationChannel` + `OtpPurpose` (types) from `'@bymax-one/nest-notification/shared'`; type `verb` as an
-  **app-local** string-literal union in `lib/types.ts` (`./shared` exports no verb union — the verb type
-  `NotificationLogVerb` lives on the package root, which `apps/web` must not import). Add `AuditQuery`,
-  `AggregateBucket`, and the keyset `PageResult` shapes. **No OTP `code` field exists on the type.**
+      model — there is **no** `createdAt` column), `tenantId`, `channel`, `verb`, `provider`/`providerName`,
+      `recipient` masked, `purpose`, `locale`, `template`, `status`, `errorCode`, `errorMessage`, `cursor`). Import **only**
+      `NotificationChannel` + `OtpPurpose` (types) from `'@bymax-one/nest-notification/shared'`; type `verb` as an
+      **app-local** string-literal union in `lib/types.ts` (`./shared` exports no verb union — the verb type
+      `NotificationLogVerb` lives on the package root, which `apps/web` must not import). Add `AuditQuery`,
+      `AggregateBucket`, and the keyset `PageResult` shapes. **No OTP `code` field exists on the type.**
 - [ ] `lib/audit-api.ts` (JSX-free) exposes `fetchLogs(query)` (keyset `?cursor&tenantId&channel&verb&recipient&purpose
-  &source&limit` → `{ data, nextCursor, hasMore }`; surfaces a stale-cursor **410** as a typed `ApiError`) and
-  `fetchAggregate(query)` (`?from&to&tenantId` → bucketed counts by `verb`/`channel`/`provider`). It sends the trusted
-  `x-tenant-id` header from the active tenant via the P8 `api-client`.
+&source&limit` → `{ data, nextCursor, hasMore }`; surfaces a stale-cursor **410** as a typed `ApiError`) and
+      `fetchAggregate(query)` (`?from&to&tenantId` → bucketed counts by `verb`/`channel`/`provider`). It sends the trusted
+      `x-tenant-id` header from the active tenant via the P8 `api-client`.
 - [ ] `lib/audit-facets.ts` derives facet value-counts (`channel`, `verb`, `provider`, `purpose`, **`source`** =
-  service vs `__interceptor__`) from the current page (or a `/audit/aggregate` field) — stable references, no per-render
-  array allocation.
+      service vs `__interceptor__`) from the current page (or a `/audit/aggregate` field) — stable references, no per-render
+      array allocation.
 - [ ] `hooks/use-audit-logs.ts` (`useInfiniteQuery`, keyset `getNextPageParam` from `nextCursor`, never OFFSET) +
-  `hooks/use-aggregate.ts` (`useQuery` for the charts) + `hooks/use-facets.ts` (facet counts). All keyed by the query.
+      `hooks/use-aggregate.ts` (`useQuery` for the charts) + `hooks/use-facets.ts` (facet counts). All keyed by the query.
 - [ ] `lib/explorer-link.ts` builds a root-relative `/explorer?…` href from an `ExplorerTarget`
-  (`id` / `verb` / `recipient` / `purpose` / `from` / `to` / `range`, default relative `range` = `15m`) reusing the
-  exact `nuqs` param names the Explorer reads.
+      (`id` / `verb` / `recipient` / `purpose` / `from` / `to` / `range`, default relative `range` = `15m`) reusing the
+      exact `nuqs` param names the Explorer reads.
 - [ ] Each `lib/**` + `hooks/**` file has a co-located `*.test.ts` at 100%; `pnpm --filter web typecheck` exits 0.
 
 #### Files to create / modify
@@ -239,29 +239,29 @@ Explorer via the URL.
 #### Acceptance criteria
 
 - [ ] `app/page.tsx` is a thin server shell (`export const dynamic = 'force-dynamic'`) rendering the `'use client'`
-  `OverviewContent` inside the `AppShell`.
+      `OverviewContent` inside the `AppShell`.
 - [ ] `components/charts/overview-content.tsx` composes top→bottom, general→specific: a **health strip**
-  (send/verify/failure rate stat tiles) → **delivery-rate line** (sent vs failed/min) → **latency-to-sent** percentile
-  lines (p50/p95/p99) → a **breakdown row** (channel badges, provider mix donut, top purposes, top tenants), each panel
-  reading `use-aggregate` / `use-facets` from 9.1.
+      (send/verify/failure rate stat tiles) → **delivery-rate line** (sent vs failed/min) → **latency-to-sent** percentile
+      lines (p50/p95/p99) → a **breakdown row** (channel badges, provider mix donut, top purposes, top tenants), each panel
+      reading `use-aggregate` / `use-facets` from 9.1.
 - [ ] Every chart series carries **colour + icon + label** (a shared `chart-series.ts` legend definition); breakdown
-  panels are **click-to-filter**, calling `setQuery(...)` so the click pivots the Explorer via the URL (`explorerHref`
-  or a direct nuqs set + nav).
+      panels are **click-to-filter**, calling `setQuery(...)` so the click pivots the Explorer via the URL (`explorerHref`
+      or a direct nuqs set + nav).
 - [ ] Loading renders `Skeleton`, not spinners; the empty state is action-oriented ("No delivery events yet — fire one
-  from the Trigger Center" linking `/trigger`).
+      from the Trigger Center" linking `/trigger`).
 - [ ] `chart-card.tsx`, `chart-legend.tsx`, `stat-tile.tsx`, `chart-series.ts` (adapted from the sibling) are present;
-  every new `components/charts/**` file has a co-located `*.test.tsx` at 100%.
+      every new `components/charts/**` file has a co-located `*.test.tsx` at 100%.
 
 #### Files to create / modify
 
 - `apps/web/app/page.tsx`
 - `apps/web/components/charts/{overview-content,health-strip,delivery-rate-line,latency-lines,provider-mix,
-  channel-badges,top-bar,chart-card,chart-legend,stat-tile}.tsx`, `apps/web/lib/chart-series.ts`
+channel-badges,top-bar,chart-card,chart-legend,stat-tile}.tsx`, `apps/web/lib/chart-series.ts`
 - co-located `*.test.tsx` / `*.test.ts` for each
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend dataviz engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web is Next.js 16 +
@@ -319,7 +319,7 @@ Completion Protocol:
 4. Update the P9 row Progress to `2 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append: `- 9.2 ✅ <YYYY-MM-DD> — Overview delivery-health charts`.
 6. Commit: `feat(web): Overview page — delivery-health charts` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -340,15 +340,15 @@ query bar, and a virtualized, keyset-paginated table of `NotificationLog` rows. 
 
 - [ ] `app/explorer/page.tsx` is a thin server shell rendering the `'use client'` `ExplorerContent` in `AppShell`.
 - [ ] `components/explorer/explorer-content.tsx` lays out `FacetRail` (left) + `QueryBar` + `LogTable` (right), reading
-  the `nuqs` filter state so a brushed range / a Trigger auto-pivot / an Overview click lands here pre-filtered.
+      the `nuqs` filter state so a brushed range / a Trigger auto-pivot / an Overview click lands here pre-filtered.
 - [ ] `components/explorer/facet-rail.tsx` shows value-counts for `channel`, `verb`, `provider`, `purpose`, and the
-  **source** facet (`service` vs `__interceptor__`); clicking a value sets a positive filter via the URL; ⌥/Alt-click
-  clears that field.
+      **source** facet (`service` vs `__interceptor__`); clicking a value sets a positive filter via the URL; ⌥/Alt-click
+      clears that field.
 - [ ] `components/explorer/log-table.tsx` is virtualized (TanStack Table v8 headless + TanStack Virtual v3), newest-first,
-  with **keyset infinite scroll** (`fetchNextPage` near the bottom, never OFFSET) from `use-audit-logs`. Columns
-  (`columns.tsx`): time · channel · verb · recipient (masked) · purpose · provider · status — `verb`/`status` carry a
-  severity colour + icon + label. Loading = `Skeleton`; empty = action-oriented ("No events match — widen the range or
-  fire one from the Trigger Center").
+      with **keyset infinite scroll** (`fetchNextPage` near the bottom, never OFFSET) from `use-audit-logs`. Columns
+      (`columns.tsx`): time · channel · verb · recipient (masked) · purpose · provider · status — `verb`/`status` carry a
+      severity colour + icon + label. Loading = `Skeleton`; empty = action-oriented ("No events match — widen the range or
+      fire one from the Trigger Center").
 - [ ] `components/explorer/query-bar.tsx` exposes free-text recipient/purpose search + a clear-all, all via `nuqs`.
 - [ ] Row click calls an `onRowClick(row)` prop (the drawer is wired in 9.5); for now it can set local selection state.
 - [ ] Every new `components/explorer/**` file + the columns have a co-located `*.test.tsx` at 100%.
@@ -361,7 +361,7 @@ query bar, and a virtualized, keyset-paginated table of `NotificationLog` rows. 
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend engineer (data grids / virtualization) working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web is Next.js 16 +
@@ -421,7 +421,7 @@ Completion Protocol:
 4. Update the P9 row Progress to `3 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append: `- 9.3 ✅ <YYYY-MM-DD> — Audit Explorer (facets + query bar + virtualized table)`.
 6. Commit: `feat(web): Audit Explorer — facets, query bar, virtualized table` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -443,27 +443,27 @@ Add the **live tail**: a same-origin SSE proxy route (`app/api/audit/stream/rout
 #### Acceptance criteria
 
 - [ ] `app/api/audit/stream/route.ts` is a Next route handler that proxies the API's `GET /audit/stream` as
-  **same-origin SSE** (the `EventSource` consumes `/api/audit/stream`): it forwards the request to apps/api, attaches
-  the trusted `x-tenant-id` header from the active tenant (an `EventSource` cannot set headers), passes through the
-  inbound `Last-Event-ID`, streams the upstream body back with `Content-Type: text/event-stream` (no buffering), and is
-  declared `export const dynamic = 'force-dynamic'` (Node runtime, never statically cached).
+      **same-origin SSE** (the `EventSource` consumes `/api/audit/stream`): it forwards the request to apps/api, attaches
+      the trusted `x-tenant-id` header from the active tenant (an `EventSource` cannot set headers), passes through the
+      inbound `Last-Event-ID`, streams the upstream body back with `Content-Type: text/event-stream` (no buffering), and is
+      declared `export const dynamic = 'force-dynamic'` (Node runtime, never statically cached).
 - [ ] `lib/use-audit-stream.ts` (JSX-free hook) opens an `EventSource` against the same-origin proxy
-  `/api/audit/stream`, coalesces incoming events into a **bounded ring buffer** (drop-oldest) flushed on
-  `requestAnimationFrame`, ignores keep-alive `ping` events, relies on the browser's auto-reconnect + `Last-Event-ID`
-  (each event `id` = the row's keyset cursor, per §15), exposes `{ rows, connected, failed, clear }`, and auto-stops
-  after a long idle.
+      `/api/audit/stream`, coalesces incoming events into a **bounded ring buffer** (drop-oldest) flushed on
+      `requestAnimationFrame`, ignores keep-alive `ping` events, relies on the browser's auto-reconnect + `Last-Event-ID`
+      (each event `id` = the row's keyset cursor, per §15), exposes `{ rows, connected, failed, clear }`, and auto-stops
+      after a long idle.
 - [ ] `hooks/use-follow-mode.ts` provides `{ paused, newCount, jumpToLatest, pause, resume }`: pinned-to-bottom
-  auto-scrolls on new rows; scrolling up pauses and accumulates `newCount`; `jumpToLatest()` returns to the bottom and
-  resumes.
+      auto-scrolls on new rows; scrolling up pauses and accumulates `newCount`; `jumpToLatest()` returns to the bottom and
+      resumes.
 - [ ] `explorer-content.tsx` wires them: when `live && isRelative`, the stream is enabled; live rows append at the
-  bottom of `LogTable` (highlighted) via a `liveRows` prop + a shared `scrollRef`; a control bar shows
-  Streaming/Connecting/Paused/Failed status + a `N live` count + Pause/Resume/Clear; the "N new — Jump to latest" pill
-  appears when paused with `newCount > 0`.
+      bottom of `LogTable` (highlighted) via a `liveRows` prop + a shared `scrollRef`; a control bar shows
+      Streaming/Connecting/Paused/Failed status + a `N live` count + Pause/Resume/Clear; the "N new — Jump to latest" pill
+      appears when paused with `newCount > 0`.
 - [ ] When the range is absolute (not relative), the stream is paused with a clear "Paused (absolute range)" status.
 - [ ] `app/api/audit/stream/route.ts` + `lib/use-audit-stream.ts` + `hooks/use-follow-mode.ts` have co-located tests at
-  100% (the route handler test asserts it attaches `x-tenant-id` + passes through `Last-Event-ID` and returns
-  `text/event-stream`; the hook tests mock `EventSource`); the wiring in `explorer-content.tsx`/`log-table.tsx` stays
-  covered.
+      100% (the route handler test asserts it attaches `x-tenant-id` + passes through `Last-Event-ID` and returns
+      `text/event-stream`; the hook tests mock `EventSource`); the wiring in `explorer-content.tsx`/`log-table.tsx` stays
+      covered.
 
 #### Files to create / modify
 
@@ -475,7 +475,7 @@ Add the **live tail**: a same-origin SSE proxy route (`app/api/audit/stream/rout
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend real-time / streaming engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web is Next.js 16 +
@@ -540,7 +540,7 @@ Completion Protocol:
 4. Update the P9 row Progress to `4 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append: `- 9.4 ✅ <YYYY-MM-DD> — SSE live tail (same-origin proxy route + stream hook + follow-mode)`.
 6. Commit: `feat(web): Explorer live tail — SSE stream + follow-mode` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -560,16 +560,16 @@ offers a "filter for" pivot. Wire it into `ExplorerContent`.
 #### Acceptance criteria
 
 - [ ] `components/explorer/detail-drawer.tsx` opens on row click (Dialog) and shows tabs: **Overview** (each scalar
-  field with a "filter for" pivot that sets the `nuqs` query), **Raw entry** (the full, already-masked
-  `NotificationLog` JSON — there is **no** unmask and **no** code field to reveal), and **Proof**.
+      field with a "filter for" pivot that sets the `nuqs` query), **Raw entry** (the full, already-masked
+      `NotificationLog` JSON — there is **no** unmask and **no** code field to reveal), and **Proof**.
 - [ ] The **Proof** tab renders the never-contains-code check: it asserts the serialized row carries no OTP code (the
-  code lives only in the TTL store, never in the audit log) and renders a green check + the explanation; the recipient
-  is shown masked, mirroring `OVERVIEW.md §13`/§15.
+      code lives only in the TTL store, never in the audit log) and renders a green check + the explanation; the recipient
+      is shown masked, mirroring `OVERVIEW.md §13`/§15.
 - [ ] Row `verb`/`status` render with their severity colour + icon + label; an `errorCode`/`errorMessage` (when present)
-  is shown with its localized label from `./shared` error codes.
+      is shown with its localized label from `./shared` error codes.
 - [ ] `explorer-content.tsx` wires `selected` + `drawerOpen` so `onRowClick` opens the drawer; closing clears selection.
 - [ ] `detail-drawer.tsx` has a co-located `*.test.tsx` at 100% covering the proof path, the masked-raw path, and each
-  "filter for" pivot.
+      "filter for" pivot.
 
 #### Files to create / modify
 
@@ -579,7 +579,7 @@ offers a "filter for" pivot. Wire it into `ExplorerContent`.
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend engineer (component design / accessibility) working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web is Next.js 16 +
@@ -634,7 +634,7 @@ Completion Protocol:
 4. Update the P9 row Progress to `5 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append: `- 9.5 ✅ <YYYY-MM-DD> — detail drawer + never-contains-code proof`.
 6. Commit: `feat(web): Explorer detail drawer + never-contains-code proof` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -655,20 +655,20 @@ last task — it also runs the per-phase closeout.
 #### Acceptance criteria
 
 - [ ] `app/trigger/page.tsx` is a thin server shell rendering the `'use client'` `TriggerGrid` in `AppShell` with a
-  header + a one-line "fire each feature, then jump to the Explorer" description.
+      header + a one-line "fire each feature, then jump to the Explorer" description.
 - [ ] `lib/trigger-api.ts` (JSX-free) wraps the demo endpoints (`/email/send`, `/email/send-template` incl. the
-  oversize-attachment path, `/otp/generate`, `/otp/verify`, `/otp/resend` for the cooldown, repeated `/otp/verify` for
-  max-attempts, `/dispatch` incl. the spoof-tenant forged-body path, the break-audit-sink demo) and returns a typed
-  `TriggerResult` carrying the audit pivot key (`id` / `verb` / `recipient` / `purpose`) — never an OTP code.
+      oversize-attachment path, `/otp/generate`, `/otp/verify`, `/otp/resend` for the cooldown, repeated `/otp/verify` for
+      max-attempts, `/dispatch` incl. the spoof-tenant forged-body path, the break-audit-sink demo) and returns a typed
+      `TriggerResult` carrying the audit pivot key (`id` / `verb` / `recipient` / `purpose`) — never an OTP code.
 - [ ] `components/trigger/trigger-grid.tsx` declares one descriptor per feature: title, "Demonstrates" line, endpoint
-  badge, the **fire** action, and an `explorerTarget(result, firedAtMs)` that builds the deep-link via 9.1's
-  `explorerHref`. `isExpectedError` cards (cooldown 429, max-attempts 429, oversize 413, broken-sink 500) treat the
-  error status as the expected outcome, not a failure toast.
+      badge, the **fire** action, and an `explorerTarget(result, firedAtMs)` that builds the deep-link via 9.1's
+      `explorerHref`. `isExpectedError` cards (cooldown 429, max-attempts 429, oversize 413, broken-sink 500) treat the
+      error status as the expected outcome, not a failure toast.
 - [ ] `components/trigger/trigger-card.tsx` is presentational + local fire state: Fire button → loading → toast outcome
-  → on success reveal the correlation summary + "View in Explorer →" linking the deep-link (relative `range` so the
-  just-fired row is in-window).
+      → on success reveal the correlation summary + "View in Explorer →" linking the deep-link (relative `range` so the
+      just-fired row is in-window).
 - [ ] Spoof-tenant card posts a forged `payload.tenantId` to `/dispatch` alongside the trusted `x-tenant-id` header and
-  links to the row showing the **resolver** tenant (proving the anti-spoof, per §13).
+      links to the row showing the **resolver** tenant (proving the anti-spoof, per §13).
 - [ ] Every new `lib/trigger-api.ts` + `components/trigger/**` file has a co-located test at 100%.
 
 #### Files to create / modify
@@ -679,7 +679,7 @@ last task — it also runs the per-phase closeout.
 
 #### Agent prompt
 
-````
+```
 You are a senior frontend product engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web is Next.js 16 +
@@ -746,7 +746,7 @@ PER-PHASE (see docs/tasks/README.md "Per-phase Completion Protocol"; run once th
 - In docs/DEVELOPMENT_PLAN.md set the P9 Status to ✅ and Progress `6 / 6`; advance Active phase to P10; recompute
   Overall progress to `9 / 15 phases (60%)`. Set this file's header Status to ✅ and Progress `6 / 6 tasks`. Commit
   `docs(plan): P9 complete` (no Co-Authored-By).
-````
+```
 
 ---
 

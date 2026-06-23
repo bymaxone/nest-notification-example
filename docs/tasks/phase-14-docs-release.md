@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P14
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -65,9 +65,9 @@ line for notification (email + OTP, providers/renderers, multi-tenant masking, a
   Appendix B (export→matrix map), Appendix C (Quality Gates), Appendix D (CI/CD Matrix), Appendix E (Go-Public).
 - Sibling gold sources (copy the shape + voice, re-theme for notification):
   `~/Documents/MyApps/bymax-one/nest-logger-example/docs/{GETTING_STARTED,FEATURES,ARCHITECTURE,ENVIRONMENT,
-  DEPLOYMENT,TROUBLESHOOTING,DATABASE,RELEASES,DASHBOARD}.md` + `README.md` + `.github/workflows/release.yml`;
+DEPLOYMENT,TROUBLESHOOTING,DATABASE,RELEASES,DASHBOARD}.md` + `README.md` + `.github/workflows/release.yml`;
   `~/Documents/MyApps/bymax-one/nest-auth-example/docs/{GETTING_STARTED,FEATURES,ARCHITECTURE,EMAIL,ENVIRONMENT,
-  DEPLOYMENT,TROUBLESHOOTING,RELEASES}.md`.
+DEPLOYMENT,TROUBLESHOOTING,RELEASES}.md`.
 - `/bymax-workflow:standards` skill — universal coding/docs rules.
 - Vault: [[Example-App-Standard]], [[Bymax-Lib-Standards/README-Badges]], [[GitHub-Actions/Bymax-Conventions]].
 
@@ -75,15 +75,15 @@ line for notification (email + OTP, providers/renderers, multi-tenant masking, a
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 14.1 | `GETTING_STARTED.md` + `FEATURES.md` (front door + feature tour) | 📋 ToDo | P0 | L | — |
-| 14.2 | `ARCHITECTURE.md` + `DATABASE.md` + `DASHBOARD.md` (deep dives) | 📋 ToDo | P0 | L | 14.1 |
-| 14.3 | `ENVIRONMENT.md` + `PROVIDERS.md` + `TEMPLATING.md` (config & extension) | 📋 ToDo | P0 | L | 14.1 |
-| 14.4 | `MULTI_TENANCY.md` + `AUTH_INTEGRATION.md` + `DEPLOYMENT.md` + `TROUBLESHOOTING.md` | 📋 ToDo | P0 | L | 14.1 |
-| 14.5 | `README.md` badge header + `RELEASES.md` + `CHANGELOG.md` `[0.1.0]` | 📋 ToDo | P0 | M | 14.1, 14.2, 14.3, 14.4 |
-| 14.6 | Audit reconciliation + security-hardening pass (§6 matrix, helmet/CSP, deps) | 📋 ToDo | P0 | L | 14.5 |
-| 14.7 | Go-public gate + `v0.1.0` release (link-check, Appendix E, tag, RELEASES row) | 📋 ToDo | P0 | M | 14.6 |
+| ID   | Task                                                                                | Status  | Priority | Size | Depends on             |
+| ---- | ----------------------------------------------------------------------------------- | ------- | -------- | ---- | ---------------------- |
+| 14.1 | `GETTING_STARTED.md` + `FEATURES.md` (front door + feature tour)                    | 📋 ToDo | P0       | L    | —                      |
+| 14.2 | `ARCHITECTURE.md` + `DATABASE.md` + `DASHBOARD.md` (deep dives)                     | 📋 ToDo | P0       | L    | 14.1                   |
+| 14.3 | `ENVIRONMENT.md` + `PROVIDERS.md` + `TEMPLATING.md` (config & extension)            | 📋 ToDo | P0       | L    | 14.1                   |
+| 14.4 | `MULTI_TENANCY.md` + `AUTH_INTEGRATION.md` + `DEPLOYMENT.md` + `TROUBLESHOOTING.md` | 📋 ToDo | P0       | L    | 14.1                   |
+| 14.5 | `README.md` badge header + `RELEASES.md` + `CHANGELOG.md` `[0.1.0]`                 | 📋 ToDo | P0       | M    | 14.1, 14.2, 14.3, 14.4 |
+| 14.6 | Audit reconciliation + security-hardening pass (§6 matrix, helmet/CSP, deps)        | 📋 ToDo | P0       | L    | 14.5                   |
+| 14.7 | Go-public gate + `v0.1.0` release (link-check, Appendix E, tag, RELEASES row)       | 📋 ToDo | P0       | M    | 14.6                   |
 
 ---
 
@@ -104,15 +104,15 @@ OTP) and the guided feature tour that fires every library feature and shows it w
 #### Acceptance criteria
 
 - [ ] `docs/GETTING_STARTED.md` — H1 + one-line promise; **Prerequisites** (Node ≥ 24 / pnpm 11.x / Docker Compose v2
-  **plus** the sibling `../nest-notification` checkout + `pnpm build --watch`, the lib is pre-publish); a **Quick
-  start** fenced block with the **real** ordered commands (build linked lib → `pnpm install` → `pnpm infra:up` →
-  `cp .env.example apps/api/.env` → `pnpm --filter @nest-notification-example/api db:migrate` + `db:seed` → `pnpm dev`); a **What you should see**
-  table with real URLs (web `:3000`?/console, API `/health`, Mailpit `:8025`); a **first email + first OTP**
-  `curl` walkthrough; a "fire it from the Trigger Center instead" note; a **Common snags** tail (3–4 rows) linking into
-  `TROUBLESHOOTING.md`.
+      **plus** the sibling `../nest-notification` checkout + `pnpm build --watch`, the lib is pre-publish); a **Quick
+      start** fenced block with the **real** ordered commands (build linked lib → `pnpm install` → `pnpm infra:up` →
+      `cp .env.example apps/api/.env` → `pnpm --filter @nest-notification-example/api db:migrate` + `db:seed` → `pnpm dev`); a **What you should see**
+      table with real URLs (web `:3000`?/console, API `/health`, Mailpit `:8025`); a **first email + first OTP**
+      `curl` walkthrough; a "fire it from the Trigger Center instead" note; a **Common snags** tail (3–4 rows) linking into
+      `TROUBLESHOOTING.md`.
 - [ ] `docs/FEATURES.md` — a guided tour mapping each OVERVIEW §6 matrix group to its `curl` + its console surface
-  (OTP generate/verify/resend/consume, email send/send-template, dispatch/channels, audit logs/stream/aggregate,
-  provider/renderer matrix, roadmap rejection, multi-tenant masking) **and** every end-to-end journey from OVERVIEW §16.
+      (OTP generate/verify/resend/consume, email send/send-template, dispatch/channels, audit logs/stream/aggregate,
+      provider/renderer matrix, roadmap rejection, multi-tenant masking) **and** every end-to-end journey from OVERVIEW §16.
 - [ ] Every internal link is relative `./FILE.md#anchor` and resolves; ports/routes/commands match the shipped code.
 
 #### Files to create / modify
@@ -207,15 +207,15 @@ Author the three structural deep-dives: the delivery pipeline + module boundarie
 #### Acceptance criteria
 
 - [ ] `docs/ARCHITECTURE.md` — the end-to-end notification delivery pipeline (controller → service façade →
-  provider/renderer → audit interceptor → `NotificationLog`), the `forRootAsync({ useFactory })` wiring, the
-  module boundaries (which `@bymax-one/nest-notification` exports are public vs internal), and an ASCII diagram
-  mirroring OVERVIEW §3.
+      provider/renderer → audit interceptor → `NotificationLog`), the `forRootAsync({ useFactory })` wiring, the
+      module boundaries (which `@bymax-one/nest-notification` exports are public vs internal), and an ASCII diagram
+      mirroring OVERVIEW §3.
 - [ ] `docs/DATABASE.md` — the `NotificationLog` (audit) + `Tenant` + demo `PendingUser` Prisma schema, the
-  `@prisma/adapter-pg` client, the keyset-pagination + aggregate queries the audit read-API uses, and how recipient
-  masking is persisted.
+      `@prisma/adapter-pg` client, the keyset-pagination + aggregate queries the audit read-API uses, and how recipient
+      masking is persisted.
 - [ ] `docs/DASHBOARD.md` — the `apps/web` console: information architecture (Overview · Trigger Center · Audit
-  Explorer · OTP · Providers · Roadmap · Settings), global controls (tenant switcher + role), the SSE live-tail
-  architecture, and the **verbatim** design-system note (forced dark, orange `#ff6224` glass, Geist + mono).
+      Explorer · OTP · Providers · Roadmap · Settings), global controls (tenant switcher + role), the SSE live-tail
+      architecture, and the **verbatim** design-system note (forced dark, orange `#ff6224` glass, Geist + mono).
 - [ ] All three cross-link each other + `OVERVIEW.md`; diagrams/routes/tables match the shipped code.
 
 #### Files to create / modify
@@ -224,7 +224,7 @@ Author the three structural deep-dives: the delivery pipeline + module boundarie
 
 #### Agent prompt
 
-````
+```
 You are a senior software-architecture / technical-writer engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP lib,
@@ -277,7 +277,7 @@ Completion Protocol:
 3. Update the P14 row Progress to `2 / 7` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 14.2 ✅ <YYYY-MM-DD> — architecture + database + dashboard docs`.
 5. Commit: `docs: architecture, database, and console deep-dives` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -296,12 +296,12 @@ bring-your-own-provider guide (`IEmailProvider` / `IOtpStorage`), and the render
 #### Acceptance criteria
 
 - [ ] `docs/ENVIRONMENT.md` — every variable from the Zod env schema (`apps/api/src/config/env.schema.ts`) +
-  `NEXT_PUBLIC_*` browser vars, each with type/default/effect, reconciled against OVERVIEW §9 and `.env.example`; the
-  production guards (`WEB_ORIGIN` must be `https://`; managed `DATABASE_URL`/`REDIS_URL` in production).
+      `NEXT_PUBLIC_*` browser vars, each with type/default/effect, reconciled against OVERVIEW §9 and `.env.example`; the
+      production guards (`WEB_ORIGIN` must be `https://`; managed `DATABASE_URL`/`REDIS_URL` in production).
 - [ ] `docs/PROVIDERS.md` — how to write & wire a custom `IEmailProvider` (the shipped Nodemailer→Mailpit demo +
-  the opt-in Resend path), a custom `IOtpStorage`, and the provider/channel matrix; the BYO-provider lesson.
+      the opt-in Resend path), a custom `IOtpStorage`, and the provider/channel matrix; the BYO-provider lesson.
 - [ ] `docs/TEMPLATING.md` — the `IEmailTemplateRenderer` contract, the canonical templates (`otp_code`, `welcome`),
-  the handlebars/mjml/react-email renderer demos, i18n fallback, and the XSS-escape guarantee.
+      the handlebars/mjml/react-email renderer demos, i18n fallback, and the XSS-escape guarantee.
 - [ ] All three cross-link `OVERVIEW.md` + each other; every variable/interface/template name matches the code.
 
 #### Files to create / modify
@@ -310,7 +310,7 @@ bring-your-own-provider guide (`IEmailProvider` / `IOtpStorage`), and the render
 
 #### Agent prompt
 
-````
+```
 You are a senior platform / technical-writer engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP lib,
@@ -365,7 +365,7 @@ Completion Protocol:
 3. Update the P14 row Progress to `3 / 7` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 14.3 ✅ <YYYY-MM-DD> — environment + providers + templating docs`.
 5. Commit: `docs: environment, providers, and templating guides` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -385,18 +385,18 @@ checklist, and the symptom→cause→fix troubleshooting guide — and **verify/
 #### Acceptance criteria
 
 - [ ] `docs/MULTI_TENANCY.md` — the sha256 storage keys (`sha256(tenantId:recipient)`), the `tenantIdResolver`
-  anti-spoofing model (audit tenant is resolver-derived, not body-derived), `maskRecipient`, and the never-log-codes
-  invariant + its regression-test proof (OVERVIEW §13).
+      anti-spoofing model (audit tenant is resolver-derived, not body-derived), `maskRecipient`, and the never-log-codes
+      invariant + its regression-test proof (OVERVIEW §13).
 - [ ] `docs/AUTH_INTEGRATION.md` is **verified/reconciled** (it was authored alongside the adapter, not re-authored
-  here): confirm it still matches the shipped seam — how `nest-notification` composes with `@bymax-one/nest-auth` (the
-  `NotificationAuthEmailProvider` adapter, the two-Redis-namespace boundary, "why there is no OTP conflict") per
-  OVERVIEW §14 — and fix only drift (stale names, routes, links).
+      here): confirm it still matches the shipped seam — how `nest-notification` composes with `@bymax-one/nest-auth` (the
+      `NotificationAuthEmailProvider` adapter, the two-Redis-namespace boundary, "why there is no OTP conflict") per
+      OVERVIEW §14 — and fix only drift (stale names, routes, links).
 - [ ] `docs/DEPLOYMENT.md` — the production checklist from OVERVIEW §18 (managed Postgres/Redis, Resend + verified
-  `MAIL_FROM`, gateway-verified `tenantIdResolver`, `audit.swallowErrors: true`, shutdown hooks, `WEB_ORIGIN` https,
-  the two GHCR container images + `release.yml`), and the version pins.
+      `MAIL_FROM`, gateway-verified `tenantIdResolver`, `audit.swallowErrors: true`, shutdown hooks, `WEB_ORIGIN` https,
+      the two GHCR container images + `release.yml`), and the version pins.
 - [ ] `docs/TROUBLESHOOTING.md` — symptom → cause → fix entries keyed to the real `NOTIFICATION_ERROR_CODES` +
-  common snags (email not arriving / Mailpit, OTP verify fails / TTL, `Cannot find module …`, CORS/`Retry-After`,
-  the memory-safe run recipe), each cross-linked from `GETTING_STARTED.md`.
+      common snags (email not arriving / Mailpit, OTP verify fails / TTL, `Cannot find module …`, CORS/`Retry-After`,
+      the memory-safe run recipe), each cross-linked from `GETTING_STARTED.md`.
 - [ ] All four cross-link `OVERVIEW.md`; the troubleshooting anchors match the `GETTING_STARTED.md` Common-snags links.
 
 #### Files to create / modify
@@ -406,7 +406,7 @@ checklist, and the symptom→cause→fix troubleshooting guide — and **verify/
 
 #### Agent prompt
 
-````
+```
 You are a senior application-security / SRE / technical-writer engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP lib,
@@ -470,7 +470,7 @@ Completion Protocol:
 3. Update the P14 row Progress to `4 / 7` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 14.4 ✅ <YYYY-MM-DD> — multi-tenancy + auth + deployment + troubleshooting docs`.
 5. Commit: `docs: multi-tenancy, auth integration, deployment, troubleshooting` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -489,12 +489,12 @@ diagram, the full Documentation table), seed `RELEASES.md`, and write the `## [0
 #### Acceptance criteria
 
 - [ ] `README.md` — centered `<h1>` + tagline; the badge row (CI, coverage, mutation, license, TS-strict, Node 24,
-  NestJS 11, Next 16, React 19, Tailwind 4, Prisma 7, `@bymax-one/nest-notification` `^0.1.0`); a nav-link row;
-  `## Overview`; `## Quick start` matching `GETTING_STARTED.md`; an ASCII architecture diagram (mirror OVERVIEW §3);
-  a `## What's inside` feature checklist; a `## Documentation` table linking **every** `docs/*.md` authored in
-  14.1–14.4 + OVERVIEW/DEVELOPMENT_PLAN; `## License`.
+      NestJS 11, Next 16, React 19, Tailwind 4, Prisma 7, `@bymax-one/nest-notification` `^0.1.0`); a nav-link row;
+      `## Overview`; `## Quick start` matching `GETTING_STARTED.md`; an ASCII architecture diagram (mirror OVERVIEW §3);
+      a `## What's inside` feature checklist; a `## Documentation` table linking **every** `docs/*.md` authored in
+      14.1–14.4 + OVERVIEW/DEVELOPMENT_PLAN; `## License`.
 - [ ] `docs/RELEASES.md` — the Branch→library-version table (`main` → `^0.1.0`, `next` → v0.2 SMS/Push) + a
-  Tested-version log table with the `_pending_ / _pre-release_` seed row the `release.yml` bot prepends to.
+      Tested-version log table with the `_pending_ / _pre-release_` seed row the `release.yml` bot prepends to.
 - [ ] `CHANGELOG.md` — a `## [0.1.0] - <date>` section under `## [Unreleased]` summarizing the initial public release.
 - [ ] `npx markdown-link-check README.md` passes (badge endpoints allow-listed per the config).
 
@@ -504,7 +504,7 @@ diagram, the full Documentation table), seed `RELEASES.md`, and write the `## [0
 
 #### Agent prompt
 
-````
+```
 You are a senior developer-experience / release-documentation engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP lib).
@@ -562,7 +562,7 @@ Completion Protocol:
 3. Update the P14 row Progress to `5 / 7` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 14.5 ✅ <YYYY-MM-DD> — README badge header + RELEASES + CHANGELOG [0.1.0]`.
 5. Commit: `docs: refresh README + seed RELEASES + changelog 0.1.0` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -581,16 +581,16 @@ real tree), then run the go-public security-hardening pass (helmet/CSP/HSTS, dep
 #### Acceptance criteria
 
 - [ ] `pnpm audit:exports` exits 0 — every public export of `@bymax-one/nest-notification` (`.`, `./shared`, `./react`)
-  is referenced in `apps/**`; any genuinely type/token-only export is in `.audit-ignore.json` **with a reason**, and
-  `library-probe.ts` carries the sanctioned proof for the rest.
+      is referenced in `apps/**`; any genuinely type/token-only export is in `.audit-ignore.json` **with a reason**, and
+      `library-probe.ts` carries the sanctioned proof for the rest.
 - [ ] `pnpm audit:error-codes` exits 0 — every `NOTIFICATION_ERROR_CODES` key is localized in `apps/web`.
 - [ ] OVERVIEW §6 Feature Coverage Matrix is **regenerated from** the audit output (row count + "Demonstrated in"
-  columns reconcile against the real routes/panels); no row maps to an unreferenced export.
+      columns reconcile against the real routes/panels); no row maps to an unreferenced export.
 - [ ] Security pass: helmet + a CSP/HSTS posture wired in `apps/api` (and `apps/web` headers) **without breaking the
-  console or the SSE stream**; the security-headers behavior is covered by an e2e/unit test; the never-log-codes +
-  `maskRecipient` invariants still hold.
+      console or the SSE stream**; the security-headers behavior is covered by an e2e/unit test; the never-log-codes +
+      `maskRecipient` invariants still hold.
 - [ ] `pnpm audit --audit-level=high` is clean (or remaining advisories are dev/build-only, documented); `gitleaks
-  detect --no-git` is clean; `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov` all green.
+detect --no-git` is clean; `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov` all green.
 
 #### Files to create / modify
 
@@ -599,7 +599,7 @@ real tree), then run the go-public security-hardening pass (helmet/CSP/HSTS, dep
 
 #### Agent prompt
 
-````
+```
 You are a senior application-security / supply-chain engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP lib),
@@ -655,7 +655,7 @@ Completion Protocol:
 3. Update the P14 row Progress to `6 / 7` in docs/DEVELOPMENT_PLAN.md.
 4. Append to Completion log: `- 14.6 ✅ <YYYY-MM-DD> — audit reconciliation + security hardening`.
 5. Commit: `chore(security): reconcile coverage matrix + helmet/CSP hardening` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -675,15 +675,15 @@ row), then run the per-phase completion protocol.
 #### Acceptance criteria
 
 - [ ] `npx markdown-link-check '**/*.md'` (or the CI step) is clean across **every** `docs/*.md` + `README.md` +
-  governance files — no dead links.
+      governance files — no dead links.
 - [ ] Appendix E go-public checklist is walked and every box checkable: all governance files present (from P0), the 4
-  Copilot files customized + < 4000 chars, the README badge header complete, CI fully green incl.
-  `codeql`/`scorecard`/`dependency-review`/secret-scan, secret scan clean, branch-protection note recorded.
+      Copilot files customized + < 4000 chars, the README badge header complete, CI fully green incl.
+      `codeql`/`scorecard`/`dependency-review`/secret-scan, secret scan clean, branch-protection note recorded.
 - [ ] `CHANGELOG.md` `## [0.1.0]` is finalized with the release date; the annotated `v0.1.0` tag is prepared
-  (`git tag -a v0.1.0 -m "…"` on the release commit) — **created, not pushed** until merge + library availability.
+      (`git tag -a v0.1.0 -m "…"` on the release commit) — **created, not pushed** until merge + library availability.
 - [ ] `release.yml` is confirmed to (on the `v0.1.0` tag) build + push `ghcr.io/bymaxone/nest-notification-example-api`
-  / `…-web` and have the `update-releases-doc` job prepend the RELEASES.md row (the tag↔version + idempotency logic
-  validated).
+      / `…-web` and have the `update-releases-doc` job prepend the RELEASES.md row (the tag↔version + idempotency logic
+      validated).
 - [ ] This is the LAST task — the per-phase protocol flips P14 to ✅ N/N and advances the dashboard.
 
 #### Files to create / modify
@@ -693,7 +693,7 @@ row), then run the per-phase completion protocol.
 
 #### Agent prompt
 
-````
+```
 You are a senior release-engineering / public-readiness engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP lib).
@@ -755,7 +755,7 @@ PER-PHASE (see docs/tasks/README.md "Per-phase Completion Protocol"): once the P
 docs/DEVELOPMENT_PLAN.md set the **P14 Status to ✅** and **Progress `7 / 7`** + Last updated; set **Active phase** to
 `— (complete)`; recompute **Overall progress** to `14 / 15 phases` (then `15 / 15` once the release workflow's tag run
 records the RELEASES.md row); set this file's header **Status to ✅**; commit `docs(plan): P14 complete` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -767,7 +767,7 @@ When **Task 14.7** is `✅` and every other task is `✅`:
    is met: every `docs/*.md` present + `markdown-link-check` clean; the §6 Feature Coverage Matrix reconciles against
    the audit (`audit:exports` + `audit:error-codes` exit 0); CI fully green including `codeql` + `scorecard` + the
    security gates; the repo is ready to flip public; `v0.1.0` tagged and the release workflow produces the GHCR images
-   + records the `RELEASES.md` row.
+   - records the `RELEASES.md` row.
 2. Ensure the phase PR is **merged** to `main` with **CI green** (all required checks).
 3. In [`DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md): set the **P14 Status** to `✅`, **Progress** `7 / 7`, **Last
    updated** today; set **Active phase** to `— (complete)`; recompute **Overall progress** to `14 / 15 phases` (the

@@ -7,23 +7,23 @@
 
 ## Phase files
 
-| Phase | File | Scope | Status |
-| --- | --- | --- | --- |
-| P0 | `phase-00-foundation-ci.md` | pnpm workspace, toolchain, governance files, **full CI/CD + go-public scaffolding** | 🔄 |
-| P1 | `phase-01-local-stack.md` | docker-compose (postgres/redis/mailpit) + Zod env schema | 📋 |
-| P2 | `phase-02-library-consumption.md` | `file:` link the lib, peers, subpath probe, export audit | 📋 |
-| P3 | `phase-03-api-skeleton.md` | NestJS bootstrap, `/health`, exception filter, Redis/Prisma modules | 📋 |
-| P4 | `phase-04-notification-wiring.md` | `forRootAsync`, providers/renderer, audit store + interceptor | 📋 |
-| P5 | `phase-05-otp-email-controllers.md` | `/otp/*`, `/email/*`, `/dispatch`, `/channels`, `/debug/key` | 📋 |
-| P6 | `phase-06-audit-read-api.md` | `/audit/{logs,stream,aggregate}` (keyset + SSE) | 📋 |
-| P7 | `phase-07-roadmap-rejection.md` | `/admin/try-configure-{sms,push,async-useclass}` | 📋 |
-| P8 | `phase-08-web-skeleton.md` | Next.js shell + **verbatim** design system + global controls | 📋 |
-| P9 | `phase-09-console-core.md` | Overview · Trigger Center · Audit Explorer (+ live tail) | 📋 |
-| P10 | `phase-10-otp-providers-panels.md` | OTP-verify · provider matrix · email preview · roadmap · settings | 📋 |
-| P11 | `phase-11-auth-seam.md` | `NotificationAuthEmailProvider` + the nest-auth journey | 📋 |
-| P12 | `phase-12-testing.md` | 100% coverage (Jest api + Vitest web) + Playwright | 📋 |
-| P13 | `phase-13-mutation.md` | Stryker ≥ 95 → 100; `docs/stryker/*` | 📋 |
-| P14 | `phase-14-docs-release.md` | all `docs/*.md`, public-readiness, `v0.1.0` release | 📋 |
+| Phase | File                                | Scope                                                                               | Status |
+| ----- | ----------------------------------- | ----------------------------------------------------------------------------------- | ------ |
+| P0    | `phase-00-foundation-ci.md`         | pnpm workspace, toolchain, governance files, **full CI/CD + go-public scaffolding** | 🔄     |
+| P1    | `phase-01-local-stack.md`           | docker-compose (postgres/redis/mailpit) + Zod env schema                            | 📋     |
+| P2    | `phase-02-library-consumption.md`   | `file:` link the lib, peers, subpath probe, export audit                            | 📋     |
+| P3    | `phase-03-api-skeleton.md`          | NestJS bootstrap, `/health`, exception filter, Redis/Prisma modules                 | 📋     |
+| P4    | `phase-04-notification-wiring.md`   | `forRootAsync`, providers/renderer, audit store + interceptor                       | 📋     |
+| P5    | `phase-05-otp-email-controllers.md` | `/otp/*`, `/email/*`, `/dispatch`, `/channels`, `/debug/key`                        | 📋     |
+| P6    | `phase-06-audit-read-api.md`        | `/audit/{logs,stream,aggregate}` (keyset + SSE)                                     | 📋     |
+| P7    | `phase-07-roadmap-rejection.md`     | `/admin/try-configure-{sms,push,async-useclass}`                                    | 📋     |
+| P8    | `phase-08-web-skeleton.md`          | Next.js shell + **verbatim** design system + global controls                        | 📋     |
+| P9    | `phase-09-console-core.md`          | Overview · Trigger Center · Audit Explorer (+ live tail)                            | 📋     |
+| P10   | `phase-10-otp-providers-panels.md`  | OTP-verify · provider matrix · email preview · roadmap · settings                   | 📋     |
+| P11   | `phase-11-auth-seam.md`             | `NotificationAuthEmailProvider` + the nest-auth journey                             | 📋     |
+| P12   | `phase-12-testing.md`               | 100% coverage (Jest api + Vitest web) + Playwright                                  | 📋     |
+| P13   | `phase-13-mutation.md`              | Stryker ≥ 95 → 100; `docs/stryker/*`                                                | 📋     |
+| P14   | `phase-14-docs-release.md`          | all `docs/*.md`, public-readiness, `v0.1.0` release                                 | 📋     |
 
 All 15 phase files are scaffolded. Execute them **one phase at a time** (per [`../DEVELOPMENT_PLAN.md` §3](../DEVELOPMENT_PLAN.md#3-autonomous-execution-model)) — a phase starts only after the previous one merges green.
 

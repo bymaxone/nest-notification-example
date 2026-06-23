@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -41,7 +41,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
    the schema, and align the module format (`.js` import specifiers, `"type":"module"`). Do not use the legacy
    `datasources` block.
 3. **The `REDIS` token resolves to `null`, never throws, when `REDIS_URL` is unset** — the OTP wiring (P4) branches on
-   `redis ? RedisOtpStorage : InMemoryOtpStorage`, so the absence of Redis must be a *value*, not an exception. Test the
+   `redis ? RedisOtpStorage : InMemoryOtpStorage`, so the absence of Redis must be a _value_, not an exception. Test the
    `null` branch explicitly.
 4. **`REDIS` is a `Symbol`** DI token exported from `redis.module.ts` (per OVERVIEW §9). Boolean naming `is`/`has`.
 5. **CORS contract** — allow the `x-tenant-id` header (the trusted tenant source, OVERVIEW §13) and expose `Retry-After`
@@ -64,11 +64,11 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
   Appendix A (env registry), Appendix C (Quality Gates).
 - Sibling gold sources (copy & adapt — do not invent):
   - `~/Documents/MyApps/bymax-one/nest-logger-example/apps/api/src/{main.ts, health/*, common/zod-validation.pipe.ts,
-    prisma/prisma.service.ts, prisma/prisma.module.ts}`.
+prisma/prisma.service.ts, prisma/prisma.module.ts}`.
   - `~/Documents/MyApps/bymax-one/nest-auth-example/apps/api/src/redis/{redis.module.ts, redis.provider.ts}` (the
     token-module shape — adapt: `Symbol` token `REDIS`, returns `null` when unset).
   - `~/Documents/MyApps/bymax-one/nest-notification/src/server/errors/{notification-exception.ts,
-    notification-error-codes.ts,index.ts}` (the exception + catalog the filter serializes).
+notification-error-codes.ts,index.ts}` (the exception + catalog the filter serializes).
 - `/bymax-workflow:standards` skill — universal coding rules.
 - Vault: [[Example-App-Standard]], [[NestJS/Bymax-Conventions]], [[Prisma/Gotchas]].
 
@@ -76,14 +76,14 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health` | 📋 ToDo | P0 | M | — |
-| 3.2 | `NotificationException` → HTTP exception filter | 📋 ToDo | P0 | S | 3.1 |
-| 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | 📋 ToDo | P0 | M | 3.1 |
-| 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null` | 📋 ToDo | P0 | M | 3.1 |
-| 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`) | 📋 ToDo | P1 | M | 3.1 |
-| 3.6 | Wire `AppModule` + boot-with/without-Redis verification | 📋 ToDo | P0 | M | 3.2, 3.3, 3.4, 3.5 |
+| ID  | Task                                                                | Status  | Priority | Size | Depends on         |
+| --- | ------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
+| 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health`              | 📋 ToDo | P0       | M    | —                  |
+| 3.2 | `NotificationException` → HTTP exception filter                     | 📋 ToDo | P0       | S    | 3.1                |
+| 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | 📋 ToDo | P0       | M    | 3.1                |
+| 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | 📋 ToDo | P0       | M    | 3.1                |
+| 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | 📋 ToDo | P1       | M    | 3.1                |
+| 3.6 | Wire `AppModule` + boot-with/without-Redis verification             | 📋 ToDo | P0       | M    | 3.2, 3.3, 3.4, 3.5 |
 
 ---
 
@@ -105,12 +105,12 @@ shutdown — all config read from `ConfigService`.
 #### Acceptance criteria
 
 - [ ] `apps/api/src/main.ts` boots NestJS (`NestExpressApplication`), registers `helmet()`, enables CORS with
-  `origin = WEB_ORIGIN`, `allowedHeaders` including `Content-Type`/`Accept`/`x-tenant-id`/`x-role`, and
-  `exposedHeaders` including `Retry-After`; listens on `PORT` from `ConfigService<Env, true>`.
+      `origin = WEB_ORIGIN`, `allowedHeaders` including `Content-Type`/`Accept`/`x-tenant-id`/`x-role`, and
+      `exposedHeaders` including `Retry-After`; listens on `PORT` from `ConfigService<Env, true>`.
 - [ ] A single coordinated `SIGTERM`/`SIGINT` shutdown runs `app.close()` (firing `OnApplicationShutdown` hooks) then
-  `process.exit(0)`, idempotent across both signals.
+      `process.exit(0)`, idempotent across both signals.
 - [ ] `apps/api/src/app.module.ts` imports `ConfigModule.forRoot` (validating via the P1 `env.schema`) + `HealthModule`;
-  no notification module, no domain controllers yet.
+      no notification module, no domain controllers yet.
 - [ ] `apps/api/src/health/{health.controller.ts,health.module.ts}` expose `GET /health` → `{ status: 'ok' }` (200).
 - [ ] The app starts (`pnpm --filter @nest-notification-example/api start` or the dev script) and `curl /health` → 200.
 
@@ -238,14 +238,14 @@ controller benefits without per-endpoint wiring.
 #### Acceptance criteria
 
 - [ ] `apps/api/src/common/notification-exception.filter.ts` is `@Catch(NotificationException)`, reads the status via
-  `exception.getStatus()` and the body via `exception.getResponse()`, and writes the unchanged catalog body
-  `{ error: { code, message, details } }` with that status.
+      `exception.getStatus()` and the body via `exception.getResponse()`, and writes the unchanged catalog body
+      `{ error: { code, message, details } }` with that status.
 - [ ] It is registered as `APP_FILTER` (in `app.module.ts` or a `common.module.ts` imported by `AppModule`).
 - [ ] A unit test proves a `new NotificationException('OTP_INVALID_CODE')` serializes to status `401` and a body equal to
-  the shape `exception.getResponse()` returns (read the actual body shape from the lib's
-  `errors/notification-exception.ts` — assert against `{ error: { code: 'notification.otp_invalid_code', message: ... } }`
-  with whatever `details` field the lib emits; do **not** hardcode `details: null`); and that a `'OTP_COOLDOWN_ACTIVE'`
-  maps to `429`.
+      the shape `exception.getResponse()` returns (read the actual body shape from the lib's
+      `errors/notification-exception.ts` — assert against `{ error: { code: 'notification.otp_invalid_code', message: ... } }`
+      with whatever `details` field the lib emits; do **not** hardcode `details: null`); and that a `'OTP_COOLDOWN_ACTIVE'`
+      maps to `429`.
 - [ ] No secrets/codes are read or logged by the filter (it only forwards the already-safe catalog body).
 
 #### Files to create / modify
@@ -344,15 +344,15 @@ tenant from the `x-tenant-id` header (defaulting to `default`, never from the bo
 #### Acceptance criteria
 
 - [ ] `apps/api/src/common/tenant-id.decorator.ts` exposes a `@TenantId()` param decorator that returns the
-  `x-tenant-id` header (a multi-value header collapses to its first entry; absence → `'default'`); the tenant is **never**
-  read from the request body.
+      `x-tenant-id` header (a multi-value header collapses to its first entry; absence → `'default'`); the tenant is **never**
+      read from the request body.
 - [ ] `apps/api/src/common/zod-validation.pipe.ts` is a generic `ZodValidationPipe<TSchema extends ZodType>` that
-  `safeParse`s the value and throws `BadRequestException({ message: 'Validation failed', errors: [...] })` on failure
-  (issues capped, path + message only — never the rejected value).
+      `safeParse`s the value and throws `BadRequestException({ message: 'Validation failed', errors: [...] })` on failure
+      (issues capped, path + message only — never the rejected value).
 - [ ] Unit tests cover: tenant present (single + array header), tenant absent (→ `'default'`), pipe success, pipe
-  failure (BadRequest with bounded issues) — 100% per file.
+      failure (BadRequest with bounded issues) — 100% per file.
 - [ ] An (optional) `apps/api/src/common/common.module.ts` barrels these if it keeps `AppModule` tidy; otherwise they are
-  importable directly.
+      importable directly.
 
 #### Files to create / modify
 
@@ -453,12 +453,12 @@ Add the global `RedisModule` that provides the `REDIS` `Symbol` DI token, resolv
 #### Acceptance criteria
 
 - [ ] `apps/api/src/redis/redis.module.ts` exports a `Symbol` token `export const REDIS = Symbol('REDIS')` and a
-  `@Global()` module providing it via a `useFactory` injecting `ConfigService`.
+      `@Global()` module providing it via a `useFactory` injecting `ConfigService`.
 - [ ] The factory returns a `new Redis(url, { lazyConnect, maxRetriesPerRequest: null, retryStrategy })` when
-  `REDIS_URL` is set, and **`null`** when it is unset — it never throws on a missing URL.
+      `REDIS_URL` is set, and **`null`** when it is unset — it never throws on a missing URL.
 - [ ] On `onApplicationShutdown`, the module calls `redis.quit()` **only when** the injected client is non-`null`.
 - [ ] Unit tests cover both branches: `REDIS_URL` present (factory returns a client; shutdown quits it) and absent
-  (factory returns `null`; shutdown is a no-op) — 100% on the module/provider files.
+      (factory returns `null`; shutdown is a no-op) — 100% on the module/provider files.
 - [ ] The token + module are exported so P4's `forRootAsync({ inject: [REDIS] })` can consume them.
 
 #### Files to create / modify
@@ -572,13 +572,13 @@ chassis the P4 audit repository writes through.
 #### Acceptance criteria
 
 - [ ] `apps/api/src/prisma/prisma.service.ts` extends `PrismaClient` using `new PrismaPg({ connectionString:
-  DATABASE_URL })` from `ConfigService`; `onModuleInit` → `$connect()`, `onApplicationShutdown` → `$disconnect()`.
+DATABASE_URL })` from `ConfigService`; `onModuleInit` → `$connect()`, `onApplicationShutdown` → `$disconnect()`.
 - [ ] `apps/api/src/prisma/prisma.module.ts` is `@Global()`, providing + exporting `PrismaService`.
 - [ ] A minimal generatable Prisma schema exists (`apps/api/prisma/schema.prisma`) with the `prisma-client` generator +
-  the `postgresql` datasource (URL via `env("DATABASE_URL")`), so `prisma generate` produces a client `tsc` resolves.
-  (No domain models yet — `NotificationLog` is added in P4; an empty/placeholder schema that generates is sufficient.)
+      the `postgresql` datasource (URL via `env("DATABASE_URL")`), so `prisma generate` produces a client `tsc` resolves.
+      (No domain models yet — `NotificationLog` is added in P4; an empty/placeholder schema that generates is sufficient.)
 - [ ] Unit tests cover `onModuleInit` (calls `$connect`) and `onApplicationShutdown` (calls `$disconnect`) by spying on
-  the prototype — 100% on the service file.
+      the prototype — 100% on the service file.
 - [ ] The module resolves in a Nest test harness (`Test.createTestingModule({ imports: [PrismaModule] })`).
 
 #### Files to create / modify
@@ -691,12 +691,12 @@ Assemble the chassis: import `RedisModule` + `PrismaModule` into `AppModule` (th
 #### Acceptance criteria
 
 - [ ] `apps/api/src/app.module.ts` imports `ConfigModule` (global, validating), `HealthModule`, `RedisModule`,
-  `PrismaModule`, and registers `NotificationExceptionFilter` as `APP_FILTER`. No `forRootAsync`, no domain controllers.
+      `PrismaModule`, and registers `NotificationExceptionFilter` as `APP_FILTER`. No `forRootAsync`, no domain controllers.
 - [ ] `apps/api/test/app.e2e-spec.ts` (supertest) boots the app and asserts `GET /health` → 200 `{ status: 'ok' }`.
 - [ ] An integration test (or two compile-time configs) prove the app boots **without** `REDIS_URL` (the `REDIS` token
-  is `null`) and **with** a `REDIS_URL` set (the token is an `ioredis` client — `ioredis` mocked, no real socket).
+      is `null`) and **with** a `REDIS_URL` set (the token is an `ioredis` client — `ioredis` mocked, no real socket).
 - [ ] The full local gate passes: `pnpm --filter ...@nest-notification-example/api exec tsc --noEmit`, `jest` (100% coverage on the in-scope files
-  per §2 exclusions), the workspace `pnpm typecheck && pnpm lint && pnpm format:check && pnpm audit:exports`.
+      per §2 exclusions), the workspace `pnpm typecheck && pnpm lint && pnpm format:check && pnpm audit:exports`.
 - [ ] The P3 Definition of Done in `DEVELOPMENT_PLAN.md` is observably met.
 
 #### Files to create / modify

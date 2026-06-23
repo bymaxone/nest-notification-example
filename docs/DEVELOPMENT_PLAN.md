@@ -36,14 +36,14 @@ structural template, reconciled with the current vault standard.
 
 ## Status legend
 
-| Symbol | Meaning |
-| --- | --- |
-| 📋 | ToDo — not started |
-| 🔄 | In Progress — exactly one phase at a time |
-| 👀 | Review — code complete, in PR / Copilot review |
-| ✅ | Done — every DoD bullet met and CI green on the merged PR |
-| ⛔ | Blocked — a dependency or external blocker is open |
-| 🟡 | Partial — some tasks done but the phase DoD is not fully met (never use ✅ here) |
+| Symbol | Meaning                                                                          |
+| ------ | -------------------------------------------------------------------------------- |
+| 📋     | ToDo — not started                                                               |
+| 🔄     | In Progress — exactly one phase at a time                                        |
+| 👀     | Review — code complete, in PR / Copilot review                                   |
+| ✅     | Done — every DoD bullet met and CI green on the merged PR                        |
+| ⛔     | Blocked — a dependency or external blocker is open                               |
+| 🟡     | Partial — some tasks done but the phase DoD is not fully met (never use ✅ here) |
 
 ---
 
@@ -60,23 +60,23 @@ structural template, reconciled with the current vault standard.
 
 ## Phase dashboard
 
-| ID | Phase | Tasks file | Status | Progress | Size | Last updated |
-| --- | --- | --- | --- | --- | --- | --- |
-| P0 | Foundation, Tooling & CI Skeleton | `phase-00-foundation-ci.md` | 🔄 | 1 / 7 | L | 2026-06-23 |
-| P1 | Local Stack & Environment | `phase-01-local-stack.md` | 📋 | 0 / 5 | M | — |
-| P2 | Library Consumption & Export Audit | `phase-02-library-consumption.md` | 📋 | 0 / 4 | M | — |
-| P3 | API Skeleton | `phase-03-api-skeleton.md` | 📋 | 0 / 6 | M | — |
-| P4 | Notification Wiring & Audit Store | `phase-04-notification-wiring.md` | 📋 | 0 / 7 | L | — |
-| P5 | OTP & Email Controllers | `phase-05-otp-email-controllers.md` | 📋 | 0 / 6 | L | — |
-| P6 | Audit Read-API (keyset + SSE) | `phase-06-audit-read-api.md` | 📋 | 0 / 5 | M | — |
-| P7 | Roadmap Rejection Endpoints | `phase-07-roadmap-rejection.md` | 📋 | 0 / 3 | S | — |
-| P8 | Web Skeleton & Design System | `phase-08-web-skeleton.md` | 📋 | 0 / 6 | M | — |
-| P9 | Console Core (Overview · Trigger · Explorer) | `phase-09-console-core.md` | 📋 | 0 / 6 | L | — |
-| P10 | OTP & Providers Panels | `phase-10-otp-providers-panels.md` | 📋 | 0 / 6 | L | — |
-| P11 | Optional Auth Seam (nest-auth) | `phase-11-auth-seam.md` | 📋 | 0 / 3 | M | — |
-| P12 | Testing & 100% Coverage | `phase-12-testing.md` | 📋 | 0 / 6 | L | — |
-| P13 | Mutation Hardening | `phase-13-mutation.md` | 📋 | 0 / 5 | L | — |
-| P14 | Docs, Public-Readiness & Release | `phase-14-docs-release.md` | 📋 | 0 / 7 | L | — |
+| ID  | Phase                                        | Tasks file                          | Status | Progress | Size | Last updated |
+| --- | -------------------------------------------- | ----------------------------------- | ------ | -------- | ---- | ------------ |
+| P0  | Foundation, Tooling & CI Skeleton            | `phase-00-foundation-ci.md`         | 🔄     | 2 / 7    | L    | 2026-06-23   |
+| P1  | Local Stack & Environment                    | `phase-01-local-stack.md`           | 📋     | 0 / 5    | M    | —            |
+| P2  | Library Consumption & Export Audit           | `phase-02-library-consumption.md`   | 📋     | 0 / 4    | M    | —            |
+| P3  | API Skeleton                                 | `phase-03-api-skeleton.md`          | 📋     | 0 / 6    | M    | —            |
+| P4  | Notification Wiring & Audit Store            | `phase-04-notification-wiring.md`   | 📋     | 0 / 7    | L    | —            |
+| P5  | OTP & Email Controllers                      | `phase-05-otp-email-controllers.md` | 📋     | 0 / 6    | L    | —            |
+| P6  | Audit Read-API (keyset + SSE)                | `phase-06-audit-read-api.md`        | 📋     | 0 / 5    | M    | —            |
+| P7  | Roadmap Rejection Endpoints                  | `phase-07-roadmap-rejection.md`     | 📋     | 0 / 3    | S    | —            |
+| P8  | Web Skeleton & Design System                 | `phase-08-web-skeleton.md`          | 📋     | 0 / 6    | M    | —            |
+| P9  | Console Core (Overview · Trigger · Explorer) | `phase-09-console-core.md`          | 📋     | 0 / 6    | L    | —            |
+| P10 | OTP & Providers Panels                       | `phase-10-otp-providers-panels.md`  | 📋     | 0 / 6    | L    | —            |
+| P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | 📋     | 0 / 3    | M    | —            |
+| P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | 📋     | 0 / 6    | L    | —            |
+| P13 | Mutation Hardening                           | `phase-13-mutation.md`              | 📋     | 0 / 5    | L    | —            |
+| P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 📋     | 0 / 7    | L    | —            |
 
 ---
 
@@ -92,8 +92,8 @@ structural template, reconciled with the current vault standard.
    both apps, and **Stryker mutation ≥ 95 (mandatory floor), driven as close to 100% as achievable** — per the explicit
    project mandate. This resolves the sibling disagreement (nest-cache-example's lighter bar is **not** used here).
 5. **CI from Phase 0.** The full, strong pipeline (static gates + 100%-coverage + audits + security scanning + mutation
-   + release) exists before any feature code, so every later phase merges green. The repo is **private now, public
-   later** — go-public hardening is built in from the start, not retrofitted.
+   - release) exists before any feature code, so every later phase merges green. The repo is **private now, public
+     later** — go-public hardening is built in from the start, not retrofitted.
 6. **Design parity.** The shared design system (`docs/design_system.html` + the copied `globals.css` /
    `tailwind.config.ts` / `components.json` + `components/ui/*`) is reused **verbatim** — forced dark, orange `#ff6224`
    glass, Geist + mono. Never re-derived, never overridden by an opinionated design skill.
@@ -139,24 +139,24 @@ ship their own tests at 100% as they land — P12/P13 are the hardening/gate-clo
 
 Stated once here so per-phase DoDs do not restate them.
 
-| Concern | Convention |
-| --- | --- |
-| Package manager | **pnpm 11.x** (workspaces; `pnpm-workspace.yaml: packages: ['apps/*']`), pinned via `packageManager`. The `@bymax-one/*` ecosystem standard is 10.8 — adopting 11.x for a fresh repo (see OVERVIEW §21 decision). |
-| Runtime | **Node 24 (Active LTS)** — `.nvmrc=24`, `engines.node >=24`. |
-| Install | `pnpm install --frozen-lockfile` (`.npmrc: frozen-lockfile=true`). |
-| Language | TypeScript 5.9 **strict** + `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `isolatedModules`, `verbatimModuleSyntax`. **Zero `any`, zero suppression comments** (`@ts-ignore`, `eslint-disable`). |
-| Lint / format | ESLint flat config (`typescript-eslint` recommendedTypeChecked, `eslint-config-prettier` last, `--max-warnings 0`) + Prettier. |
-| Pre-commit | husky `pre-commit` → `lint-staged` (`prettier --write` + `eslint --fix`); `commit-msg` → `commitlint`. |
-| Commits | Conventional Commits (`<type>(scope): <subject>`); **no `Co-Authored-By` trailer**; signed where possible. |
-| Boolean naming | `is` / `has` / `should` / `can` prefixes. |
-| Test coverage | **100%** on statements/branches/functions/lines, both apps (Jest api, Vitest web). Non-executable glue excluded from scope (`*.module.ts`, `main.ts`, `*.dto.ts`, `*.d.ts`). |
-| Mutation score | **Stryker break ≥ 95 (mandatory)**, driven to 100% where achievable; survivors documented as provable equivalents in `docs/stryker/`. |
-| Audits | `audit:exports` (every public export referenced in `apps/**`) + `audit:error-codes` (every `NOTIFICATION_ERROR_CODES` key localized in `apps/web`); CI-gating. |
-| Memory-safe tests | Jest/Vitest `maxWorkers: '50%'` baked into configs; `NODE_OPTIONS=--max-old-space-size`; `file:` over `link:`; sequential suites; **never fan out parallel test agents**. |
-| Design system | Copied **verbatim** from `nest-logger-example` (`docs/design_system.html` + the 4 config files + `components/ui/*`). Never re-styled. |
-| Library dependency | `@bymax-one/nest-notification` via `file:../../../nest-notification` pre-publish; pinned semver after publish (RELEASES.md). |
-| Security defaults | Helmet/security headers, CORS allow-list, `Retry-After` exposed, secrets only via env, no PII/codes in logs. |
-| Clean Code sizing | Functions ≤ 50 lines; files ≤ 800 (200–400 typical); SRP/SOLID; explicit DI; DI tokens as `Symbol`. |
+| Concern            | Convention                                                                                                                                                                                                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package manager    | **pnpm 11.x** (workspaces; `pnpm-workspace.yaml: packages: ['apps/*']`), pinned via `packageManager`. The `@bymax-one/*` ecosystem standard is 10.8 — adopting 11.x for a fresh repo (see OVERVIEW §21 decision).                                                                     |
+| Runtime            | **Node 24 (Active LTS)** — `.nvmrc=24`, `engines.node >=24`.                                                                                                                                                                                                                          |
+| Install            | `pnpm install --frozen-lockfile` (`.npmrc: frozen-lockfile=true`).                                                                                                                                                                                                                    |
+| Language           | TypeScript 5.9 **strict** + `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `isolatedModules`, `verbatimModuleSyntax`. **Zero `any`, zero suppression comments** (`@ts-ignore`, `eslint-disable`). |
+| Lint / format      | ESLint flat config (`typescript-eslint` recommendedTypeChecked, `eslint-config-prettier` last, `--max-warnings 0`) + Prettier.                                                                                                                                                        |
+| Pre-commit         | husky `pre-commit` → `lint-staged` (`prettier --write` + `eslint --fix`); `commit-msg` → `commitlint`.                                                                                                                                                                                |
+| Commits            | Conventional Commits (`<type>(scope): <subject>`); **no `Co-Authored-By` trailer**; signed where possible.                                                                                                                                                                            |
+| Boolean naming     | `is` / `has` / `should` / `can` prefixes.                                                                                                                                                                                                                                             |
+| Test coverage      | **100%** on statements/branches/functions/lines, both apps (Jest api, Vitest web). Non-executable glue excluded from scope (`*.module.ts`, `main.ts`, `*.dto.ts`, `*.d.ts`).                                                                                                          |
+| Mutation score     | **Stryker break ≥ 95 (mandatory)**, driven to 100% where achievable; survivors documented as provable equivalents in `docs/stryker/`.                                                                                                                                                 |
+| Audits             | `audit:exports` (every public export referenced in `apps/**`) + `audit:error-codes` (every `NOTIFICATION_ERROR_CODES` key localized in `apps/web`); CI-gating.                                                                                                                        |
+| Memory-safe tests  | Jest/Vitest `maxWorkers: '50%'` baked into configs; `NODE_OPTIONS=--max-old-space-size`; `file:` over `link:`; sequential suites; **never fan out parallel test agents**.                                                                                                             |
+| Design system      | Copied **verbatim** from `nest-logger-example` (`docs/design_system.html` + the 4 config files + `components/ui/*`). Never re-styled.                                                                                                                                                 |
+| Library dependency | `@bymax-one/nest-notification` via `file:../../../nest-notification` pre-publish; pinned semver after publish (RELEASES.md).                                                                                                                                                          |
+| Security defaults  | Helmet/security headers, CORS allow-list, `Retry-After` exposed, secrets only via env, no PII/codes in logs.                                                                                                                                                                          |
+| Clean Code sizing  | Functions ≤ 50 lines; files ≤ 800 (200–400 typical); SRP/SOLID; explicit DI; DI tokens as `Symbol`.                                                                                                                                                                                   |
 
 ---
 
@@ -182,6 +182,7 @@ committed, and merged as a single unit before the next begins. The loop per phas
     the [Update Protocol](#update-protocol), and proceed to the next phase.
 
 **The three invariants** (enforced by the dashboard + each task's `Depends on` + `Verification`):
+
 - **One-in-progress-at-a-time** — exactly one phase `🔄` and one task `🔄` within it.
 - **Never-start-until-deps-green** — a phase/task begins only when every dependency is `✅`.
 - **Never-mark-done-with-failing-verification** — `✅` requires every DoD/acceptance bullet met **and** CI green on the
@@ -212,6 +213,7 @@ files (`LICENSE`, `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANG
 `apps/`).
 
 **Definition of Done:**
+
 - `pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint && pnpm format:check` pass on the empty workspace.
 - `ci.yml` runs green on a PR; `codeql.yml` + `scorecard.yml` run (informational); `release.yml` validates without
   publishing; least-privilege `permissions`, `concurrency`, pinned actions, and `timeout-minutes` set on every job.
@@ -238,6 +240,7 @@ phase/task references.
 **Scope — Out:** any NestJS bootstrap (P3).
 
 **Definition of Done:**
+
 - `pnpm infra:up` returns only when all three containers are healthy; Mailpit UI reachable at `:8025`.
 - A missing/invalid env var aborts (the Zod schema is unit-tested for the failure path).
 - `.env.example` documents every variable; ports match OVERVIEW §8/§9.
@@ -261,6 +264,7 @@ library's `dist/{server,shared,react}/index.d.ts` + `.audit-ignore.json`.
 **Scope — Out:** UI hook usage (P10); error-code localization (P10/P12).
 
 **Definition of Done:**
+
 - The probe imports from all three subpaths; `tsc` resolves types from `dist`.
 - `pnpm audit:exports` passes (every export referenced or allow-listed with a reason).
 - The library `dist/` build-first workflow is documented and the link resolves.
@@ -285,6 +289,7 @@ validation pipe, `RedisModule` (the `REDIS` `Symbol` token → `ioredis` client 
 **Scope — Out:** the notification module wiring (P4); any controllers (P5).
 
 **Definition of Done:**
+
 - `GET /health` → 200; the app boots with and without `REDIS_URL`.
 - The exception filter serializes a `NotificationException` to `{ error: { code, message, details } }` with the right
   HTTP status (unit-tested).
@@ -312,6 +317,7 @@ side), and the `NotificationAuditInterceptor` registered as `APP_INTERCEPTOR`.
 **Scope — Out:** the HTTP controllers (P5); the audit read-API (P6).
 
 **Definition of Done:**
+
 - The module boots via `forRootAsync({ useFactory })`; `getEnabledChannels()` reports `['email','otp']`.
 - A programmatic email send renders, lands in Mailpit, and writes a masked audit row (no code present) to Postgres.
 - The atomic OTP storage (Redis or in-memory) and the renderer HTML-escape behavior are unit-proven.
@@ -336,6 +342,7 @@ cooldown helpers.
 **Scope — Out:** the audit read-API (P6); any UI (P8+).
 
 **Definition of Done:**
+
 - The complete OTP lifecycle works over HTTP (generate → verify → resend cooldown → max-attempts → consume → status),
   with correct status codes and `Retry-After`.
 - Raw + template email sends return `{ messageId }`; oversize attachment → 413; XSS-escape proven; locale fallback
@@ -361,6 +368,7 @@ keyset cursor, `Last-Event-ID` resume), `GET /audit/aggregate` (time-bucketed co
 **Scope — Out:** UI rendering (P9).
 
 **Definition of Done:**
+
 - Keyset pagination + stale-cursor 410; SSE live tail emits new rows with resumable `id`s; aggregate returns the chart
   series.
 - The dual-source semantics (service verbs vs interceptor `sent`/`failed`) are documented and facet-filterable.
@@ -383,6 +391,7 @@ and returns the library's real startup-rejection error string.
 **Scope — Out:** the UI Roadmap panel (P10).
 
 **Definition of Done:**
+
 - Each endpoint returns the exact thrown error for `sms` / `push` / `forRootAsync({ useClass })`; covered by isolated
   e2e modules.
 
@@ -406,6 +415,7 @@ role switcher, live toggle) persisted via `nuqs`, and the `lib/` clients (`api-c
 **UI base:** `docs/design_system.html`.
 
 **Definition of Done:**
+
 - `pnpm --filter web build` succeeds; `next build` resolves `./react` + `./shared`.
 - A screenshot of the shell is indistinguishable from the sibling examples (design parity); global controls drive URL state.
 
@@ -429,6 +439,7 @@ the no-code-present proof + **live tail** over SSE with follow-mode).
 **Scope — Out:** the OTP-verify panel + provider matrix (P10).
 
 **Definition of Done:**
+
 - Every backend feature is fireable from the Trigger Center and auto-pivots to its audit row.
 - The Explorer searches/filters (incl. source facet), tails live, and renders the never-contains-code proof.
 - 100% web coverage on the new `lib/`+`components/`.
@@ -453,6 +464,7 @@ P7 rejections), and **Settings** (config status + the boot-frozen `consumeOnVeri
 **Scope — Out:** the auth seam (P11).
 
 **Definition of Done:**
+
 - The OTP box (paste/auto-advance/backspace/`reset`/`isComplete`) + countdown drive a real verify against the backend.
 - The provider matrix + email preview + roadmap rejection render; every `NOTIFICATION_ERROR_CODES` key is localized
   (`audit:error-codes` passes).
@@ -477,6 +489,7 @@ that renders, sends (Mailpit), and audits through this pipeline. `nest-auth` sta
 **Scope — Out:** a real login/session UI.
 
 **Definition of Done:**
+
 - The adapter maps all 7 nest-auth email-port methods to canonical templates; journey 13 shows one event end-to-end.
 - The `notification:` vs `auth:` Redis namespace isolation is documented; covered at 100%.
 
@@ -499,6 +512,7 @@ purpose.
 **Scope — Out:** mutation (P13).
 
 **Definition of Done:**
+
 - `pnpm test:cov` reports 100% on all four metrics in `apps/api` and `apps/web`; Playwright journeys pass against the
   live stack; CI `unit` + `e2e-api` + `e2e-web` + `coverage-report` green.
 - Every `it()` carries a scenario comment.
@@ -521,6 +535,7 @@ surviving mutants as provable equivalents in `docs/stryker/{BASELINE,HISTORY,IMP
 **Scope — Out:** docs/release (P14).
 
 **Definition of Done:**
+
 - `stryker run` passes `break: 95` on both apps (api targets 100; web `lib/**` 100, `components/**` driven up);
   survivors documented; `mutation.yml` + `mutation-nightly.yml` green.
 
@@ -544,6 +559,7 @@ enforce `audit:exports` + `audit:error-codes`; security hardening (helmet, CSP/H
 **Scope — Out:** v0.2 (SMS/Push) — tracked on `next`.
 
 **Definition of Done:**
+
 - All docs present + `markdown-link-check` clean; the Feature Coverage Matrix reconciles against the audit; CI fully
   green including `codeql` + `scorecard` + the security gates; the repo is ready to flip public; `v0.1.0` tagged and the
   release workflow produces images + records RELEASES.md.
@@ -578,30 +594,30 @@ phase's DoD.
 
 ## Appendix C — Quality Gates
 
-| Gate | Tool / config | Threshold | Enforced in |
-| --- | --- | --- | --- |
-| Format | Prettier | clean | `ci.yml` `lint`, pre-commit |
-| Lint | ESLint flat (`--max-warnings 0`) | 0 warnings | `ci.yml` `lint` |
-| Typecheck | `tsc --noEmit` (all packages) | 0 errors | `ci.yml` `typecheck` |
-| Unit coverage — api | Jest (`coverageThreshold.global`) | **100%** all 4 metrics | `ci.yml` `unit` |
-| Unit coverage — web | Vitest (`thresholds`) | **100%** all 4 metrics | `ci.yml` `unit` |
-| E2E — api | supertest (test stack) | pass | `ci.yml` `e2e-api` |
-| E2E — web | Playwright | pass | `ci.yml` `e2e-web` |
-| Mutation — api | Stryker (`break`) | **≥ 95** (target 100) | `mutation.yml`, `mutation-nightly.yml` |
-| Mutation — web | Stryker (`break`) | **≥ 95** (`lib/**` 100) | `mutation.yml`, `mutation-nightly.yml` |
-| Export usage | `audit-library-exports.mjs` | every export referenced | `ci.yml` `export-usage-check` |
-| Error-code coverage | `audit-error-codes.mjs` | every code localized | `ci.yml` `export-usage-check` |
-| Dependency review | `actions/dependency-review-action` | no high vulns / bad licenses | `ci.yml` (PR) |
-| Static security | CodeQL (`security-extended`) | no new alerts | `codeql.yml` |
-| Supply chain | OpenSSF Scorecard | published (informational) | `scorecard.yml` |
-| Secret scan | gitleaks/TruffleHog | clean | `ci.yml` (or `codeql.yml` companion) |
-| Pre-commit | husky + lint-staged + commitlint | pass | local + `commit-msg` |
+| Gate                | Tool / config                      | Threshold                    | Enforced in                            |
+| ------------------- | ---------------------------------- | ---------------------------- | -------------------------------------- |
+| Format              | Prettier                           | clean                        | `ci.yml` `lint`, pre-commit            |
+| Lint                | ESLint flat (`--max-warnings 0`)   | 0 warnings                   | `ci.yml` `lint`                        |
+| Typecheck           | `tsc --noEmit` (all packages)      | 0 errors                     | `ci.yml` `typecheck`                   |
+| Unit coverage — api | Jest (`coverageThreshold.global`)  | **100%** all 4 metrics       | `ci.yml` `unit`                        |
+| Unit coverage — web | Vitest (`thresholds`)              | **100%** all 4 metrics       | `ci.yml` `unit`                        |
+| E2E — api           | supertest (test stack)             | pass                         | `ci.yml` `e2e-api`                     |
+| E2E — web           | Playwright                         | pass                         | `ci.yml` `e2e-web`                     |
+| Mutation — api      | Stryker (`break`)                  | **≥ 95** (target 100)        | `mutation.yml`, `mutation-nightly.yml` |
+| Mutation — web      | Stryker (`break`)                  | **≥ 95** (`lib/**` 100)      | `mutation.yml`, `mutation-nightly.yml` |
+| Export usage        | `audit-library-exports.mjs`        | every export referenced      | `ci.yml` `export-usage-check`          |
+| Error-code coverage | `audit-error-codes.mjs`            | every code localized         | `ci.yml` `export-usage-check`          |
+| Dependency review   | `actions/dependency-review-action` | no high vulns / bad licenses | `ci.yml` (PR)                          |
+| Static security     | CodeQL (`security-extended`)       | no new alerts                | `codeql.yml`                           |
+| Supply chain        | OpenSSF Scorecard                  | published (informational)    | `scorecard.yml`                        |
+| Secret scan         | gitleaks/TruffleHog                | clean                        | `ci.yml` (or `codeql.yml` companion)   |
+| Pre-commit          | husky + lint-staged + commitlint   | pass                         | local + `commit-msg`                   |
 
-> **Notes.** *Coverage shim:* `ignoreCoverageForAllDecorators: true` (Jest) + a spec tsconfig without
-> `emitDecoratorMetadata` to kill phantom paramtype branches. *Mutation bar:* `break: 95` is the mandatory floor per the
+> **Notes.** _Coverage shim:_ `ignoreCoverageForAllDecorators: true` (Jest) + a spec tsconfig without
+> `emitDecoratorMetadata` to kill phantom paramtype branches. _Mutation bar:_ `break: 95` is the mandatory floor per the
 > project directive; api targets 100, web `lib/**` 100 with `components/**` (vendored shadcn) driven as high as
-> achievable; survivors documented as provable equivalents. *Memory safety:* `maxWorkers: '50%'` baked into both test
-> configs; CI runs each package's coverage as a separate step; never fan out parallel test agents. *Toolchain:* pnpm
+> achievable; survivors documented as provable equivalents. _Memory safety:_ `maxWorkers: '50%'` baked into both test
+> configs; CI runs each package's coverage as a separate step; never fan out parallel test agents. _Toolchain:_ pnpm
 > setup before setup-node; Jest native-ESM `--experimental-vm-modules`; Stryker JSON config.
 
 ---
@@ -613,15 +629,15 @@ All workflows: `actions/checkout@v5`, `pnpm/action-setup@v4` (pinned), `actions/
 they need); `concurrency` cancel-in-progress (except `release`); pinned actions; `timeout-minutes` per job; a placeholder
 `DATABASE_URL` so `prisma generate` runs without a DB.
 
-| Workflow | Triggers | Jobs | Lands |
-| --- | --- | --- | --- |
-| `ci.yml` | PR + push `main`/`next` | `install` → `lint`, `typecheck`, `unit` (coverage upload), `e2e-api`, `e2e-web` (needs e2e-api), `export-usage-check` (exports + error-codes), `dependency-review` (PR), `coverage-report` | P0 (skeleton) → enriched P2/P5/P6/P12 |
-| `codeql.yml` | PR + push `main` + weekly cron | `analyze` (JS/TS, `security-extended`, SARIF → Security tab) | P0 |
-| `scorecard.yml` | push `main` + weekly cron | OpenSSF Scorecard (supply-chain, publishes to scorecard.dev) | P0 |
-| `mutation.yml` | PR (paths filter) | `detect` (changed workspace) → `mutation-api` / `mutation-web` (`stryker --incremental`, cached) | P13 (skeleton P0) |
-| `mutation-nightly.yml` | cron Mon 03:00 UTC + dispatch | `full-api` / `full-web` (`stryker --force`); opens a `mutation-drift` issue on failure | P13 |
-| `release.yml` | tag `v*` | `build-and-push` (OIDC, GHCR `…-api`/`…-web` images) → `update-releases-doc` (bot prepends to RELEASES.md) | P14 (validates from P0) |
-| `dependabot.yml` / `renovate.json` | weekly | npm + github-actions update PRs (never auto-merge; pins `@bymax-one/nest-notification`) | P0 |
+| Workflow                           | Triggers                       | Jobs                                                                                                                                                                                       | Lands                                 |
+| ---------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| `ci.yml`                           | PR + push `main`/`next`        | `install` → `lint`, `typecheck`, `unit` (coverage upload), `e2e-api`, `e2e-web` (needs e2e-api), `export-usage-check` (exports + error-codes), `dependency-review` (PR), `coverage-report` | P0 (skeleton) → enriched P2/P5/P6/P12 |
+| `codeql.yml`                       | PR + push `main` + weekly cron | `analyze` (JS/TS, `security-extended`, SARIF → Security tab)                                                                                                                               | P0                                    |
+| `scorecard.yml`                    | push `main` + weekly cron      | OpenSSF Scorecard (supply-chain, publishes to scorecard.dev)                                                                                                                               | P0                                    |
+| `mutation.yml`                     | PR (paths filter)              | `detect` (changed workspace) → `mutation-api` / `mutation-web` (`stryker --incremental`, cached)                                                                                           | P13 (skeleton P0)                     |
+| `mutation-nightly.yml`             | cron Mon 03:00 UTC + dispatch  | `full-api` / `full-web` (`stryker --force`); opens a `mutation-drift` issue on failure                                                                                                     | P13                                   |
+| `release.yml`                      | tag `v*`                       | `build-and-push` (OIDC, GHCR `…-api`/`…-web` images) → `update-releases-doc` (bot prepends to RELEASES.md)                                                                                 | P14 (validates from P0)               |
+| `dependabot.yml` / `renovate.json` | weekly                         | npm + github-actions update PRs (never auto-merge; pins `@bymax-one/nest-notification`)                                                                                                    | P0                                    |
 
 > **Enhancement over the sibling examples.** `nest-logger-example` / `nest-auth-example` ship only `ci`/`mutation`/
 > `mutation-nightly`/`release`. Because this repo is **going public and is agent-built**, `codeql.yml`, `scorecard.yml`,
@@ -635,16 +651,16 @@ they need); `concurrency` cancel-in-progress (except `release`); pinned actions;
 To flip the repo from private to public (gated in P0 for scaffolding, enforced in P14):
 
 - [ ] `LICENSE` (MIT), `SECURITY.md` (report → email, not a public issue), `CODE_OF_CONDUCT.md` (Contributor Covenant
-  2.1 by reference), `CONTRIBUTING.md`, `CHANGELOG.md` (with `## [X.Y.Z]` headings), `CLAUDE.md`, `AGENTS.md`.
+      2.1 by reference), `CONTRIBUTING.md`, `CHANGELOG.md` (with `## [X.Y.Z]` headings), `CLAUDE.md`, `AGENTS.md`.
 - [ ] `.github/ISSUE_TEMPLATE/` (bug_report, feature_request, `config.yml` linking security to email) +
-  `PULL_REQUEST_TEMPLATE.md` + `CODEOWNERS`.
+      `PULL_REQUEST_TEMPLATE.md` + `CODEOWNERS`.
 - [ ] The 4 Copilot review files, customized for this stack (< 4000 chars each, no phase/task references).
 - [ ] `README.md` with the badge header (CI, coverage, mutation, license, TS-strict, Node, NestJS, Next, React,
-  Tailwind, Prisma) + architecture diagram + the Feature Coverage matrix link.
+      Tailwind, Prisma) + architecture diagram + the Feature Coverage matrix link.
 - [ ] CI fully green incl. `codeql` + `scorecard` + `dependency-review` + secret-scan; **secret scan clean** (no real
-  keys — Mailpit/test fixtures only).
+      keys — Mailpit/test fixtures only).
 - [ ] Branch protection on `main` (PR-only, required checks by name, signed commits, linear history) configured in the
-  GitHub UI.
+      GitHub UI.
 - [ ] `release.yml` OIDC Trusted Publishing / GHCR configured; `v0.1.0` tag cut.
 
 ---

@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P8
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -12,7 +12,7 @@
 The backend is complete through P7: `apps/api` exposes the full HTTP surface — `/otp/*`, `/email/*`, `/dispatch`,
 `/channels`, `/debug/key`, `/audit/{logs,stream,aggregate}` (keyset + SSE), and `/admin/try-configure-*` — all
 multi-tenant (trusted `x-tenant-id`), masked-audited, and 100%-covered. There is **no `apps/web` yet**: P0 deliberately
-deferred the design-system *web* files (they need `apps/web`), keeping only `docs/design_system.html` as the reference.
+deferred the design-system _web_ files (they need `apps/web`), keeping only `docs/design_system.html` as the reference.
 
 Phase 8 produces the **Next.js console shell** under the shared Bymax design system, ready for pages to be filled in
 from P9 onward. It scaffolds `apps/web` (Next 16 + React 19 + Tailwind 4), copies the design-system files **verbatim**
@@ -71,14 +71,14 @@ domain (notification destinations, `x-tenant-id` header, the `/audit/stream` SSE
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 8.1 | `apps/web` scaffold (Next 16 + React 19 + Tailwind 4) | 📋 ToDo | P0 | M | — |
-| 8.2 | Verbatim design system (`globals.css` + config + `components/ui/*`) | 📋 ToDo | P0 | M | 8.1 |
-| 8.3 | App shell — `layout` · `providers` · topbar · sidebar | 📋 ToDo | P0 | M | 8.2 |
-| 8.4 | Global controls — tenant / role / live + `nuqs` URL state | 📋 ToDo | P1 | M | 8.3 |
-| 8.5 | `lib/` clients (`utils` · `api-client` · `sse` · `error-codes` · `severity`) + finalize `audit-error-codes` gate | 📋 ToDo | P0 | M | 8.1 |
-| 8.6 | Route placeholders + build/parity verification (closeout) | 📋 ToDo | P1 | S | 8.3, 8.4, 8.5 |
+| ID  | Task                                                                                                             | Status  | Priority | Size | Depends on    |
+| --- | ---------------------------------------------------------------------------------------------------------------- | ------- | -------- | ---- | ------------- |
+| 8.1 | `apps/web` scaffold (Next 16 + React 19 + Tailwind 4)                                                            | 📋 ToDo | P0       | M    | —             |
+| 8.2 | Verbatim design system (`globals.css` + config + `components/ui/*`)                                              | 📋 ToDo | P0       | M    | 8.1           |
+| 8.3 | App shell — `layout` · `providers` · topbar · sidebar                                                            | 📋 ToDo | P0       | M    | 8.2           |
+| 8.4 | Global controls — tenant / role / live + `nuqs` URL state                                                        | 📋 ToDo | P1       | M    | 8.3           |
+| 8.5 | `lib/` clients (`utils` · `api-client` · `sse` · `error-codes` · `severity`) + finalize `audit-error-codes` gate | 📋 ToDo | P0       | M    | 8.1           |
+| 8.6 | Route placeholders + build/parity verification (closeout)                                                        | 📋 ToDo | P1       | S    | 8.3, 8.4, 8.5 |
 
 ---
 
@@ -103,19 +103,19 @@ subpaths.
 #### Acceptance criteria
 
 - [ ] `apps/web/package.json` — `"name": "web"`, `private`, `"type": "module"`, `engines.node >=24`; the runtime deps
-  (`next ^16.2`, `react ^19`, `react-dom ^19`, `@bymax-one/nest-notification` via the workspace `file:` reference,
-  `nuqs ^2`, `@tanstack/react-query ^5`, `clsx`, `tailwind-merge`, `class-variance-authority`, `geist`, `lucide-react`,
-  `sonner`, `zod ^4`, the `@radix-ui/*` primitives used by `components/ui/*`); dev deps
-  (`tailwindcss ^4.2`, `@tailwindcss/postcss`, `eslint-config-next`, `@types/{node,react,react-dom}`); scripts
-  `dev` (`next dev --port 3003`), `build`, `start`, `typecheck`, `lint`, `test`/`test:cov` placeholders.
+      (`next ^16.2`, `react ^19`, `react-dom ^19`, `@bymax-one/nest-notification` via the workspace `file:` reference,
+      `nuqs ^2`, `@tanstack/react-query ^5`, `clsx`, `tailwind-merge`, `class-variance-authority`, `geist`, `lucide-react`,
+      `sonner`, `zod ^4`, the `@radix-ui/*` primitives used by `components/ui/*`); dev deps
+      (`tailwindcss ^4.2`, `@tailwindcss/postcss`, `eslint-config-next`, `@types/{node,react,react-dom}`); scripts
+      `dev` (`next dev --port 3003`), `build`, `start`, `typecheck`, `lint`, `test`/`test:cov` placeholders.
 - [ ] `apps/web/next.config.ts` — `transpilePackages: ['@bymax-one/nest-notification']` (moved here from P2.1, since
-  `apps/web` is created in this task), `poweredByHeader: false`, `output: 'standalone'` + `outputFileTracingRoot` at
-  the monorepo root, the security-headers block (CSP `connect-src` includes `NEXT_PUBLIC_API_URL`'s origin for the
-  audit fetch + same-origin for the SSE proxy).
+      `apps/web` is created in this task), `poweredByHeader: false`, `output: 'standalone'` + `outputFileTracingRoot` at
+      the monorepo root, the security-headers block (CSP `connect-src` includes `NEXT_PUBLIC_API_URL`'s origin for the
+      audit fetch + same-origin for the SSE proxy).
 - [ ] `apps/web/tsconfig.json` extends `../../tsconfig.base.json`, `jsx: preserve`, `moduleResolution: bundler`,
-  `paths: { "@/*": ["./*"] }`, the `next` TS plugin; `apps/web/postcss.config.mjs` loads `@tailwindcss/postcss`.
+      `paths: { "@/*": ["./*"] }`, the `next` TS plugin; `apps/web/postcss.config.mjs` loads `@tailwindcss/postcss`.
 - [ ] `pnpm install` resolves; `pnpm --filter web typecheck` exits 0; `pnpm --filter web build` succeeds (empty app)
-  and resolves the library's `./react` + `./shared` subpaths (no "Module not found" for either subpath).
+      and resolves the library's `./react` + `./shared` subpaths (no "Module not found" for either subpath).
 
 #### Files to create / modify
 
@@ -124,7 +124,7 @@ subpaths.
 
 #### Agent prompt
 
-````
+```
 You are a senior Next.js / build-tooling engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — the public reference app for @bymax-one/nest-notification (NestJS 11 email + OTP
@@ -189,7 +189,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 4. Update the P8 row Progress to `1 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append to Completion log: `- 8.1 ✅ <YYYY-MM-DD> — apps/web scaffold (Next 16 + React 19 + Tailwind 4)`.
 6. Commit: `chore(web): scaffold apps/web (next 16 + react 19 + tailwind 4)` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -209,12 +209,12 @@ This is a pure copy — no re-styling, no token edits.
 #### Acceptance criteria
 
 - [ ] `apps/web/app/globals.css` is **byte-identical** to the sibling's (the `@import 'tailwindcss'`, `@config`,
-  `@custom-variant dark`, the `:root` / `.dark` token blocks, the orange-glass utilities, the glow keyframes).
+      `@custom-variant dark`, the `:root` / `.dark` token blocks, the orange-glass utilities, the glow keyframes).
 - [ ] `apps/web/tailwind.config.ts` is byte-identical (keyframes/animation only — `glow-float`, `glow-drift`, `fade-in`).
 - [ ] `apps/web/components.json` is byte-identical (`new-york`, `rsc`, `cssVariables`, the `@/` aliases, `lucide`).
 - [ ] `apps/web/components/ui/*` are byte-identical copies of every primitive the shell + controls use (at least
-  `button`, `card`, `badge`, `select`, `dropdown-menu`, `dialog`, `popover`, `tooltip`, `skeleton`, `sonner`, `tabs`,
-  `scroll-area`, `input`, `label`, `avatar`, `command`, `table`).
+      `button`, `card`, `badge`, `select`, `dropdown-menu`, `dialog`, `popover`, `tooltip`, `skeleton`, `sonner`, `tabs`,
+      `scroll-area`, `input`, `label`, `avatar`, `command`, `table`).
 - [ ] `pnpm --filter web typecheck` exits 0; a `diff -r` of those files against the sibling reports no differences.
 
 #### Files to create / modify
@@ -224,7 +224,7 @@ This is a pure copy — no re-styling, no token edits.
 
 #### Agent prompt
 
-````
+```
 You are a senior design-system / front-end engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. pnpm monorepo, apps/web is
@@ -277,7 +277,7 @@ Completion Protocol:
 4. Update the P8 row Progress to `2 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append to Completion log: `- 8.2 ✅ <date> — verbatim design system (globals.css + config + components/ui)`.
 6. Commit: `feat(web): vendor the shared design system verbatim` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -292,23 +292,24 @@ Completion Protocol:
 
 Build the console chrome: the root `layout.tsx` (Geist fonts + forced dark + `NuqsAdapter` + `Providers`), the
 `providers.tsx` client boundary (TanStack Query + Sonner), and the `AppShell` (fixed 64px topbar + sticky 250px sidebar
-+ content well) with the topbar brand mark and the sidebar's **seven notification destinations**.
+
+- content well) with the topbar brand mark and the sidebar's **seven notification destinations**.
 
 #### Acceptance criteria
 
 - [ ] `app/layout.tsx` — Server Component; `<html class="<GeistSans.variable> <GeistMono.variable> dark">` with
-  `suppressHydrationWarning` + `data-scroll-behavior="smooth"`; wraps `<NuqsAdapter><Providers>{children}</Providers>`;
-  `metadata` titled for the notification console.
+      `suppressHydrationWarning` + `data-scroll-behavior="smooth"`; wraps `<NuqsAdapter><Providers>{children}</Providers>`;
+      `metadata` titled for the notification console.
 - [ ] `app/providers.tsx` — `'use client'`; a `QueryClientProvider` (lazy `useState` client, sane `staleTime`,
-  `refetchOnWindowFocus: false`) + the Sonner `<Toaster />`.
+      `refetchOnWindowFocus: false`) + the Sonner `<Toaster />`.
 - [ ] `components/layout/app-shell.tsx` — `<Topbar>` + `pt-16` flex row of `<Sidebar>` + a `max-w-7xl` content `<main>`;
-  owns the mobile-sidebar open/close state.
+      owns the mobile-sidebar open/close state.
 - [ ] `components/layout/topbar.tsx` — fixed `h-16`, `z-200`, dark-glass; the orange brand mark + gradient
-  `nest-notification-example` wordmark on the left; a controls slot (filled in 8.4) + the mobile hamburger on the right.
+      `nest-notification-example` wordmark on the left; a controls slot (filled in 8.4) + the mobile hamburger on the right.
 - [ ] `components/layout/sidebar.tsx` — 250px glass rail; the **seven** destinations (`/` Overview, `/trigger` Trigger
-  Center, `/explorer` Audit Explorer, `/otp` OTP Verify, `/providers` Providers & Templates, `/roadmap` Roadmap,
-  `/settings` Settings) with lucide icons; orange active item via `usePathname()` (exact match on `/`); carries the
-  `nuqs` query string across navigation.
+      Center, `/explorer` Audit Explorer, `/otp` OTP Verify, `/providers` Providers & Templates, `/roadmap` Roadmap,
+      `/settings` Settings) with lucide icons; orange active item via `usePathname()` (exact match on `/`); carries the
+      `nuqs` query string across navigation.
 - [ ] `pnpm --filter web typecheck` exits 0; `pnpm --filter web build` succeeds.
 
 #### Files to create / modify
@@ -318,7 +319,7 @@ Build the console chrome: the root `layout.tsx` (Geist fonts + forced dark + `Nu
 
 #### Agent prompt
 
-````
+```
 You are a senior front-end / React engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web is a Next.js 16 +
@@ -378,7 +379,7 @@ Completion Protocol:
 4. Update the P8 row Progress to `3 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append: `- 8.3 ✅ <date> — app shell (layout · providers · topbar · sidebar)`.
 6. Commit: `feat(web): app shell — layout, providers, topbar, sidebar` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -398,16 +399,16 @@ on/off) — all persisted to the URL so every console view is a shareable deep l
 #### Acceptance criteria
 
 - [ ] `lib/filters.ts` (JSX-free) — the `nuqs` query parsers for the global state (`tenantId` string default `''`,
-  `role` enum default `viewer`, `live` boolean default `false`) and a `useNotificationQuery()` hook returning
-  `{ setQuery, tenantId, role, live }`; exports the `TENANTS` (`acme`/`globex`) + `ROLES` (`viewer`/`operator`/`admin`)
-  constants.
+      `role` enum default `viewer`, `live` boolean default `false`) and a `useNotificationQuery()` hook returning
+      `{ setQuery, tenantId, role, live }`; exports the `TENANTS` (`acme`/`globex`) + `ROLES` (`viewer`/`operator`/`admin`)
+      constants.
 - [ ] `components/controls/tenant-role-switcher.tsx` — two compact `Select`s bound to `useQueryStates`; the tenant
-  select offers `All tenants` (sentinel → `''`) + each `TENANTS` value; the role select offers each `ROLES` value.
+      select offers `All tenants` (sentinel → `''`) + each `TENANTS` value; the role select offers each `ROLES` value.
 - [ ] `components/controls/live-toggle.tsx` — a `⟳` icon `Button` writing the `live` boolean to the URL (`aria-pressed`,
-  spins when live).
+      spins when live).
 - [ ] The topbar renders `<TenantRoleSwitcher/>` + `<LiveToggle/>` in its `hidden md:flex` controls slot.
 - [ ] Changing any control updates the URL query string (e.g. `?tenantId=acme&role=admin&live=true`); reloading restores
-  it. `pnpm --filter web typecheck` + `build` succeed.
+      it. `pnpm --filter web typecheck` + `build` succeed.
 
 #### Files to create / modify
 
@@ -514,23 +515,23 @@ not localized (mirroring how P2 finalized the export-usage audit once the first 
 
 - [ ] `lib/utils.ts` — the `cn(...inputs)` `clsx` + `tailwind-merge` helper (unblocks `components/ui/*` + the shell).
 - [ ] `lib/api-client.ts` (JSX-free) — a `BASE` from `NEXT_PUBLIC_API_URL` (default `http://localhost:3001`), an
-  `apiFetch<T>` that sets `Accept: application/json` + the RBAC headers (`x-tenant-id` from `tenantId`, `x-role` from
-  `role`) and maps non-2xx → a thrown `ApiError`, plus thin typed callers for `/audit/logs`, `/audit/aggregate`, and
-  `/channels`; an `encodeAuditQuery` that serializes the active filter to a query string (reused by the SSE hook).
+      `apiFetch<T>` that sets `Accept: application/json` + the RBAC headers (`x-tenant-id` from `tenantId`, `x-role` from
+      `role`) and maps non-2xx → a thrown `ApiError`, plus thin typed callers for `/audit/logs`, `/audit/aggregate`, and
+      `/channels`; an `encodeAuditQuery` that serializes the active filter to a query string (reused by the SSE hook).
 - [ ] `lib/sse.ts` (the `useAuditStream` hook, `'use client'`) — opens an `EventSource` against the same-origin proxy
-  `/api/audit/stream?…` (the proxy injects RBAC headers an `EventSource` cannot), rAF-flushes into a bounded ring buffer
-  (drop-oldest), ignores keep-alive pings, exposes `{ rows, clear, connected, failed }`, idle-stops, and gates on an
-  `enabled` flag (the live toggle).
+      `/api/audit/stream?…` (the proxy injects RBAC headers an `EventSource` cannot), rAF-flushes into a bounded ring buffer
+      (drop-oldest), ignores keep-alive pings, exposes `{ rows, clear, connected, failed }`, idle-stops, and gates on an
+      `enabled` flag (the live toggle).
 - [ ] `lib/error-codes.ts` (JSX-free) — imports `NOTIFICATION_ERROR_CODES` from `@bymax-one/nest-notification/shared`
-  and exposes a `localizeErrorCode(code)` returning a human message for **every** one of the 22 catalog keys (so
-  `scripts/audit-error-codes.mjs` passes once the UI uses it); typed against `NotificationErrorCode` from `./shared`.
+      and exposes a `localizeErrorCode(code)` returning a human message for **every** one of the 22 catalog keys (so
+      `scripts/audit-error-codes.mjs` passes once the UI uses it); typed against `NotificationErrorCode` from `./shared`.
 - [ ] `lib/severity.ts` (JSX-free) — accessible visual metadata (`{ color, icon, label }`) per channel/verb, importing
-  the channel/purpose **type-only** unions (`NotificationChannel`, `OtpPurpose`) from `./shared` only — there is no
-  runtime `CHANNELS`/`VERBS`/`PURPOSES` array on `./shared`, so any local value list is a local `as const` array.
+      the channel/purpose **type-only** unions (`NotificationChannel`, `OtpPurpose`) from `./shared` only — there is no
+      runtime `CHANNELS`/`VERBS`/`PURPOSES` array on `./shared`, so any local value list is a local `as const` array.
 - [ ] `scripts/audit-error-codes.mjs` is **finalized** from its P0 no-op stub into the real gate: it parses the 22
-  `NOTIFICATION_ERROR_CODES` keys from the linked library and word-boundary-searches `apps/web` (under `lib/` + the
-  pages), exiting non-zero if any key is not localized. `node scripts/audit-error-codes.mjs` passes now that
-  `lib/error-codes.ts` localizes all 22 (mirrors P2's finalized export-usage audit).
+      `NOTIFICATION_ERROR_CODES` keys from the linked library and word-boundary-searches `apps/web` (under `lib/` + the
+      pages), exiting non-zero if any key is not localized. `node scripts/audit-error-codes.mjs` passes now that
+      `lib/error-codes.ts` localizes all 22 (mirrors P2's finalized export-usage audit).
 - [ ] `pnpm --filter web typecheck` exits 0; `next build` resolves `./shared`; **no** `.`-root import exists in `lib/`.
 
 #### Files to create / modify
@@ -541,7 +542,7 @@ not localized (mirroring how P2 finalized the export-usage audit once the first 
 
 #### Agent prompt
 
-````
+```
 You are a senior TypeScript / front-end integration engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification. apps/web's console calls the
@@ -620,7 +621,7 @@ Completion Protocol:
 4. Update the P8 row Progress to `5 / 6` in docs/DEVELOPMENT_PLAN.md.
 5. Append: `- 8.5 ✅ <date> — lib/ clients (utils · api-client · sse · error-codes · severity) + audit-error-codes gate`.
 6. Commit: `feat(web): lib clients + finalize audit-error-codes localization gate` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -640,15 +641,15 @@ design-parity check. This is the phase closeout — it runs the per-phase Comple
 #### Acceptance criteria
 
 - [ ] `app/page.tsx` + `app/{trigger,explorer,otp,providers,roadmap,settings}/page.tsx` — each a thin shell that renders
-  `<AppShell>` with a placeholder body (a centered empty-state card naming the destination + "coming in a later
-  iteration"); no charts/tables/data wiring. Each may set `export const dynamic = 'force-dynamic'` (URL-driven).
+      `<AppShell>` with a placeholder body (a centered empty-state card naming the destination + "coming in a later
+      iteration"); no charts/tables/data wiring. Each may set `export const dynamic = 'force-dynamic'` (URL-driven).
 - [ ] `app/error.tsx` + `app/not-found.tsx` (optional but recommended) render inside the design system.
 - [ ] `pnpm --filter web build` succeeds and the build log shows the library's `./react` + `./shared` subpaths resolved
-  (no "invalid hook call"; no duplicate-React warning).
+      (no "invalid hook call"; no duplicate-React warning).
 - [ ] `pnpm --filter web dev` serves all seven routes; the topbar + sidebar + global controls render; switching the
-  tenant/role/live controls rewrites the URL query string; the active sidebar item tracks the route.
+      tenant/role/live controls rewrites the URL query string; the active sidebar item tracks the route.
 - [ ] A shell screenshot is design-indistinguishable from the sibling examples (forced dark, orange glass, Geist) —
-  attach/note the parity check in the PR.
+      attach/note the parity check in the PR.
 
 #### Files to create / modify
 

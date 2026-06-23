@@ -3,7 +3,7 @@
 > **Status**: 📋 ToDo · **Progress**: 0 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P13
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
-> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
+> **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
 
 ---
 
@@ -14,11 +14,11 @@ native ESM) and `apps/web` (Vitest 4, jsdom), the Playwright journeys pass, and 
 `coverage-report` jobs are green. Coverage proves every line runs; it does **not** prove the assertions are sharp.
 
 Phase 13 adds the **mutation gate** on top. Stryker 9.6 mutates the source of both apps and re-runs the unit suite once
-per mutant; a *surviving* mutant means a behavioural change the tests did not catch. The bar (DEVELOPMENT_PLAN §2 +
+per mutant; a _surviving_ mutant means a behavioural change the tests did not catch. The bar (DEVELOPMENT_PLAN §2 +
 [Appendix C](../DEVELOPMENT_PLAN.md#appendix-c--quality-gates)) is `break ≥ 95` **mandatory** on both apps, driven to
 **100 on `apps/api`** and **100 on `apps/web` `lib/**`** with `components/**` (vendored shadcn UI) driven as high as
 achievable. We **never weaken a gate to pass** — every survivor is either killed by a sharper assertion, deleted as
-genuinely-dead code, or documented as a **provable equivalent** in `docs/stryker/`.
+genuinely-dead code, or documented as a **provable equivalent\*\* in `docs/stryker/`.
 
 When P13 is done: `pnpm --filter @nest-notification-example/api exec stryker run` and the web equivalent both pass their
 `break` thresholds; the survivor inventory and the path-to-the-gate are recorded in
@@ -44,7 +44,7 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 4. **Memory-safe execution** — Stryker `concurrency: 4` (not unbounded); run **one app's** mutation at a time, in the
    main agent; never fan out parallel test/mutation agents (the `file:`-linked library duplicates per worker).
 5. **Equivalent mutants are documented, not silenced blindly.** Each accepted survivor gets a row in
-   `IMPLEMENTATION_PLAN.md` *and* a co-located `// Stryker disable …` comment in source stating the same rationale —
+   `IMPLEMENTATION_PLAN.md` _and_ a co-located `// Stryker disable …` comment in source stating the same rationale —
    never a blanket disable.
 6. **Timeless source.** The deliverable configs/comments/workflows are committed code — **no** `Phase`/`Task`/roadmap
    references in them. (This planning file may name phases freely; the artefacts it describes may not.) English-only,
@@ -60,7 +60,7 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 - [`OVERVIEW.md`](../OVERVIEW.md) — §5 Repository Layout (the `apps/*/stryker.config.json` + `docs/stryker/` target
   paths), §17 Testing Strategy (the mutation row + the per-`it()` scenario-comment rule), Appendix C/D references.
 - [`DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) — § P13, §2 Global Conventions (Mutation/Memory-safe rows),
-  §3 Autonomous Execution Model, Appendix C (Quality Gates + the *Mutation bar* note), Appendix D (CI Matrix —
+  §3 Autonomous Execution Model, Appendix C (Quality Gates + the _Mutation bar_ note), Appendix D (CI Matrix —
   `mutation.yml` / `mutation-nightly.yml` rows).
 - Sibling repo (gold sources): `~/Documents/MyApps/bymax-one/nest-logger-example/` —
   `apps/api/{stryker.config.json, jest.stryker.config.cjs}`, `apps/web/stryker.config.json`,
@@ -73,13 +73,13 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 
 ## Task index
 
-| ID | Task | Status | Priority | Size | Depends on |
-| --- | --- | --- | --- | --- | --- |
-| 13.1 | api Stryker config + baseline measurement | 📋 ToDo | P0 | M | — |
-| 13.2 | api hardening → `break: 100` (kill survivors / document equivalents) | 📋 ToDo | P0 | L | 13.1 |
-| 13.3 | web Stryker config + `lib/**` → 100, `components/**` driven up | 📋 ToDo | P0 | L | — |
-| 13.4 | `docs/stryker/{BASELINE,HISTORY,IMPLEMENTATION_PLAN}.md` | 📋 ToDo | P1 | M | 13.2, 13.3 |
-| 13.5 | Wire `mutation.yml` + `mutation-nightly.yml` to real configs | 📋 ToDo | P0 | M | 13.2, 13.3 |
+| ID   | Task                                                                 | Status  | Priority | Size | Depends on |
+| ---- | -------------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
+| 13.1 | api Stryker config + baseline measurement                            | 📋 ToDo | P0       | M    | —          |
+| 13.2 | api hardening → `break: 100` (kill survivors / document equivalents) | 📋 ToDo | P0       | L    | 13.1       |
+| 13.3 | web Stryker config + `lib/**` → 100, `components/**` driven up       | 📋 ToDo | P0       | L    | —          |
+| 13.4 | `docs/stryker/{BASELINE,HISTORY,IMPLEMENTATION_PLAN}.md`             | 📋 ToDo | P1       | M    | 13.2, 13.3 |
+| 13.5 | Wire `mutation.yml` + `mutation-nightly.yml` to real configs         | 📋 ToDo | P0       | M    | 13.2, 13.3 |
 
 ---
 
@@ -101,15 +101,15 @@ config and records the pre-hardening number that 13.2 drives to 100.
 #### Acceptance criteria
 
 - [ ] `apps/api/stryker.config.json` exists: `jest` runner via a custom `jest.stryker.config.cjs`, `checkers: ["typescript"]`
-  with `tsconfigFile`, `coverageAnalysis: "perTest"`, the `mutate` glob excluding `*.spec.ts`/`*.module.ts`/`main.ts`/
-  `*.dto.ts`/`*.d.ts`/`index.ts`/`library-probe.ts`, `thresholds: { high: 100, low: 100, break: 100 }`, `concurrency: 4`,
-  `incremental: true` + `incrementalFile`, HTML+JSON reporters under `reports/mutation/api.*`.
+      with `tsconfigFile`, `coverageAnalysis: "perTest"`, the `mutate` glob excluding `*.spec.ts`/`*.module.ts`/`main.ts`/
+      `*.dto.ts`/`*.d.ts`/`index.ts`/`library-probe.ts`, `thresholds: { high: 100, low: 100, break: 100 }`, `concurrency: 4`,
+      `incremental: true` + `incrementalFile`, HTML+JSON reporters under `reports/mutation/api.*`.
 - [ ] `apps/api/jest.stryker.config.cjs` exists: re-runs the **unit** suite only (`testMatch: src/**/*.spec.ts`),
-  `collectCoverage: false`, excludes `dist/` + `.stryker-tmp/`, native-ESM transform (`useESM`, `ignoreCoverageForAllDecorators`).
+      `collectCoverage: false`, excludes `dist/` + `.stryker-tmp/`, native-ESM transform (`useESM`, `ignoreCoverageForAllDecorators`).
 - [ ] `apps/api/package.json` has `mutation` (`stryker run --force`) + `mutation:incremental` (`stryker run`) scripts and
-  the Stryker devDependencies (`@stryker-mutator/core`, `jest-runner`, `typescript-checker`) at 9.6.x.
+      the Stryker devDependencies (`@stryker-mutator/core`, `jest-runner`, `typescript-checker`) at 9.6.x.
 - [ ] `pnpm --filter @nest-notification-example/api run mutation` completes and prints a mutation score; the run is
-  recorded for 13.4 (score, killed, survived, timeout, no-cov).
+      recorded for 13.4 (score, killed, survived, timeout, no-cov).
 - [ ] `apps/web` is untouched by this task.
 
 #### Files to create / modify
@@ -220,14 +220,14 @@ kill each survivor with a sharper unit assertion, delete any genuinely-dead code
 #### Acceptance criteria
 
 - [ ] `pnpm --filter @nest-notification-example/api run mutation` exits **0** with mutation score meeting `break: 100`
-  (zero *un-disabled* survivors; only documented equivalents remain, each carrying a `// Stryker disable` comment).
+      (zero _un-disabled_ survivors; only documented equivalents remain, each carrying a `// Stryker disable` comment).
 - [ ] Every new/changed `it()` carries a block comment naming the scenario and the rule it protects (per OVERVIEW §17).
 - [ ] No gate was weakened: `break` is still `100`, `ignoreStatic` is **not** set, and no file was added to the `mutate`
-  exclusions to hide survivors (excludes remain the non-executable glue from 13.1).
+      exclusions to hide survivors (excludes remain the non-executable glue from 13.1).
 - [ ] `apps/api` unit coverage is still **100%** (`pnpm --filter @nest-notification-example/api run test:cov`) — the
-  hardening tests did not regress coverage.
+      hardening tests did not regress coverage.
 - [ ] Each accepted equivalent has a co-located `// Stryker disable <Mutator> <reason>` comment AND a notes entry handed
-  to 13.4 (file · ~line · mutator · why-equivalent).
+      to 13.4 (file · ~line · mutator · why-equivalent).
 
 #### Files to create / modify
 
@@ -318,16 +318,16 @@ vendored `components/ui/**` shadcn primitives) as high as achievable, meeting th
 #### Acceptance criteria
 
 - [ ] `apps/web/stryker.config.json` exists: `vitest` runner, `coverageAnalysis: "perTest"`, `ignoreStatic: true`,
-  `mutate` covers `lib/**/*.ts` + `components/**/*.tsx` and excludes `*.test.*`/`*.spec.*`/`components/ui/**`/`*.d.ts`,
-  `thresholds: { high: 100, low: 95, break: 95 }`, `concurrency: 4`, `incremental` + `incrementalFile`, HTML+JSON
-  reporters under `reports/mutation/web.*`.
+      `mutate` covers `lib/**/*.ts` + `components/**/*.tsx` and excludes `*.test.*`/`*.spec.*`/`components/ui/**`/`*.d.ts`,
+      `thresholds: { high: 100, low: 95, break: 95 }`, `concurrency: 4`, `incremental` + `incrementalFile`, HTML+JSON
+      reporters under `reports/mutation/web.*`.
 - [ ] `apps/web/package.json` has `mutation` (`stryker run --force`) + `mutation:incremental` (`stryker run`) scripts and
-  the Stryker devDependencies (`@stryker-mutator/core`, `@stryker-mutator/vitest-runner`) at 9.6.x.
-- [ ] `pnpm --filter web run mutation` exits **0** meeting `break: 95`, with **`lib/**` at
-  100%** (every survivor in `lib/**` killed or proven-equivalent) and `components/**` driven up.
+      the Stryker devDependencies (`@stryker-mutator/core`, `@stryker-mutator/vitest-runner`) at 9.6.x.
+- [ ] `pnpm --filter web run mutation` exits **0** meeting `break: 95`, with **`lib/**`at
+100%** (every survivor in`lib/**`killed or proven-equivalent) and`components/**` driven up.
 - [ ] `apps/web` unit coverage is still **100%** (`pnpm --filter web run test:cov`).
 - [ ] Each accepted `lib/**` equivalent has a co-located `// Stryker disable` comment + a notes entry for 13.4; no gate
-  was weakened (`break` ≥ 95, exclusions limited to `components/ui/**` + test/types).
+      was weakened (`break` ≥ 95, exclusions limited to `components/ui/**` + test/types).
 
 #### Files to create / modify
 
@@ -430,15 +430,15 @@ and rationales recorded by 13.1, 13.2 and 13.3.
 #### Acceptance criteria
 
 - [ ] `docs/stryker/BASELINE.md` records the first (pre-hardening) api + web measurements (score, killed, survived,
-  timeout, no-cov, break threshold, exit code) with a per-file survivor table, and links Appendix C + the P13 task file.
+      timeout, no-cov, break threshold, exit code) with a per-file survivor table, and links Appendix C + the P13 task file.
 - [ ] `docs/stryker/HISTORY.md` is an append-only, newest-on-top table (Date · Workspace · Score · Killed · Survived ·
-  Timeout · No-cov · Ignored · Note) with the baseline rows **and** the final green rows (api `break:100`, web `break:95`).
+      Timeout · No-cov · Ignored · Note) with the baseline rows **and** the final green rows (api `break:100`, web `break:95`).
 - [ ] `docs/stryker/IMPLEMENTATION_PLAN.md` states the target (api 100, web `lib/**` 100 + `components/**` ≥ 95), the
-  file-by-file hardening order, the stack gotchas (supertest excluded; mocked ExecutionContext; `.cjs` Jest config;
-  static survivors killed by asserting values), and an **Equivalent mutants** table whose rows match every
-  `// Stryker disable` comment in `apps/api/src` + `apps/web/lib` (file · mutator · why-equivalent).
+      file-by-file hardening order, the stack gotchas (supertest excluded; mocked ExecutionContext; `.cjs` Jest config;
+      static survivors killed by asserting values), and an **Equivalent mutants** table whose rows match every
+      `// Stryker disable` comment in `apps/api/src` + `apps/web/lib` (file · mutator · why-equivalent).
 - [ ] Every accepted-equivalent row in the table has a matching co-located `// Stryker disable` comment in source (and
-  vice-versa) — the two are consistent.
+      vice-versa) — the two are consistent.
 - [ ] `npx markdown-link-check docs/stryker/*.md --config .markdown-link-check.json` reports no dead links.
 
 #### Files to create / modify
@@ -447,7 +447,7 @@ and rationales recorded by 13.1, 13.2 and 13.3.
 
 #### Agent prompt
 
-````
+```
 You are a senior technical writer / test-quality engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification (NestJS 11 + Next.js 16).
@@ -502,7 +502,7 @@ Completion Protocol:
 3. Update the P13 row Progress cell to `4 / 5` in docs/DEVELOPMENT_PLAN.md.
 4. Append to ## Completion log: `- 13.4 ✅ <YYYY-MM-DD> — stryker baseline/history/implementation-plan docs`.
 5. Commit: `docs(stryker): add baseline, history, and implementation plan` (no Co-Authored-By).
-````
+```
 
 ---
 
@@ -523,18 +523,18 @@ mutation of only the PR-changed workspace (paths-filter + cached incremental fil
 #### Acceptance criteria
 
 - [ ] `.github/workflows/mutation.yml` — PR-triggered, `dorny/paths-filter` per workspace (`apps/api/**` →
-  `mutation-api`, `apps/web/**` → `mutation-web`), restores/saves `reports/stryker-incremental.json` via `actions/cache`,
-  runs `pnpm --filter @nest-notification-example/api run mutation:incremental` (api) / `pnpm --filter web run mutation:incremental` (web); the library is built first so the
-  `file:` link resolves; least-privilege `permissions`, `concurrency` cancel-in-progress, pinned actions, `timeout-minutes`.
+      `mutation-api`, `apps/web/**` → `mutation-web`), restores/saves `reports/stryker-incremental.json` via `actions/cache`,
+      runs `pnpm --filter @nest-notification-example/api run mutation:incremental` (api) / `pnpm --filter web run mutation:incremental` (web); the library is built first so the
+      `file:` link resolves; least-privilege `permissions`, `concurrency` cancel-in-progress, pinned actions, `timeout-minutes`.
 - [ ] `.github/workflows/mutation-nightly.yml` — Monday 03:00 UTC cron + `workflow_dispatch`, runs
-  `pnpm --filter … run mutation` (`--force`) for both apps, and on a failed run opens a `mutation-drift`-labelled issue
-  (idempotent: skip if an open one exists); `permissions: { contents: read, issues: write }`.
+      `pnpm --filter … run mutation` (`--force`) for both apps, and on a failed run opens a `mutation-drift`-labelled issue
+      (idempotent: skip if an open one exists); `permissions: { contents: read, issues: write }`.
 - [ ] Both workflows reference the **real** scripts/configs added in 13.1/13.3 (no placeholder `echo`); job names match
-  [Appendix D](../DEVELOPMENT_PLAN.md#appendix-d--cicd-workflow-matrix); untrusted `${{ github.* }}` passed via `env:`.
+      [Appendix D](../DEVELOPMENT_PLAN.md#appendix-d--cicd-workflow-matrix); untrusted `${{ github.* }}` passed via `env:`.
 - [ ] Both workflows parse (action-validator / YAML lint); a PR touching only `apps/api/**` triggers `mutation-api` and
-  **not** `mutation-web` (path-filter verified).
+      **not** `mutation-web` (path-filter verified).
 - [ ] **Per-phase closeout** done (see Phase Completion Protocol): P13 flipped to ✅ at `5 / 5`, Active phase advanced to
-  P14, Overall progress recomputed to `13 / 15 phases`.
+      P14, Overall progress recomputed to `13 / 15 phases`.
 
 #### Files to create / modify
 
@@ -543,7 +543,7 @@ mutation of only the PR-changed workspace (paths-filter + cached incremental fil
 
 #### Agent prompt
 
-````
+```
 You are a senior CI/CD engineer working on the nest-notification-example project.
 
 PROJECT: nest-notification-example — public reference app for @bymax-one/nest-notification, agent-built; every PR runs a
@@ -606,7 +606,7 @@ PER-PHASE (after the PR merges with CI green — see "## Phase Completion Protoc
 6. In docs/DEVELOPMENT_PLAN.md: set the P13 Status to ✅ and Progress `5 / 5`; advance Active phase to P14; recompute
    Overall progress to `13 / 15 phases (87%)`. Set this file's header Status to ✅ and Progress `5 / 5 tasks`.
 7. Commit: `docs(plan): P13 complete` (no Co-Authored-By).
-````
+```
 
 ---
 

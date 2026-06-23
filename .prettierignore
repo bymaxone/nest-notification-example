@@ -1,0 +1,11 @@
+dist
+.next
+out
+coverage
+node_modules
+pnpm-lock.yaml
+.stryker-tmp
+reports
+test-results
+playwright-report
+next-env.d.ts

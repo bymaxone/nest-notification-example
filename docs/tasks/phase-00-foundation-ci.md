@@ -1,6 +1,6 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 5 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 6 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -69,7 +69,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 | 0.3 | Mandatory repo & community-health files           | ✅ Done | P1       | S    | 0.1        |
 | 0.4 | GitHub config & Copilot review                    | ✅ Done | P0       | M    | 0.1        |
 | 0.5 | Core CI workflow + audit-script stubs             | ✅ Done | P0       | M    | 0.1, 0.2   |
-| 0.6 | Security & supply-chain workflows                 | 📋 ToDo | P0       | M    | 0.5        |
+| 0.6 | Security & supply-chain workflows                 | ✅ Done | P0       | M    | 0.5        |
 | 0.7 | Mutation/release workflow skeletons + Dockerfiles | 📋 ToDo | P1       | M    | 0.5        |
 
 ---
@@ -486,7 +486,7 @@ DEVELOPMENT_PLAN, append `- 0.5 ✅ <date> — core CI + audit script stubs`, co
 
 ### Task 0.6 — Security & supply-chain workflows
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 0.5
@@ -498,13 +498,13 @@ scan — wired and running (informational) so the repo is safe to make public.
 
 #### Acceptance criteria
 
-- [ ] `.github/workflows/codeql.yml` — `javascript-typescript`, `security-extended` query set, on PR + push `main` +
+- [x] `.github/workflows/codeql.yml` — `javascript-typescript`, `security-extended` query set, on PR + push `main` +
       weekly cron; `permissions: security-events: write` (only that job); SARIF → Security tab.
-- [ ] `.github/workflows/scorecard.yml` — OpenSSF Scorecard on push `main` + weekly cron + dispatch; publishes results;
+- [x] `.github/workflows/scorecard.yml` — OpenSSF Scorecard on push `main` + weekly cron + dispatch; publishes results;
       `id-token: write` + `security-events: write` scoped to the job.
-- [ ] A secret scan (gitleaks action) wired — either a `secret-scan` job in `ci.yml` or a small `.github/workflows/secret-scan.yml`
+- [x] A secret scan (gitleaks action) wired — either a `secret-scan` job in `ci.yml` or a small `.github/workflows/secret-scan.yml`
       — running on PR + push and failing on a detected secret.
-- [ ] All three run green/informational on a PR/push (no real secrets exist — only Mailpit/test fixtures later).
+- [x] All three run green/informational on a PR/push (no real secrets exist — only Mailpit/test fixtures later).
 
 #### Files to create / modify
 
@@ -666,3 +666,4 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 - 0.3 ✅ 2026-06-23 — repo & community-health files
 - 0.4 ✅ 2026-06-23 — github config + copilot review
 - 0.5 ✅ 2026-06-23 — core CI + audit script stubs
+- 0.6 ✅ 2026-06-23 — codeql + scorecard + secret-scan

@@ -1,0 +1,63 @@
+name: OSSF Scorecard
+
+# Runs the OpenSSF Scorecard checks and publishes the result to the Security tab
+# and the public viewer (scorecard.dev). The schedule keeps the score fresh even
+# when no code lands; the push trigger catches regressions (e.g. branch
+# protection removed) immediately.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 4 * * 1' # Mondays 04:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: scorecard-${{ github.ref }}
+  cancel-in-progress: true
+
+# Read-only by default; the analysis job widens only what it needs.
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      # Required to upload SARIF results to the Security tab.
+      security-events: write
+      # Required for `publish_results: true` — the action mints an OIDC token
+      # against scorecard.dev so its public viewer can verify the publisher.
+      id-token: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          # No token is left behind in the runner after checkout.
+          persist-credentials: false
+
+      - name: Run Scorecard analysis
+        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publishing is what makes the badge resolve and the public viewer show
+          # the score. Safe for public repos.
+          publish_results: true
+
+      - name: Upload SARIF artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: scorecard-sarif
+          path: results.sarif
+          retention-days: 30
+
+      - name: Upload SARIF to code scanning
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+        with:
+          sarif_file: results.sarif
+          category: ossf-scorecard

@@ -1,6 +1,6 @@
 # Phase 7 — Roadmap Rejection Endpoints
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 3 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 3 / 3 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P7
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -74,9 +74,9 @@ The gold source for the **exact error strings** is the library itself — copy t
 
 | ID  | Task                                                  | Status  | Priority | Size | Depends on |
 | --- | ----------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 7.1 | Admin DTOs + isolated-module rejection probe helper   | 📋 ToDo | P0       | M    | —          |
-| 7.2 | AdminController + AdminModule — the three endpoints   | 📋 ToDo | P0       | M    | 7.1        |
-| 7.3 | Isolated e2e specs asserting the exact thrown strings | 📋 ToDo | P0       | M    | 7.2        |
+| 7.1 | Admin DTOs + isolated-module rejection probe helper   | ✅ Done | P0       | M    | —          |
+| 7.2 | AdminController + AdminModule — the three endpoints   | ✅ Done | P0       | M    | 7.1        |
+| 7.3 | Isolated e2e specs asserting the exact thrown strings | ✅ Done | P0       | M    | 7.2        |
 
 ---
 
@@ -84,7 +84,7 @@ The gold source for the **exact error strings** is the library itself — copy t
 
 ### Task 7.1 — Admin DTOs + isolated-module rejection probe helper
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -97,16 +97,16 @@ structured result. The three endpoints (Task 7.2) are thin wrappers over this on
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/admin/dto/roadmap-rejection.result.ts` exports a `RoadmapRejectionResult` type/DTO:
+- [x] `apps/api/src/admin/dto/roadmap-rejection.result.ts` exports a `RoadmapRejectionResult` type/DTO:
       `{ attempt: 'sms' | 'push' | 'async-useclass'; rejected: boolean; errorName: string; errorMessage: string }`.
-- [ ] `apps/api/src/admin/roadmap-rejection.probe.ts` exports `attemptConfigure(attempt, buildModule)` which compiles the
+- [x] `apps/api/src/admin/roadmap-rejection.probe.ts` exports `attemptConfigure(attempt, buildModule)` which compiles the
       supplied module in isolation, awaits the act that triggers `forRoot`/`forRootAsync` construction, and returns a
       `RoadmapRejectionResult` — `rejected: true` + the caught `error.message` when it throws, `rejected: false` when it
       does **not** (no silent success).
-- [ ] The helper always **closes** the testing module it compiled (`await moduleRef?.close()` in a `finally`) so no DI
+- [x] The helper always **closes** the testing module it compiled (`await moduleRef?.close()` in a `finally`) so no DI
       container leaks across requests.
-- [ ] JSDoc on every export; `@throws` documented where relevant; TS strict (no `any`, no suppression comments).
-- [ ] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0.
+- [x] JSDoc on every export; `@throws` documented where relevant; TS strict (no `any`, no suppression comments).
+- [x] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -222,7 +222,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 7.2 — AdminController + AdminModule — the three endpoints
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 7.1
@@ -235,23 +235,23 @@ the `RoadmapRejectionResult` with the library's real thrown message.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/admin/admin.controller.ts` exposes `POST /admin/try-configure-sms`,
+- [x] `apps/api/src/admin/admin.controller.ts` exposes `POST /admin/try-configure-sms`,
       `POST /admin/try-configure-push`, and `POST /admin/try-configure-async-useclass`; each `200 OK` returns a
       `RoadmapRejectionResult`.
-- [ ] `try-configure-sms` builds `BymaxNotificationModule.forRoot({ sms: <SmsChannelOptions> })` — a bare `{ sms }`
+- [x] `try-configure-sms` builds `BymaxNotificationModule.forRoot({ sms: <SmsChannelOptions> })` — a bare `{ sms }`
       reaches the **sms throw** first because `validateOptions` checks `sms` before `email`/`otp` — and returns the
       captured `"[BymaxNotificationModule] SMS channel is not yet implemented (planned for v0.2). Remove 'sms' from
 options."` message.
-- [ ] `try-configure-push` returns the captured `"[BymaxNotificationModule] Push channel is not yet implemented (planned
+- [x] `try-configure-push` returns the captured `"[BymaxNotificationModule] Push channel is not yet implemented (planned
 for v0.2). Remove 'push' from options."` message.
-- [ ] `try-configure-async-useclass` builds `BymaxNotificationModule.forRootAsync({ useClass: <a
+- [x] `try-configure-async-useclass` builds `BymaxNotificationModule.forRootAsync({ useClass: <
 BymaxNotificationModuleOptionsFactory impl> })` and returns the captured `"[BymaxNotificationModule] forRootAsync
 supports only \`useFactory\` in v0.1; \`useClass\` / \`useExisting\` are not yet implemented (planned for v0.2)."`
       message.
-- [ ] `apps/api/src/admin/admin.module.ts` declares the controller; it is imported in `apps/api/src/app.module.ts`.
-- [ ] JSDoc on every export; TS strict; the rejected option shapes are typed against the library's declared interfaces
+- [x] `apps/api/src/admin/admin.module.ts` declares the controller; it is imported in `apps/api/src/app.module.ts`.
+- [x] JSDoc on every export; TS strict; the rejected option shapes are typed against the library's declared interfaces
       (`SmsChannelOptions`/`PushChannelOptions`/`BymaxNotificationModuleOptionsFactory`), not `any`.
-- [ ] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0; the app boots and the routes are mapped.
+- [x] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0; the app boots and the routes are mapped.
 
 #### Files to create / modify
 
@@ -379,7 +379,7 @@ Completion Protocol (run after finishing):
 
 ### Task 7.3 — Isolated e2e specs asserting the exact thrown strings
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 7.2
@@ -393,17 +393,17 @@ the per-phase completion protocol.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/test/admin-roadmap-rejection.e2e-spec.ts` boots the app (or an isolated test module mounting
+- [x] `apps/api/test/admin-roadmap-rejection.e2e-spec.ts` boots the app (or an isolated test module mounting
       `AdminModule`) with supertest and asserts each endpoint returns `200` with `rejected: true` and the **verbatim**
       library message for `sms`, `push`, and `async-useclass`.
-- [ ] A unit spec for the probe helper (`apps/api/src/admin/roadmap-rejection.probe.spec.ts`) covers **both** branches:
+- [x] A unit spec for the probe helper (`apps/api/src/admin/roadmap-rejection.probe.spec.ts`) covers **both** branches:
       the throwing path (returns `rejected: true` + the error message) **and** the non-throwing path (a `buildModule` that
       compiles cleanly → `rejected: false`, `errorMessage: ''`), proving the demo's premise check.
-- [ ] The three endpoint messages asserted match the library source **byte-for-byte** (no paraphrase).
-- [ ] `pnpm --filter @nest-notification-example/api test:cov` passes with **100%** statements/branches/functions/lines
+- [x] The three endpoint messages asserted match the library source **byte-for-byte** (no paraphrase).
+- [x] `pnpm --filter @nest-notification-example/api test:cov` passes with **100%** statements/branches/functions/lines
       for `apps/api/src/admin/**` (the controller, the helper, and the DTO module are fully covered or scoped-excluded per
       the §2 coverage rule — non-executable glue like `*.module.ts`/`*.dto.ts` is excluded from scope).
-- [ ] No suppression comments; tests are deterministic (each isolated module is closed; no leaked DI containers/handles).
+- [x] No suppression comments; tests are deterministic (each isolated module is closed; no leaked DI containers/handles).
 
 #### Files to create / modify
 
@@ -533,4 +533,6 @@ If any DoD bullet is unmet or CI is red, set P7 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 7.1 ✅ 2026-06-23 — admin DTO + isolated-module rejection probe helper
+- 7.2 ✅ 2026-06-23 — AdminController + AdminModule (3 rejection endpoints)
+- 7.3 ✅ 2026-06-23 — isolated e2e + probe specs assert verbatim rejection strings

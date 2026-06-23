@@ -49,8 +49,8 @@ structural template, reconciled with the current vault standard.
 
 ## Progress
 
-- **Overall progress:** 7 / 15 phases · 40 / 82 tasks done (47%)
-- **Active phase:** P7 — Roadmap Rejection Endpoints
+- **Overall progress:** 8 / 15 phases · 43 / 82 tasks done (53%)
+- **Active phase:** P8 — Web Skeleton & Design System
 - **Blocked:** none
 
 > All 15 Layer-3 task files are scaffolded under [`docs/tasks/`](./tasks/) (82 tasks total). Execute one phase at a time
@@ -69,7 +69,7 @@ structural template, reconciled with the current vault standard.
 | P4  | Notification Wiring & Audit Store            | `phase-04-notification-wiring.md`   | ✅     | 7 / 7    | L    | 2026-06-23   |
 | P5  | OTP & Email Controllers                      | `phase-05-otp-email-controllers.md` | ✅     | 6 / 6    | L    | 2026-06-23   |
 | P6  | Audit Read-API (keyset + SSE)                | `phase-06-audit-read-api.md`        | ✅     | 5 / 5    | M    | 2026-06-23   |
-| P7  | Roadmap Rejection Endpoints                  | `phase-07-roadmap-rejection.md`     | 📋     | 0 / 3    | S    | —            |
+| P7  | Roadmap Rejection Endpoints                  | `phase-07-roadmap-rejection.md`     | ✅     | 3 / 3    | S    | 2026-06-23   |
 | P8  | Web Skeleton & Design System                 | `phase-08-web-skeleton.md`          | 📋     | 0 / 6    | M    | —            |
 | P9  | Console Core (Overview · Trigger · Explorer) | `phase-09-console-core.md`          | 📋     | 0 / 6    | L    | —            |
 | P10 | OTP & Providers Panels                       | `phase-10-otp-providers-panels.md`  | 📋     | 0 / 6    | L    | —            |

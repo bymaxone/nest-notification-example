@@ -1,6 +1,6 @@
 # Phase 2 — Library Consumption & Export Audit
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 4 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 4 / 4 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P2
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,10 +76,10 @@ The gold sources are the sibling `nest-logger-example` — copy and **adapt** it
 
 | ID  | Task                                                     | Status  | Priority | Size | Depends on |
 | --- | -------------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 2.1 | `file:` link the library + peers (apps/api)              | 📋 ToDo | P0       | M    | —          |
-| 2.2 | Library export-surface probe (`library-probe.ts` + spec) | 📋 ToDo | P0       | M    | 2.1        |
-| 2.3 | Finalize the 3-subpath export-usage audit script         | 📋 ToDo | P0       | M    | 2.1        |
-| 2.4 | Run the audit green + document build-first workflow      | 📋 ToDo | P1       | S    | 2.2, 2.3   |
+| 2.1 | `file:` link the library + peers (apps/api)              | ✅ Done | P0       | M    | —          |
+| 2.2 | Library export-surface probe (`library-probe.ts` + spec) | ✅ Done | P0       | M    | 2.1        |
+| 2.3 | Finalize the 3-subpath export-usage audit script         | ✅ Done | P0       | M    | 2.1        |
+| 2.4 | Run the audit green + document build-first workflow      | ✅ Done | P1       | S    | 2.2, 2.3   |
 
 ---
 
@@ -87,7 +87,7 @@ The gold sources are the sibling `nest-logger-example` — copy and **adapt** it
 
 ### Task 2.1 — `file:` link the library + peers (apps/api)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -103,12 +103,12 @@ allow-listed until P8/P10 wire them.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/package.json` declares `"@bymax-one/nest-notification": "file:../../../nest-notification"` and the peers
+- [x] `apps/api/package.json` declares `"@bymax-one/nest-notification": "file:../../../nest-notification"` and the peers
       this app lights up: required (`@nestjs/common`, `@nestjs/core`, `reflect-metadata`, `rxjs`) + optional (`ioredis`,
       `resend`, `nodemailer`, `handlebars`, `mjml`, `@react-email/render`).
-- [ ] After `cd ../nest-notification && pnpm install && pnpm build`, then `pnpm install --no-frozen-lockfile` here, the
+- [x] After `cd ../nest-notification && pnpm install && pnpm build`, then `pnpm install --no-frozen-lockfile` here, the
       lockfile resolves the `file:` link and `node -e "require.resolve(...)"`/a type import resolves all 3 subpaths.
-- [ ] `pnpm typecheck` exits 0 (a trivial type import of each subpath in a scratch file or the probe resolves from `dist`).
+- [x] `pnpm typecheck` exits 0 (a trivial type import of each subpath in a scratch file or the probe resolves from `dist`).
 
 #### Files to create / modify
 
@@ -191,7 +191,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 2.2 — Library export-surface probe (`library-probe.ts` + spec)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 2.1
@@ -204,7 +204,7 @@ resolution, and the crypto utils — so the export-usage audit can prove those t
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/library-probe.ts` imports from `@bymax-one/nest-notification` (the `.` subpath) and references, at
+- [x] `apps/api/src/library-probe.ts` imports from `@bymax-one/nest-notification` (the `.` subpath) and references, at
       minimum, the type/token-only exports with no natural feature home: the resolved-options types
       (`ResolvedNotificationOptions`/`ResolvedGlobalOptions`/`ResolvedEmailOptions`/`ResolvedOtpOptions`/`ResolvedAuditOptions`),
       the v0.2 declared-only surface (`BYMAX_NOTIFICATION_SMS_PROVIDER`/`_PUSH_PROVIDER` tokens, `ISmsProvider`/`IPushProvider`
@@ -212,12 +212,12 @@ resolution, and the crypto utils — so the export-usage audit can prove those t
       `BymaxNotificationModuleAsyncOptions`), the DI tokens (`BYMAX_NOTIFICATION_OPTIONS`/`_EMAIL_PROVIDER`/`_OTP_STORAGE`/
       `_TEMPLATE_RENDERER`/`_LOG_REPOSITORY`), the zero-arg class-form providers (`NoOpEmailProvider`/`InMemoryOtpStorage`),
       and the crypto utils (`generateOtpCode`/`safeCompare`).
-- [ ] Each value import is kept alive under `verbatimModuleSyntax` by a runtime read (`.name`, `.toString()`, an
+- [x] Each value import is kept alive under `verbatimModuleSyntax` by a runtime read (`.name`, `.toString()`, an
       invocation); each type-only import is proven by a type alias / typed const. Every export has JSDoc.
-- [ ] A frozen `probe` aggregate constant collects every runtime proof so one import asserts the surface.
-- [ ] `apps/api/src/library-probe.spec.ts` (Jest, `@jest/globals`) asserts the runtime proofs (token labels, the
+- [x] A frozen `probe` aggregate constant collects every runtime proof so one import asserts the surface.
+- [x] `apps/api/src/library-probe.spec.ts` (Jest, `@jest/globals`) asserts the runtime proofs (token labels, the
       generated-code shape, `safeCompare` true/false, the class names) at 100% of the executable lines.
-- [ ] `pnpm typecheck` exits 0; `pnpm --filter @nest-notification-example/api exec jest --maxWorkers=2 library-probe` passes.
+- [x] `pnpm typecheck` exits 0; `pnpm --filter @nest-notification-example/api exec jest --maxWorkers=2 library-probe` passes.
 
 #### Files to create / modify
 
@@ -334,7 +334,7 @@ Completion Protocol (run after finishing):
 
 ### Task 2.3 — Finalize the 3-subpath export-usage audit script
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 2.1
@@ -347,18 +347,18 @@ any unreferenced export (allow-listed via `.audit-ignore.json`) — the CI gate 
 
 #### Acceptance criteria
 
-- [ ] `scripts/audit-library-exports.mjs` parses **three** subpaths (`.` → `dist/server/index.d.ts`,
+- [x] `scripts/audit-library-exports.mjs` parses **three** subpaths (`.` → `dist/server/index.d.ts`,
       `./shared` → `dist/shared/index.d.ts`, `./react` → `dist/react/index.d.ts`) under
       `node_modules/@bymax-one/nest-notification/dist`.
-- [ ] It extracts every outward-facing export (`export declare …`, `export type|interface …`, and
+- [x] It extracts every outward-facing export (`export declare …`, `export type|interface …`, and
       `export { A, B as C, type D } [from '…']` re-export blocks — taking the outward name), word-boundary-searches the
       `apps/**` corpus (skipping `node_modules`/`dist`/`.next`/`coverage`/`reports`/`.stryker-tmp`, never following
       symlinks), and reads `.audit-ignore.json`.
-- [ ] Exit codes: `0` = every non-ignored export referenced; `1` = one or more unused; `2` = infra error (a declaration
+- [x] Exit codes: `0` = every non-ignored export referenced; `1` = one or more unused; `2` = infra error (a declaration
       file missing → a clear "build & link the library first" message).
-- [ ] `scripts/audit-error-codes.mjs` remains a no-op-passing stub here (error-code localization is a web concern, wired
+- [x] `scripts/audit-error-codes.mjs` remains a no-op-passing stub here (error-code localization is a web concern, wired
       in P10/P12) — do not break it.
-- [ ] `pnpm audit:exports` runs (once the lib is built + linked) and reports per-subpath used/unused/ignored counts;
+- [x] `pnpm audit:exports` runs (once the lib is built + linked) and reports per-subpath used/unused/ignored counts;
       `audit:exports` is wired in the root `package.json`.
 
 #### Files to create / modify
@@ -441,7 +441,7 @@ Completion Protocol (run after finishing):
 
 ### Task 2.4 — Run the audit green + document build-first workflow
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 2.2, 2.3
@@ -454,15 +454,15 @@ passes, then document the lib's build-first consumption workflow so a fresh clon
 
 #### Acceptance criteria
 
-- [ ] `pnpm audit:exports` exits 0: every export of all three subpaths is referenced in `apps/**` or allow-listed in
+- [x] `pnpm audit:exports` exits 0: every export of all three subpaths is referenced in `apps/**` or allow-listed in
       `.audit-ignore.json` with a `reason` + issue link.
-- [ ] Any allow-listed entry is a **genuinely-internal** leaked symbol (not a demonstrable export); the reason explains
+- [x] Any allow-listed entry is a **genuinely-internal** leaked symbol (not a demonstrable export); the reason explains
       why it leaks into the `.d.ts` and why no consumer uses it. Demonstrable exports left unreferenced are added to the
       probe (Task 2.2's file) or noted as owned by a later phase's real surface — never silenced.
-- [ ] The library build-first workflow is documented where a consumer will find it: a `## Library consumption` /
+- [x] The library build-first workflow is documented where a consumer will find it: a `## Library consumption` /
       build-first note in `README.md` (and/or `CONTRIBUTING.md`) — `cd ../nest-notification && pnpm install && pnpm build`
       before `pnpm install` here; prefer `file:` over `link:`; rebuild the lib when its source changes.
-- [ ] `pnpm typecheck && pnpm lint && pnpm audit:exports` all exit 0; the probe spec passes.
+- [x] `pnpm typecheck && pnpm lint && pnpm audit:exports` all exit 0; the probe spec passes.
 
 #### Files to create / modify
 
@@ -581,4 +581,7 @@ If any DoD bullet is unmet or CI is red, set P2 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 2.4 ✅ 2026-06-23 — audit:exports green + build-first workflow documented in README.md and CONTRIBUTING.md
+- 2.3 ✅ 2026-06-23 — finalize the 3-subpath export-usage audit script + .audit-ignore.json with 7 ./react entries
+- 2.2 ✅ 2026-06-23 — library export-surface probe + spec (14 tests, 100% coverage on all four metrics)
+- 2.1 ✅ 2026-06-23 — file: link @bymax-one/nest-notification + required/optional peers in apps/api

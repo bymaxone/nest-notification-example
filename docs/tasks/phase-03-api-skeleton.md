@@ -1,6 +1,6 @@
 # Phase 3 — API Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 1 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 2 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -77,7 +77,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 | ID  | Task                                                                | Status  | Priority | Size | Depends on         |
 | --- | ------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
 | 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health`              | ✅ Done | P0       | M    | —                  |
-| 3.2 | `NotificationException` → HTTP exception filter                     | 📋 ToDo | P0       | S    | 3.1                |
+| 3.2 | `NotificationException` → HTTP exception filter                     | ✅ Done | P0       | S    | 3.1                |
 | 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | 📋 ToDo | P0       | M    | 3.1                |
 | 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | 📋 ToDo | P0       | M    | 3.1                |
 | 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | 📋 ToDo | P1       | M    | 3.1                |
@@ -222,7 +222,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 3.2 — `NotificationException` → HTTP exception filter
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: S
 - **Depends on**: 3.1
@@ -235,16 +235,16 @@ controller benefits without per-endpoint wiring.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/common/notification-exception.filter.ts` is `@Catch(NotificationException)`, reads the status via
+- [x] `apps/api/src/common/notification-exception.filter.ts` is `@Catch(NotificationException)`, reads the status via
       `exception.getStatus()` and the body via `exception.getResponse()`, and writes the unchanged catalog body
       `{ error: { code, message, details } }` with that status.
-- [ ] It is registered as `APP_FILTER` (in `app.module.ts` or a `common.module.ts` imported by `AppModule`).
-- [ ] A unit test proves a `new NotificationException('OTP_INVALID_CODE')` serializes to status `401` and a body equal to
+- [x] It is registered as `APP_FILTER` (in `app.module.ts` or a `common.module.ts` imported by `AppModule`).
+- [x] A unit test proves a `new NotificationException('OTP_INVALID_CODE')` serializes to status `401` and a body equal to
       the shape `exception.getResponse()` returns (read the actual body shape from the lib's
       `errors/notification-exception.ts` — assert against `{ error: { code: 'notification.otp_invalid_code', message: ... } }`
       with whatever `details` field the lib emits; do **not** hardcode `details: null`); and that a `'OTP_COOLDOWN_ACTIVE'`
       maps to `429`.
-- [ ] No secrets/codes are read or logged by the filter (it only forwards the already-safe catalog body).
+- [x] No secrets/codes are read or logged by the filter (it only forwards the already-safe catalog body).
 
 #### Files to create / modify
 
@@ -806,3 +806,4 @@ If any DoD bullet is unmet or CI is red, set P3 to `🟡 Partial`, not `✅`.
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
 - 3.1 ✅ 2026-06-23 — main.ts bootstrap + AppModule skeleton + /health
+- 3.2 ✅ 2026-06-23 — NotificationException → HTTP exception filter

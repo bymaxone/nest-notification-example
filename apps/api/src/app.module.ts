@@ -9,7 +9,9 @@
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_FILTER } from '@nestjs/core'
 
+import { NotificationExceptionFilter } from './common/notification-exception.filter.js'
 import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
 
@@ -24,5 +26,7 @@ import { HealthModule } from './health/health.module.js'
     }),
     HealthModule,
   ],
+  // Map every library NotificationException to its catalog HTTP response globally.
+  providers: [{ provide: APP_FILTER, useClass: NotificationExceptionFilter }],
 })
 export class AppModule {}

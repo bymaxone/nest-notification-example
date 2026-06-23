@@ -24,7 +24,7 @@ import type { Response } from 'express'
  * @returns The `Retry-After` value, or `undefined` when the body carries no cooldown.
  */
 function retryAfterOf(body: string | object): string | undefined {
-  const details = (body as unknown as NotificationErrorResponse).error.details
+  const details = (body as NotificationErrorResponse).error.details
   const retryAfter = details?.['retryAfter']
   return typeof retryAfter === 'string' ? retryAfter : undefined
 }

@@ -1,6 +1,6 @@
 # Phase 6 — Audit Read-API (keyset + SSE)
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 3 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P6
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -81,7 +81,7 @@ and add the **source facet**. The library never imports Prisma; all read SQL liv
 | --- | --------------------------------------------------- | ------- | -------- | ---- | ---------- |
 | 6.1 | Audit query DTOs + indexes + source facet           | ✅ Done | P0       | M    | —          |
 | 6.2 | Audit read service — cursor codec + `where` builder | ✅ Done | P0       | M    | 6.1        |
-| 6.3 | `GET /audit/logs` keyset controller (410 on stale)  | 📋 ToDo | P0       | M    | 6.2        |
+| 6.3 | `GET /audit/logs` keyset controller (410 on stale)  | ✅ Done | P0       | M    | 6.2        |
 | 6.4 | Audit event bus + `GET /audit/stream` (`@Sse`)      | 📋 ToDo | P0       | L    | 6.2        |
 | 6.5 | `GET /audit/aggregate` (time-bucketed) + wire-up    | 📋 ToDo | P1       | M    | 6.3, 6.4   |
 
@@ -329,7 +329,7 @@ Completion Protocol:
 
 ### Task 6.3 — `GET /audit/logs` keyset controller (410 on stale)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 6.2
@@ -341,17 +341,17 @@ shared codec, returning `{ data, nextCursor, hasMore }`, mapping `StaleCursorErr
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit.controller.ts` exports `AuditController` (`@Controller('audit')`) with
+- [x] `apps/api/src/audit/audit.controller.ts` exports `AuditController` (`@Controller('audit')`) with
       `@Get('logs')` validating `AuditQueryDto` via `ZodValidationPipe`, resolving the tenant restriction server-side from
       the trusted source, building the `where` via `AuditReadService.buildWhere`, applying the tuple keyset clause
       `(timestamp < cur.timestamp) OR (timestamp = cur.timestamp AND id < cur.id)`, ordering `timestamp desc, id desc`,
       taking `limit`, and returning `{ data, nextCursor, hasMore }`.
-- [ ] An exported `AuditLogsPageResponse` interface documents the response shape.
-- [ ] A stale/foreign/malformed `cursor` → `GoneException` (HTTP 410) with a "restart pagination" message; a valid query
+- [x] An exported `AuditLogsPageResponse` interface documents the response shape.
+- [x] A stale/foreign/malformed `cursor` → `GoneException` (HTTP 410) with a "restart pagination" message; a valid query
       with no cursor returns the first page.
-- [ ] `nextCursor` is the last row's encoded cursor when a full page is returned, else `null`; `hasMore === (rows.length
+- [x] `nextCursor` is the last row's encoded cursor when a full page is returned, else `null`; `hasMore === (rows.length
 === limit)`.
-- [ ] 100% unit-covered (mock `PrismaService`): first page, mid pagination, last page (`hasMore=false`,
+- [x] 100% unit-covered (mock `PrismaService`): first page, mid pagination, last page (`hasMore=false`,
       `nextCursor=null`), and the 410 path.
 
 #### Files to create / modify
@@ -701,3 +701,4 @@ If any DoD bullet is unmet or CI is red, set P6 to `🟡 Partial`, not `✅`.
 
 - 6.1 ✅ 2026-06-23 — audit query DTOs + indexes + source facet
 - 6.2 ✅ 2026-06-23 — audit read service (cursor codec + where builder)
+- 6.3 ✅ 2026-06-23 — GET /audit/logs keyset controller (410 on stale)

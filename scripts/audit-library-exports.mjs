@@ -145,7 +145,10 @@ const corpus = sources.map((f) => readFileSync(f, 'utf8'))
 /**
  * Word-boundary test for a symbol across the whole corpus.
  *
- * @param {string} name - Exported symbol name.
+ * `name` is pre-validated to `/^[A-Za-z_$][\w$]*$/` by the `add()` guard in
+ * `extractExports`, so no regex metacharacter can reach `new RegExp`.
+ *
+ * @param {string} name - Exported symbol name (identifier-safe; no metacharacters).
  * @returns {boolean} True when the symbol is referenced in at least one file.
  */
 const isUsed = (name) => {

@@ -26,7 +26,7 @@ browser-reachable way to exercise it, not just a probe reference.
 ```bash
 pnpm install
 pnpm infra:up        # local Postgres + Redis + Mailpit (added with the app)
-pnpm dev
+pnpm dev             # starts the API + console once those apps are added (a no-op until then)
 ```
 
 The library is consumed pre-publish via a local `file:` link to the sibling

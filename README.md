@@ -28,12 +28,18 @@
   <a href="docs/OVERVIEW.md">📐 Overview</a>
 </p>
 
+<p align="center">
+  <em>🚧 <strong>Active build-out.</strong> The application code (<code>apps/api</code>, <code>apps/web</code>) and the
+  full documentation set land incrementally; the commands and features below describe the <strong>target</strong>
+  workflow, and the coverage/mutation badges track the gates the CI pipeline enforces as that code lands.</em>
+</p>
+
 ---
 
 ## ✨ Overview
 
-`@bymax-one/nest-notification` is the **what**; this repository is the **how**. It is a runnable,
-production-shaped demo that exercises **every public export** of the library across a NestJS API and a
+`@bymax-one/nest-notification` is the **what**; this repository is the **how**. Built out incrementally, it is a
+runnable, production-shaped demo that exercises **every public export** of the library across a NestJS API and a
 first-class Next.js notification console. It is three things at once:
 
 - **A runnable demo.** `pnpm infra:up` + `pnpm dev` brings up a NestJS service wired to the library and a
@@ -64,8 +70,8 @@ pnpm --dir ../nest-notification install && pnpm --dir ../nest-notification build
 
 # 2) install, bring up the local backends, run both apps
 pnpm install
-pnpm infra:up        # Postgres (audit) + Redis (OTP) + Mailpit (SMTP inbox)
-pnpm dev             # NestJS API + Next.js console
+pnpm infra:up        # Postgres (audit) + Redis (OTP) + Mailpit (SMTP inbox) — available once the stack is added
+pnpm dev             # NestJS API + Next.js console — available once the apps are added
 ```
 
 > The library is **pre-publish** — it is consumed via a local `file:` link to the sibling `../nest-notification`

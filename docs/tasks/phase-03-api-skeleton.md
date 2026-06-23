@@ -779,7 +779,7 @@ PER-TASK:
 5. Commit: `feat(api): assemble app module + verify boot with and without redis` (no Co-Authored-By).
 PER-PHASE (see docs/tasks/README.md "Per-phase Completion Protocol"): once the PR is merged and CI is green, set the P3
 **Status to ✅** and **Progress** `6 / 6` in docs/DEVELOPMENT_PLAN.md, advance **Active phase** to P4, recompute
-**Overall progress** to `3 / 15 phases (20%)`, set this file's header **Status** to ✅, and commit `docs(plan): P3 complete`.
+**Overall progress** to `4 / 15 phases (27%)`, set this file's header **Status** to ✅, and commit `docs(plan): P3 complete`.
 ````
 
 ---
@@ -794,7 +794,7 @@ When **Task 3.6** is `✅` and every other task is `✅`:
    `RedisModule`/`PrismaModule` resolve and the `REDIS = null` branch is covered.
 2. Ensure the phase PR is **merged** to `main` with **CI green** (all required checks).
 3. In [`DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md): set the **P3 Status** to `✅`, **Progress** `6 / 6`, **Last
-   updated** today; set **Active phase** to `P4`; recompute **Overall progress** to `3 / 15 phases (20%)`.
+   updated** today; set **Active phase** to `P4`; recompute **Overall progress** to `4 / 15 phases (27%)`.
 4. Set this file's header **Status** to `✅` and **Progress** to `6 / 6 tasks`.
 5. Commit `docs(plan): P3 complete` (no `Co-Authored-By`).
 

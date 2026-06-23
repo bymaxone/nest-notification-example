@@ -40,7 +40,11 @@ describe('HandlebarsTemplateRenderer', () => {
      * Handlebars `{{var}}` escapes by default in every body (it is context-unaware),
      * so the html AND text outputs carry the escaped value — a documented caveat.
      */
-    const rendered = await renderer.render('otp_code', { appName: 'Bymax', name: '<b>J</b>', code: 'X' }, 'en')
+    const rendered = await renderer.render(
+      'otp_code',
+      { appName: 'Bymax', name: '<b>J</b>', code: 'X' },
+      'en',
+    )
 
     expect(rendered.subject).toBe('Your Bymax code')
     expect(rendered.html).toContain('&lt;b&gt;J&lt;/b&gt;')
@@ -82,13 +86,23 @@ describe('MjmlTemplateRenderer', () => {
   it('throws at construction on invalid MJML', () => {
     /** `soft` validation surfaces a structured error the adapter rethrows fail-fast. */
     expect(
-      () => new MjmlTemplateRenderer({ 'bad::en': { subject: 'x', mjml: '<mjml><mj-body><mj-bogus>x</mj-bogus></mj-body></mjml>' } }),
+      () =>
+        new MjmlTemplateRenderer({
+          'bad::en': {
+            subject: 'x',
+            mjml: '<mjml><mj-body><mj-bogus>x</mj-bogus></mj-body></mjml>',
+          },
+        }),
     ).toThrow('Invalid MJML')
   })
 
   it('escapes the html body only and renders the text body raw', async () => {
     /** Subject/text are interpolated without escaping; the html body is escaped. */
-    const rendered = await renderer.render('welcome', { appName: 'Acme & Co', name: '<script>x</script>' }, 'en')
+    const rendered = await renderer.render(
+      'welcome',
+      { appName: 'Acme & Co', name: '<script>x</script>' },
+      'en',
+    )
 
     expect(rendered.subject).toBe('Welcome Acme & Co')
     expect(rendered.html).toContain('&lt;script&gt;x&lt;/script&gt;')

@@ -69,10 +69,7 @@ export class ReactEmailTemplateRenderer implements IEmailTemplateRenderer {
       throw new Error(`Template not found: ${templateName} (locale=${locale})`)
     }
     const element = createElement(template.component, data)
-    const [html, text] = await Promise.all([
-      render(element),
-      render(element, { plainText: true }),
-    ])
+    const [html, text] = await Promise.all([render(element), render(element, { plainText: true })])
     return { subject: template.subject(data), html, text }
   }
 }

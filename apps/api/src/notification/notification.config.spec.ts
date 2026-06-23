@@ -9,7 +9,11 @@
 import { describe, expect, it } from '@jest/globals'
 import type { ConfigService } from '@nestjs/config'
 import type { Redis } from 'ioredis'
-import { DefaultTemplateRenderer, InMemoryOtpStorage, RedisOtpStorage } from '@bymax-one/nest-notification'
+import {
+  DefaultTemplateRenderer,
+  InMemoryOtpStorage,
+  RedisOtpStorage,
+} from '@bymax-one/nest-notification'
 
 import type { PrismaService } from '../prisma/prisma.service.js'
 import {

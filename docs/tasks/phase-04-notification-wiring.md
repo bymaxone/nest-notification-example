@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 6 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -82,7 +82,7 @@ adapt** them rather than inventing configs.
 | 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | ✅ Done | P1       | M    | —             |
 | 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | ✅ Done | P0       | M    | 4.2, 4.3, 4.4 |
 | 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | ✅ Done | P0       | M    | 4.5           |
-| 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | 📋 ToDo | P0       | M    | 4.6           |
+| 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | ✅ Done | P0       | M    | 4.6           |
 
 ---
 
@@ -768,7 +768,7 @@ commit `feat(api): wire forRootAsync + register notification audit interceptor` 
 
 ### Task 4.7 — Boot probe — end-to-end send → Mailpit → masked audit row
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 4.6
@@ -783,16 +783,16 @@ Re-run `pnpm audit:exports` as the gate (it must stay green, preserving every re
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/library-probe.ts` (the file P2 created — **extend** it, do not replace it: keep every existing
+- [x] `apps/api/src/library-probe.ts` (the file P2 created — **extend** it, do not replace it: keep every existing
       reference) now also references the otherwise-hard-to-exercise wired exports (the resolved options type, the `REDIS`
       token, `getEnabledChannels`) so the export-usage audit sees them; it is **not** an HTTP route.
-- [ ] An integration spec (against the test compose stack) sends a `welcome`/`otp_code` template email via
+- [x] An integration spec (against the test compose stack) sends a `welcome`/`otp_code` template email via
       `EmailService.sendTemplate`, then asserts: (a) `getEnabledChannels()` deep-equals `['email','otp']`; (b) the message
       is retrievable from Mailpit's API (`GET :8025/api/v1/messages`); (c) exactly one `notification_logs` row was written
       with the **masked** recipient (`j***@…`) and **no** code anywhere in the row (`JSON.stringify(row)` excludes the code).
-- [ ] The atomic OTP storage behavior (max-attempts cannot be exceeded; cooldown blocks a second generate) and the
+- [x] The atomic OTP storage behavior (max-attempts cannot be exceeded; cooldown blocks a second generate) and the
       renderer html-only escape are unit-proven (may reuse 4.4 specs; add the storage assertions here).
-- [ ] `pnpm --filter @nest-notification-example/api test:cov` passes at 100% for the new executable files; `pnpm audit:exports` is **re-run as the
+- [x] `pnpm --filter @nest-notification-example/api test:cov` passes at 100% for the new executable files; `pnpm audit:exports` is **re-run as the
       gate** and exits 0 (the P2 references are preserved alongside the newly-added ones).
 
 #### Files to create / modify
@@ -903,3 +903,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 - 4.4 ✅ 2026-06-23 — template registry + alternate renderers
 - 4.5 ✅ 2026-06-23 — notification.config forRootAsync useFactory
 - 4.6 ✅ 2026-06-23 — module assembly + audit interceptor
+- 4.7 ✅ 2026-06-23 — boot probe: send → Mailpit → masked audit row

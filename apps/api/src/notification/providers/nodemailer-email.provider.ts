@@ -15,7 +15,11 @@
  * @module
  */
 import { createTransport, type SendMailOptions } from 'nodemailer'
-import type { EmailSendOptions, EmailSendResult, IEmailProvider } from '@bymax-one/nest-notification'
+import type {
+  EmailSendOptions,
+  EmailSendResult,
+  IEmailProvider,
+} from '@bymax-one/nest-notification'
 
 /** The concrete transporter type for a string/SMTP transport (carries `messageId`). */
 type SmtpTransporter = ReturnType<typeof createTransport>

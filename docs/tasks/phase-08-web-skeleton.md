@@ -291,9 +291,8 @@ Completion Protocol:
 #### Description
 
 Build the console chrome: the root `layout.tsx` (Geist fonts + forced dark + `NuqsAdapter` + `Providers`), the
-`providers.tsx` client boundary (TanStack Query + Sonner), and the `AppShell` (fixed 64px topbar + sticky 250px sidebar
-
-- content well) with the topbar brand mark and the sidebar's **seven notification destinations**.
+`providers.tsx` client boundary (TanStack Query + Sonner), and the `AppShell` (fixed 64px topbar + sticky 250px
+sidebar + content well) with the topbar brand mark and the sidebar's **seven notification destinations**.
 
 #### Acceptance criteria
 

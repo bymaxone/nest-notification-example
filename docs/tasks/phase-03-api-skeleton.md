@@ -63,12 +63,10 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 - [`DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) — § P3, §2 Global Conventions, §3 Autonomous Execution Model,
   Appendix A (env registry), Appendix C (Quality Gates).
 - Sibling gold sources (copy & adapt — do not invent):
-  - `~/Documents/MyApps/bymax-one/nest-logger-example/apps/api/src/{main.ts, health/*, common/zod-validation.pipe.ts,
-prisma/prisma.service.ts, prisma/prisma.module.ts}`.
+  - `~/Documents/MyApps/bymax-one/nest-logger-example/apps/api/src/{main.ts, health/*, common/zod-validation.pipe.ts, prisma/prisma.service.ts, prisma/prisma.module.ts}`.
   - `~/Documents/MyApps/bymax-one/nest-auth-example/apps/api/src/redis/{redis.module.ts, redis.provider.ts}` (the
     token-module shape — adapt: `Symbol` token `REDIS`, returns `null` when unset).
-  - `~/Documents/MyApps/bymax-one/nest-notification/src/server/errors/{notification-exception.ts,
-notification-error-codes.ts,index.ts}` (the exception + catalog the filter serializes).
+  - `~/Documents/MyApps/bymax-one/nest-notification/src/server/errors/{notification-exception.ts, notification-error-codes.ts,index.ts}` (the exception + catalog the filter serializes).
 - `/bymax-workflow:standards` skill — universal coding rules.
 - Vault: [[Example-App-Standard]], [[NestJS/Bymax-Conventions]], [[Prisma/Gotchas]].
 

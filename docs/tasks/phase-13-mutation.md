@@ -16,9 +16,9 @@ native ESM) and `apps/web` (Vitest 4, jsdom), the Playwright journeys pass, and 
 Phase 13 adds the **mutation gate** on top. Stryker 9.6 mutates the source of both apps and re-runs the unit suite once
 per mutant; a _surviving_ mutant means a behavioural change the tests did not catch. The bar (DEVELOPMENT_PLAN §2 +
 [Appendix C](../DEVELOPMENT_PLAN.md#appendix-c--quality-gates)) is `break ≥ 95` **mandatory** on both apps, driven to
-**100 on `apps/api`** and **100 on `apps/web` `lib/**`** with `components/**` (vendored shadcn UI) driven as high as
+**100** on `apps/api` and **100** on `apps/web` `lib/**`, with `components/**` (vendored shadcn UI) driven as high as
 achievable. We **never weaken a gate to pass** — every survivor is either killed by a sharper assertion, deleted as
-genuinely-dead code, or documented as a **provable equivalent\*\* in `docs/stryker/`.
+genuinely-dead code, or documented as a **provable equivalent** in `docs/stryker/`.
 
 When P13 is done: `pnpm --filter @nest-notification-example/api exec stryker run` and the web equivalent both pass their
 `break` thresholds; the survivor inventory and the path-to-the-gate are recorded in
@@ -323,8 +323,7 @@ vendored `components/ui/**` shadcn primitives) as high as achievable, meeting th
       reporters under `reports/mutation/web.*`.
 - [ ] `apps/web/package.json` has `mutation` (`stryker run --force`) + `mutation:incremental` (`stryker run`) scripts and
       the Stryker devDependencies (`@stryker-mutator/core`, `@stryker-mutator/vitest-runner`) at 9.6.x.
-- [ ] `pnpm --filter web run mutation` exits **0** meeting `break: 95`, with **`lib/**`at
-100%** (every survivor in`lib/**`killed or proven-equivalent) and`components/**` driven up.
+- [ ] `pnpm --filter web run mutation` exits **0** meeting `break: 95`, with `lib/**` at 100% (every survivor in `lib/**` killed or proven-equivalent) and `components/**` driven up.
 - [ ] `apps/web` unit coverage is still **100%** (`pnpm --filter web run test:cov`).
 - [ ] Each accepted `lib/**` equivalent has a co-located `// Stryker disable` comment + a notes entry for 13.4; no gate
       was weakened (`break` ≥ 95, exclusions limited to `components/ui/**` + test/types).

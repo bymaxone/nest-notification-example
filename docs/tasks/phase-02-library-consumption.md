@@ -208,10 +208,10 @@ resolution, and the crypto utils — so the export-usage audit can prove those t
       minimum, the type/token-only exports with no natural feature home: the resolved-options types
       (`ResolvedNotificationOptions`/`ResolvedGlobalOptions`/`ResolvedEmailOptions`/`ResolvedOtpOptions`/`ResolvedAuditOptions`),
       the v0.2 declared-only surface (`BYMAX_NOTIFICATION_SMS_PROVIDER`/`_PUSH_PROVIDER` tokens, `ISmsProvider`/`IPushProvider`
-  - `SmsChannelOptions`/`PushChannelOptions` types), the options-factory contract (`BymaxNotificationModuleOptionsFactory`,
-    `BymaxNotificationModuleAsyncOptions`), the DI tokens (`BYMAX_NOTIFICATION_OPTIONS`/`_EMAIL_PROVIDER`/`_OTP_STORAGE`/
-    `_TEMPLATE_RENDERER`/`_LOG_REPOSITORY`), the zero-arg class-form providers (`NoOpEmailProvider`/`InMemoryOtpStorage`),
-    and the crypto utils (`generateOtpCode`/`safeCompare`).
+      `SmsChannelOptions`/`PushChannelOptions` types), the options-factory contract (`BymaxNotificationModuleOptionsFactory`,
+      `BymaxNotificationModuleAsyncOptions`), the DI tokens (`BYMAX_NOTIFICATION_OPTIONS`/`_EMAIL_PROVIDER`/`_OTP_STORAGE`/
+      `_TEMPLATE_RENDERER`/`_LOG_REPOSITORY`), the zero-arg class-form providers (`NoOpEmailProvider`/`InMemoryOtpStorage`),
+      and the crypto utils (`generateOtpCode`/`safeCompare`).
 - [ ] Each value import is kept alive under `verbatimModuleSyntax` by a runtime read (`.name`, `.toString()`, an
       invocation); each type-only import is proven by a type alias / typed const. Every export has JSDoc.
 - [ ] A frozen `probe` aggregate constant collects every runtime proof so one import asserts the surface.

@@ -65,13 +65,8 @@ adapt** them rather than inventing configs.
   §12 (Channels & Providers showcase), §13 (Multi-Tenant Security & masking), §15 (Audit Log & Delivery Tracking — the
   two-source model + the `NotificationLog` store).
 - [`DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) — § P4, §2 Global Conventions, §3 Autonomous Execution Model.
-- Library gold sources (`~/Documents/MyApps/bymax-one/nest-notification/`): `README.md` (Configuration table, Bring-Your-
-  Own-Provider, Templates, the interceptor wiring), `docs/technical_specification.md` §5 (the `IEmail*` / `IOtpStorage`
-  contracts) + §17 (audit flow), `docs/schemas/{notification-log.prisma, prisma-repository.example.md}` (the audit model
-  - the repository), `docs/templates/{handlebars,mjml,react-email}-renderer.example.md` (the alternate renderers).
-- Sibling Prisma stack (`~/Documents/MyApps/bymax-one/nest-logger-example/apps/api/`): `prisma/{schema.prisma,seed.ts,
-tsconfig.json}` + `prisma/migrations/*` (the `@prisma/adapter-pg` migration/seed pattern), `src/prisma/{prisma.module.ts,
-prisma.service.ts}` (the global `PrismaService` shape).
+- Library gold sources (`~/Documents/MyApps/bymax-one/nest-notification/`): `README.md` (Configuration table, Bring-Your-Own-Provider, Templates, the interceptor wiring), `docs/technical_specification.md` §5 (the `IEmail*` / `IOtpStorage` contracts) + §17 (audit flow), `docs/schemas/{notification-log.prisma, prisma-repository.example.md}` (the audit model + the repository), `docs/templates/{handlebars,mjml,react-email}-renderer.example.md` (the alternate renderers).
+- Sibling Prisma stack (`~/Documents/MyApps/bymax-one/nest-logger-example/apps/api/`): `prisma/{schema.prisma,seed.ts,tsconfig.json}` + `prisma/migrations/*` (the `@prisma/adapter-pg` migration/seed pattern), `src/prisma/{prisma.module.ts,prisma.service.ts}` (the global `PrismaService` shape).
 - `/bymax-workflow:standards` skill — universal coding rules.
 - Vault: [[Example-App-Standard]], [[NestJS/Bymax-Conventions]], [[Prisma/Patterns]].
 

@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 4 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 5 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -80,7 +80,7 @@ adapt** them rather than inventing configs.
 | 4.2 | `PrismaNotificationLogRepository` (write side)                        | ✅ Done | P0       | S    | 4.1           |
 | 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | ✅ Done | P0       | M    | —             |
 | 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | ✅ Done | P1       | M    | —             |
-| 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | 📋 ToDo | P0       | M    | 4.2, 4.3, 4.4 |
+| 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | ✅ Done | P0       | M    | 4.2, 4.3, 4.4 |
 | 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | 📋 ToDo | P0       | M    | 4.5           |
 | 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | 📋 ToDo | P0       | M    | 4.6           |
 
@@ -517,7 +517,7 @@ commit `feat(api): add template registry + handlebars/mjml/react-email renderers
 
 ### Task 4.5 — `notification.config.ts` — the `forRootAsync` useFactory
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 4.2, 4.3, 4.4
@@ -530,19 +530,19 @@ renderer, and audit repository (all DI-dependent adapters passed as **instances*
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/notification.config.ts` exports a factory
+- [x] `apps/api/src/notification/notification.config.ts` exports a factory
       `(config: ConfigService, redis: Redis | null, prisma: PrismaService) => BymaxNotificationModuleOptions` with the
       parameters **annotated** in `inject` order (`[ConfigService, REDIS, PrismaService]`).
-- [ ] `global` sets `redisNamespace: 'notification'`, `defaultLocale` from env, and a `tenantIdResolver` whose param is
+- [x] `global` sets `redisNamespace: 'notification'`, `defaultLocale` from env, and a `tenantIdResolver` whose param is
       annotated `(req: NotificationRequest)` (imported from `@bymax-one/nest-notification`; an untyped `(req)` fails
       `noImplicitAny`) that reads the **trusted** `x-tenant-id` header (array-safe), never the body.
-- [ ] `email` uses `resolveEmailProvider(config)`, `defaultFrom`/`defaultFromName` from env,
+- [x] `email` uses `resolveEmailProvider(config)`, `defaultFrom`/`defaultFromName` from env,
       `templateRenderer: new DefaultTemplateRenderer({ templates: TEMPLATES })`, `maxAttachmentBytes: 10 * 1024 * 1024`.
-- [ ] `otp` uses `redis ? new RedisOtpStorage({ redisClient: redis }) : new InMemoryOtpStorage()`, `defaultLength: 6`,
+- [x] `otp` uses `redis ? new RedisOtpStorage({ redisClient: redis }) : new InMemoryOtpStorage()`, `defaultLength: 6`,
       TTL + cooldown from env, and the `perPurpose` overrides (`password_reset`, `email_verification`).
-- [ ] `audit` uses `new PrismaNotificationLogRepository(prisma)` (an **instance**), `swallowErrors: true`, and
+- [x] `audit` uses `new PrismaNotificationLogRepository(prisma)` (an **instance**), `swallowErrors: true`, and
       `maskRecipient` derived from `AUDIT_MASK_RECIPIENT` (the `j***@acme.com` masker, or identity when disabled).
-- [ ] A unit spec proves: REDIS null → `InMemoryOtpStorage`; REDIS present → `RedisOtpStorage`; `AUDIT_MASK_RECIPIENT`
+- [x] A unit spec proves: REDIS null → `InMemoryOtpStorage`; REDIS present → `RedisOtpStorage`; `AUDIT_MASK_RECIPIENT`
       toggles the masker; the resolver returns the header tenant and `'default'` when absent. 100% coverage of the file.
 
 #### Files to create / modify
@@ -901,3 +901,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 - 4.2 ✅ 2026-06-23 — PrismaNotificationLogRepository (write side)
 - 4.3 ✅ 2026-06-23 — email providers + resolver
 - 4.4 ✅ 2026-06-23 — template registry + alternate renderers
+- 4.5 ✅ 2026-06-23 — notification.config forRootAsync useFactory

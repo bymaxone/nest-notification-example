@@ -1,0 +1,4 @@
+# Default owners for everything in the repository. Every pull request requests a
+# review from the maintainers team, which also satisfies branch-protection's
+# required-review rule.
+* @bymaxone/maintainers

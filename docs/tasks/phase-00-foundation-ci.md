@@ -1,6 +1,6 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 3 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 4 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -67,7 +67,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 | 0.1 | pnpm workspace + TypeScript foundation            | ✅ Done | P0       | M    | —          |
 | 0.2 | Lint, format & commit governance                  | ✅ Done | P0       | S    | 0.1        |
 | 0.3 | Mandatory repo & community-health files           | ✅ Done | P1       | S    | 0.1        |
-| 0.4 | GitHub config & Copilot review                    | 📋 ToDo | P0       | M    | 0.1        |
+| 0.4 | GitHub config & Copilot review                    | ✅ Done | P0       | M    | 0.1        |
 | 0.5 | Core CI workflow + audit-script stubs             | 📋 ToDo | P0       | M    | 0.1, 0.2   |
 | 0.6 | Security & supply-chain workflows                 | 📋 ToDo | P0       | M    | 0.5        |
 | 0.7 | Mutation/release workflow skeletons + Dockerfiles | 📋 ToDo | P1       | M    | 0.5        |
@@ -318,7 +318,7 @@ DEVELOPMENT_PLAN, append `- 0.3 ✅ <date> — repo & community-health files`, c
 
 ### Task 0.4 — GitHub config & Copilot review
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 0.1
@@ -330,16 +330,16 @@ Copilot code-review files customized for this stack, so every PR gets automated 
 
 #### Acceptance criteria
 
-- [ ] `.github/ISSUE_TEMPLATE/{bug_report.yml,feature_request.yml,config.yml}` (config links security reports to email,
+- [x] `.github/ISSUE_TEMPLATE/{bug_report.yml,feature_request.yml,config.yml}` (config links security reports to email,
       not a public issue), `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS`.
-- [ ] `.github/dependabot.yml` (npm + github-actions, weekly, PRs only) **and/or** `renovate.json` (match the sibling's
+- [x] `.github/dependabot.yml` (npm + github-actions, weekly, PRs only) **and/or** `renovate.json` (match the sibling's
       choice — the examples use `renovate.json`; pin `@bymax-one/nest-notification`).
-- [ ] The four Copilot review files: `.github/copilot-instructions.md`, `.github/instructions/code.instructions.md`,
+- [x] The four Copilot review files: `.github/copilot-instructions.md`, `.github/instructions/code.instructions.md`,
       `.github/instructions/tests.instructions.md`, `.github/agents/agent-code-reviewer.agent.md` — **customized for the
       notification stack** (NestJS 11 + Next 16; the 100%-coverage/Stryker bar; the never-log-codes + multi-tenant rules;
       the no-phase-refs rule; the design-system-verbatim rule).
-- [ ] The three `instructions/*.md` + `copilot-instructions.md` are each **< 4000 chars**; the `.agent.md` may exceed.
-- [ ] No phase/task references in any of these files; YAML is valid.
+- [x] The three `instructions/*.md` + `copilot-instructions.md` are each **< 4000 chars**; the `.agent.md` may exceed.
+- [x] No phase/task references in any of these files; YAML is valid.
 
 #### Files to create / modify
 
@@ -664,3 +664,4 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 - 0.1 ✅ 2026-06-23 — pnpm workspace + TS foundation
 - 0.2 ✅ 2026-06-23 — lint/format/commit governance
 - 0.3 ✅ 2026-06-23 — repo & community-health files
+- 0.4 ✅ 2026-06-23 — github config + copilot review

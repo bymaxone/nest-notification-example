@@ -1,0 +1,57 @@
+name: Bug report
+description: Report a defect in nest-notification-example (not the library itself)
+title: '[bug]: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. **Do not** report security vulnerabilities here — see
+        [SECURITY.md](https://github.com/bymaxone/nest-notification-example/blob/main/SECURITY.md).
+        Bugs in the library belong on
+        [`@bymax-one/nest-notification`](https://github.com/bymaxone/nest-notification/issues).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and its impact.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps against the default branch.
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected surface
+      options:
+        - apps/api (NestJS)
+        - apps/web (console)
+        - build / CI
+        - docs
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      value: |
+        - Node:
+        - pnpm:
+        - OS:
+    validations:
+      required: false

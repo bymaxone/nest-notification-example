@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest a library feature to demonstrate, or a console improvement
+title: '[feat]: '
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The bar for any change: does it make `@bymax-one/nest-notification` **clearer to learn or more
+        completely demonstrated**? A new library feature needs a Feature Coverage Matrix row **and** a
+        browser-reachable way to exercise it.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed demonstration
+      description: Which library export does it exercise, and how is it reachable from the browser?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

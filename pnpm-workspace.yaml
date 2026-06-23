@@ -9,8 +9,13 @@ packages:
 # Prisma's CLI and engine packages run a postinstall that fetches/links the query
 # engine the @prisma/adapter-pg driver client depends on — required so that
 # `prisma generate` and the generated client resolve.
+#
+# `esbuild` (pulled in by `tsx`, used to run the Prisma seed script) links its
+# prebuilt platform binary in a postinstall — no compiler toolchain runs, so it is
+# safe to approve.
 allowBuilds:
   '@prisma/engines': true
+  esbuild: true
   prisma: true
   unrs-resolver: true
 
@@ -20,16 +25,19 @@ allowBuilds:
 #   - multer < 2.2.0 — DoS via deeply nested multipart field names
 # The pin is a backward-compatible patch/minor bump.
 #
-# nodemailer is intentionally NOT pinned here: it is an OPTIONAL peer of the
-# notification library and this API skeleton does not yet wire email delivery, so the
-# peer stays unsatisfied and nothing pulls a (vulnerable) nodemailer into the graph.
-# The security pin (`>=9.0.1`, raw-message SSRF/file-read advisory) returns together
-# with nodemailer as a real dependency when email sending is wired.
+# `nodemailer` is now a real dependency of `apps/api` (the custom
+# `NodemailerEmailProvider` delivers to Mailpit in dev). It is pinned to `>=9.0.1`,
+# which clears the prior HIGH advisory (raw-message SSRF / arbitrary-file-read). The
+# notification library declares nodemailer as an OPTIONAL `^7` peer; the override forces
+# the secure range across the whole graph so a frozen-lockfile install never resolves
+# the vulnerable version.
 #
 # `html-minifier <= 4.0.0` (ReDoS, GHSA-pfq8-rq6v-vf5m) is NOT pinned here: it is
 # unmaintained with no published patch (4.0.0 is the latest), reached only transitively
-# through `mjml > mjml-cli`. It is unreachable from this API skeleton (no MJML rendering
-# of caller-controlled HTML in the request path) and must be resolved upstream in the
-# notification library's `mjml` chain, not by an unsatisfiable consumer override.
+# through `mjml > mjml-cli`. It is unreachable from this app — the MJML renderer compiles
+# a fixed, app-authored template set once at construction and never feeds
+# caller-controlled HTML through it — and must be resolved upstream in the notification
+# library's `mjml` chain, not by an unsatisfiable consumer override.
 overrides:
   multer: '>=2.2.0'
+  nodemailer: '>=9.0.1'

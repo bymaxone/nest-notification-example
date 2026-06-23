@@ -14,6 +14,8 @@ import { APP_FILTER } from '@nestjs/core'
 import { NotificationExceptionFilter } from './common/notification-exception.filter.js'
 import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
+import { PrismaModule } from './prisma/prisma.module.js'
+import { RedisModule } from './redis/redis.module.js'
 
 /** Composes the application's global configuration and feature modules. */
 @Module({
@@ -25,6 +27,8 @@ import { HealthModule } from './health/health.module.js'
       validate: validateEnv,
     }),
     HealthModule,
+    RedisModule,
+    PrismaModule,
   ],
   // Map every library NotificationException to its catalog HTTP response globally.
   providers: [{ provide: APP_FILTER, useClass: NotificationExceptionFilter }],

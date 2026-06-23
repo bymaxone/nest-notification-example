@@ -62,14 +62,18 @@ export default tseslint.config(
       'apps/api/**/*.test.ts',
       'apps/api/**/*.test.tsx',
       'apps/api/**/*.e2e-spec.ts',
-      'apps/api/**/test/**',
-      'apps/api/**/e2e/**',
+      'apps/api/**/test/**/*.ts',
+      'apps/api/**/test/**/*.tsx',
+      'apps/api/**/e2e/**/*.ts',
+      'apps/api/**/e2e/**/*.tsx',
     ],
     extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       globals: { ...globals.node },
       parserOptions: {
-        project: ['./apps/api/tsconfig.spec.json'],
+        // tsconfig.spec.json covers the unit specs under src/; test/tsconfig.json
+        // covers the e2e suites under test/ (which import across the src boundary).
+        project: ['./apps/api/tsconfig.spec.json', './apps/api/test/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },

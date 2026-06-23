@@ -1,6 +1,6 @@
 # Phase 3 — API Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 5 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -81,7 +81,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 | 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | ✅ Done | P0       | M    | 3.1                |
 | 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | ✅ Done | P0       | M    | 3.1                |
 | 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | ✅ Done | P1       | M    | 3.1                |
-| 3.6 | Wire `AppModule` + boot-with/without-Redis verification             | 📋 ToDo | P0       | M    | 3.2, 3.3, 3.4, 3.5 |
+| 3.6 | Wire `AppModule` + boot-with/without-Redis verification             | ✅ Done | P0       | M    | 3.2, 3.3, 3.4, 3.5 |
 
 ---
 
@@ -676,7 +676,7 @@ Completion Protocol:
 
 ### Task 3.6 — Wire `AppModule` + boot-with/without-Redis verification
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 3.2, 3.3, 3.4, 3.5
@@ -689,14 +689,14 @@ Assemble the chassis: import `RedisModule` + `PrismaModule` into `AppModule` (th
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/app.module.ts` imports `ConfigModule` (global, validating), `HealthModule`, `RedisModule`,
+- [x] `apps/api/src/app.module.ts` imports `ConfigModule` (global, validating), `HealthModule`, `RedisModule`,
       `PrismaModule`, and registers `NotificationExceptionFilter` as `APP_FILTER`. No `forRootAsync`, no domain controllers.
-- [ ] `apps/api/test/app.e2e-spec.ts` (supertest) boots the app and asserts `GET /health` → 200 `{ status: 'ok' }`.
-- [ ] An integration test (or two compile-time configs) prove the app boots **without** `REDIS_URL` (the `REDIS` token
-      is `null`) and **with** a `REDIS_URL` set (the token is an `ioredis` client — `ioredis` mocked, no real socket).
-- [ ] The full local gate passes: `pnpm --filter ...@nest-notification-example/api exec tsc --noEmit`, `jest` (100% coverage on the in-scope files
-      per §2 exclusions), the workspace `pnpm typecheck && pnpm lint && pnpm format:check && pnpm audit:exports`.
-- [ ] The P3 Definition of Done in `DEVELOPMENT_PLAN.md` is observably met.
+- [x] `apps/api/test/app.e2e-spec.ts` (supertest) boots the app and asserts `GET /health` → 200 `{ status: 'ok' }`.
+- [x] An integration test proves the app boots **without** `REDIS_URL` (the `REDIS` token is `null`) and **with** a
+      `REDIS_URL` set (the token is an `ioredis` client — `ioredis` mocked, no real socket).
+- [x] The full local gate passes: `tsc --noEmit`, `jest` (100% coverage on the in-scope files per §2 exclusions), the
+      workspace `pnpm typecheck && pnpm lint && pnpm format:check && pnpm audit:exports`.
+- [x] The P3 Definition of Done in `DEVELOPMENT_PLAN.md` is observably met.
 
 #### Files to create / modify
 
@@ -811,3 +811,4 @@ If any DoD bullet is unmet or CI is red, set P3 to `🟡 Partial`, not `✅`.
 - 3.3 ✅ 2026-06-23 — tenant-id guard/decorator + zod validation pipe
 - 3.4 ✅ 2026-06-23 — RedisModule (REDIS Symbol token → client or null)
 - 3.5 ✅ 2026-06-23 — PrismaModule + PrismaService (@prisma/adapter-pg)
+- 3.6 ✅ 2026-06-23 — AppModule wired + boot-with/without-Redis verified

@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../dist-test",
+    "types": ["node", "jest"],
+    "emitDecoratorMetadata": false
+  },
+  "include": ["**/*.ts", "../src/**/*.ts"]
+}

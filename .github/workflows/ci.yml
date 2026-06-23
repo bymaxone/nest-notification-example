@@ -114,8 +114,14 @@ jobs:
           node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # No app packages yet, so this resolves to a no-op until apps/api is added.
-      - run: pnpm test:e2e
+      # Scope to the API workspace so the web suite does not also run here; no-op until apps/api exists.
+      - name: API e2e
+        run: |
+          if [ -f apps/api/package.json ]; then
+            pnpm --filter "./apps/api" --if-present run test:e2e
+          else
+            echo "apps/api not present yet — e2e is a no-op."
+          fi
 
   e2e-web:
     needs: e2e-api
@@ -131,8 +137,14 @@ jobs:
           node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # The Playwright suite is wired once apps/web exists; until then this no-ops.
-      - run: pnpm test:e2e
+      # Scope to the web workspace so the API suite does not also run here; no-op until apps/web exists.
+      - name: Web e2e
+        run: |
+          if [ -f apps/web/package.json ]; then
+            pnpm --filter "./apps/web" --if-present run test:e2e
+          else
+            echo "apps/web not present yet — e2e is a no-op."
+          fi
 
   export-usage-check:
     needs: install

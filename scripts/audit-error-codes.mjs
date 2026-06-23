@@ -70,7 +70,7 @@ try {
   process.exit(2)
 }
 
-if (codes === null || typeof codes !== 'object') {
+if (codes === null || typeof codes !== 'object' || Array.isArray(codes)) {
   console.error('✗ NOTIFICATION_ERROR_CODES is not exported by the linked library')
   process.exit(2)
 }

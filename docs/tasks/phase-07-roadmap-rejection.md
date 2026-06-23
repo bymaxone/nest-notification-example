@@ -1,6 +1,6 @@
 # Phase 7 — Roadmap Rejection Endpoints
 
-> **Status**: 🔄 In Progress · **Progress**: 0 / 3 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 1 / 3 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P7
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -74,7 +74,7 @@ The gold source for the **exact error strings** is the library itself — copy t
 
 | ID  | Task                                                  | Status  | Priority | Size | Depends on |
 | --- | ----------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 7.1 | Admin DTOs + isolated-module rejection probe helper   | 📋 ToDo | P0       | M    | —          |
+| 7.1 | Admin DTOs + isolated-module rejection probe helper   | ✅ Done | P0       | M    | —          |
 | 7.2 | AdminController + AdminModule — the three endpoints   | 📋 ToDo | P0       | M    | 7.1        |
 | 7.3 | Isolated e2e specs asserting the exact thrown strings | 📋 ToDo | P0       | M    | 7.2        |
 
@@ -84,7 +84,7 @@ The gold source for the **exact error strings** is the library itself — copy t
 
 ### Task 7.1 — Admin DTOs + isolated-module rejection probe helper
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -97,16 +97,16 @@ structured result. The three endpoints (Task 7.2) are thin wrappers over this on
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/admin/dto/roadmap-rejection.result.ts` exports a `RoadmapRejectionResult` type/DTO:
+- [x] `apps/api/src/admin/dto/roadmap-rejection.result.ts` exports a `RoadmapRejectionResult` type/DTO:
       `{ attempt: 'sms' | 'push' | 'async-useclass'; rejected: boolean; errorName: string; errorMessage: string }`.
-- [ ] `apps/api/src/admin/roadmap-rejection.probe.ts` exports `attemptConfigure(attempt, buildModule)` which compiles the
+- [x] `apps/api/src/admin/roadmap-rejection.probe.ts` exports `attemptConfigure(attempt, buildModule)` which compiles the
       supplied module in isolation, awaits the act that triggers `forRoot`/`forRootAsync` construction, and returns a
       `RoadmapRejectionResult` — `rejected: true` + the caught `error.message` when it throws, `rejected: false` when it
       does **not** (no silent success).
-- [ ] The helper always **closes** the testing module it compiled (`await moduleRef?.close()` in a `finally`) so no DI
+- [x] The helper always **closes** the testing module it compiled (`await moduleRef?.close()` in a `finally`) so no DI
       container leaks across requests.
-- [ ] JSDoc on every export; `@throws` documented where relevant; TS strict (no `any`, no suppression comments).
-- [ ] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0.
+- [x] JSDoc on every export; `@throws` documented where relevant; TS strict (no `any`, no suppression comments).
+- [x] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -533,4 +533,4 @@ If any DoD bullet is unmet or CI is red, set P7 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 7.1 ✅ 2026-06-23 — admin DTO + isolated-module rejection probe helper

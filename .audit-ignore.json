@@ -1,4 +1,40 @@
 {
   "$comment": "Public exports intentionally NOT demonstrated in apps/. Each entry needs { symbol, reason, issue }. Keep empty unless a genuinely-internal symbol leaks into the published .d.ts — never use this to make CI green for a real, demonstrable export.",
-  "ignored": []
+  "ignored": [
+    {
+      "symbol": "useOtpInput",
+      "reason": "Browser-only React hook. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be imported from apps/api (a Node.js NestJS backend).",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    },
+    {
+      "symbol": "useOtpCountdown",
+      "reason": "Browser-only React hook. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be imported from apps/api (a Node.js NestJS backend).",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    },
+    {
+      "symbol": "OtpInputType",
+      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    },
+    {
+      "symbol": "UseOtpInputOptions",
+      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    },
+    {
+      "symbol": "UseOtpInputState",
+      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    },
+    {
+      "symbol": "UseOtpCountdownOptions",
+      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    },
+    {
+      "symbol": "UseOtpCountdownState",
+      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
+      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
+    }
+  ]
 }

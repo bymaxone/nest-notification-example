@@ -25,8 +25,15 @@ import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import process from 'node:process'
 
-/** Root of the linked library package (absent until an apps/ package adds the `file:` dependency). */
-const LIB_ROOT = 'node_modules/@bymax-one/nest-notification'
+/**
+ * Root of the linked library package. With pnpm workspaces, the package may
+ * land in the root `node_modules` (hoisted) or, when it is a dependency of a
+ * single workspace package only, in that package's own `node_modules`. Check
+ * both locations so the script works regardless of pnpm's hoisting decision.
+ */
+const LIB_ROOT = existsSync('node_modules/@bymax-one/nest-notification')
+  ? 'node_modules/@bymax-one/nest-notification'
+  : 'apps/api/node_modules/@bymax-one/nest-notification'
 
 /** Root of the linked library's compiled output. */
 const PKG = join(LIB_ROOT, 'dist')
@@ -34,8 +41,8 @@ const PKG = join(LIB_ROOT, 'dist')
 /** The three published subpaths, each with its declaration file. */
 const SUBPATHS = [
   { name: '.', dts: join(PKG, 'server', 'index.d.ts') },
-  { name: '/shared', dts: join(PKG, 'shared', 'index.d.ts') },
-  { name: '/react', dts: join(PKG, 'react', 'index.d.ts') },
+  { name: './shared', dts: join(PKG, 'shared', 'index.d.ts') },
+  { name: './react', dts: join(PKG, 'react', 'index.d.ts') },
 ]
 
 /** Application source roots searched for references. */
@@ -123,7 +130,10 @@ if (sources.length === 0) {
 // The library is linked only once an apps/ package declares the `file:` dependency.
 // Until then there is nothing to audit, so the gate is a no-op; once the package IS
 // linked, a missing subpath declaration is a real build error (the loop below exits 2).
-if (!existsSync(LIB_ROOT)) {
+const LIB_LINKED =
+  existsSync('node_modules/@bymax-one/nest-notification') ||
+  existsSync('apps/api/node_modules/@bymax-one/nest-notification')
+if (!LIB_LINKED) {
   console.log(
     '• @bymax-one/nest-notification not linked yet — export-usage audit is a no-op (exit 0)',
   )

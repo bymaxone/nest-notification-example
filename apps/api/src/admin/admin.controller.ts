@@ -8,7 +8,7 @@
  *
  * @module
  */
-import { Controller, Post } from '@nestjs/common'
+import { Controller, HttpCode, HttpStatus, Injectable, Post } from '@nestjs/common'
 import { BymaxNotificationModule } from '@bymax-one/nest-notification'
 import type {
   BymaxNotificationModuleAsyncOptions,
@@ -27,7 +27,12 @@ import type { RoadmapRejectionResult } from './dto/roadmap-rejection.result.js'
  * Exported for testing: the `createNotificationOptions` method is never invoked at runtime
  * because the library throws at the `forRootAsync` call site before any factory resolution,
  * but it must be implemented to satisfy {@link BymaxNotificationModuleOptionsFactory}.
+ *
+ * Decorated with `@Injectable()` so it is a valid `useClass` provider: the "rejected"
+ * outcome must come from the library refusing `useClass`, never from Nest failing to
+ * instantiate a metadata-less class — which would be a false-positive hiding a real change.
  */
+@Injectable()
 export class RejectedOptionsFactory implements BymaxNotificationModuleOptionsFactory {
   /**
    * Would create module options in a real useClass registration.
@@ -57,6 +62,7 @@ export class AdminController {
    * @returns The probe outcome with the verbatim SMS rejection message.
    */
   @Post('try-configure-sms')
+  @HttpCode(HttpStatus.OK)
   async tryConfigureSms(): Promise<RoadmapRejectionResult> {
     // Cast is intentional: the library rejects the sms key before inspecting provider fields.
     const smsOptions = {} as unknown as SmsChannelOptions
@@ -72,6 +78,7 @@ export class AdminController {
    * @returns The probe outcome with the verbatim Push rejection message.
    */
   @Post('try-configure-push')
+  @HttpCode(HttpStatus.OK)
   async tryConfigurePush(): Promise<RoadmapRejectionResult> {
     // Cast is intentional: the library rejects the push key before inspecting provider fields.
     const pushOptions = {} as unknown as PushChannelOptions
@@ -87,6 +94,7 @@ export class AdminController {
    * @returns The probe outcome with the verbatim async-useclass rejection message.
    */
   @Post('try-configure-async-useclass')
+  @HttpCode(HttpStatus.OK)
   async tryConfigureAsyncUseClass(): Promise<RoadmapRejectionResult> {
     // Cast is intentional: useClass is a v0.2 surface; the library rejects it synchronously
     // inside forRootAsync via assertUseFactory before any factory resolution.

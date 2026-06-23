@@ -42,7 +42,7 @@ describe('Admin roadmap-rejection endpoints (e2e)', () => {
 
   it('POST /admin/try-configure-sms returns the verbatim SMS rejection', async () => {
     /** Proves the library rejects the sms channel at startup with the exact error string. */
-    const res = await request(app.getHttpServer()).post('/admin/try-configure-sms').expect(201)
+    const res = await request(app.getHttpServer()).post('/admin/try-configure-sms').expect(200)
     expect(res.body).toMatchObject({
       attempt: 'sms',
       rejected: true,
@@ -53,7 +53,7 @@ describe('Admin roadmap-rejection endpoints (e2e)', () => {
 
   it('POST /admin/try-configure-push returns the verbatim Push rejection', async () => {
     /** Proves the library rejects the push channel at startup with the exact error string. */
-    const res = await request(app.getHttpServer()).post('/admin/try-configure-push').expect(201)
+    const res = await request(app.getHttpServer()).post('/admin/try-configure-push').expect(200)
     expect(res.body).toMatchObject({
       attempt: 'push',
       rejected: true,
@@ -66,7 +66,7 @@ describe('Admin roadmap-rejection endpoints (e2e)', () => {
     /** Proves the library rejects forRootAsync({ useClass }) with the exact error string. */
     const res = await request(app.getHttpServer())
       .post('/admin/try-configure-async-useclass')
-      .expect(201)
+      .expect(200)
     expect(res.body).toMatchObject({
       attempt: 'async-useclass',
       rejected: true,

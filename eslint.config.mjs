@@ -52,25 +52,24 @@ export default tseslint.config(
     // mock objects are unresolvable at the ESLint level without full type
     // augmentation, producing false-positive errors.
     //
-    // API spec files are resolved against tsconfig.spec.json (which includes them);
-    // the projectService discovers it automatically via the nearest tsconfig ancestor.
+    // Scoped to apps/api so its tsconfig.spec.json drives type-aware linting of
+    // the API test files only. The web app brings its own test setup and tsconfig;
+    // a repo-wide glob would type-check future apps/web specs against the API
+    // project and error, so the globs stay anchored under apps/api/.
     files: [
-      '**/*.spec.ts',
-      '**/*.spec.tsx',
-      '**/*.test.ts',
-      '**/*.test.tsx',
-      '**/*.e2e-spec.ts',
-      '**/test/**',
-      '**/e2e/**',
+      'apps/api/**/*.spec.ts',
+      'apps/api/**/*.spec.tsx',
+      'apps/api/**/*.test.ts',
+      'apps/api/**/*.test.tsx',
+      'apps/api/**/*.e2e-spec.ts',
+      'apps/api/**/test/**',
+      'apps/api/**/e2e/**',
     ],
     extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       globals: { ...globals.node },
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ['apps/api/src/*/*.spec.ts'],
-          defaultProject: './apps/api/tsconfig.spec.json',
-        },
+        project: ['./apps/api/tsconfig.spec.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },

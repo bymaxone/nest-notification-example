@@ -32,6 +32,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
 
   lint:
@@ -47,6 +57,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm format:check
@@ -64,6 +84,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
 
@@ -80,6 +110,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       # No app packages yet, so this resolves to a no-op until apps/ are added.
       - run: pnpm test:cov
@@ -113,6 +153,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       # Scope to the API workspace so the web suite does not also run here; no-op until apps/api exists.
       - name: API e2e
@@ -136,6 +186,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       # Scope to the web workspace so the API suite does not also run here; no-op until apps/web exists.
       - name: Web e2e
@@ -159,6 +219,16 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
+          # reachable commit by SHA, so this avoids cloning the library's full history.
+          git init -q ../nest-notification
+          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
+          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
+          git -C ../nest-notification checkout -q FETCH_HEAD
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       - name: Audit library export usage
         run: pnpm audit:exports

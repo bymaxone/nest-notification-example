@@ -12,12 +12,24 @@
     "test:cov": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.cjs --coverage"
   },
   "dependencies": {
+    "@bymax-one/nest-notification": "file:../../../nest-notification",
+    "@nestjs/common": "^11",
+    "@nestjs/core": "^11",
+    "@react-email/render": "^1",
+    "handlebars": "^4",
+    "ioredis": "^5",
+    "mjml": "^4",
+    "nodemailer": "^7",
+    "reflect-metadata": "^0.2",
+    "resend": "^4",
+    "rxjs": "^7.8",
     "zod": "^4"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24",
+    "@types/nodemailer": "^6",
     "jest": "^30.0.0",
     "ts-jest": "^29.0.0"
   }

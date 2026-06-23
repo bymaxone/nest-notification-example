@@ -83,6 +83,20 @@ pnpm dev             # NestJS API + Next.js console — available once the apps 
 
 ---
 
+## Library consumption
+
+`@bymax-one/nest-notification` is consumed pre-publish via `file:../../../nest-notification` (from each app). Build the library before running `pnpm install` here:
+
+```bash
+# From the directory containing BOTH sibling checkouts:
+cd nest-notification && pnpm install && pnpm build   # produces dist/{server,shared,react}
+cd ../nest-notification-example && pnpm install      # resolves the file: link
+```
+
+Rebuild the library whenever its source changes (`pnpm -C ../nest-notification build`). We use `file:` (not `link:`) so the sibling source tree is not pulled into every test worker's module graph — a symlinked tree would duplicate across workers and exhaust memory.
+
+---
+
 ## 🏗️ Architecture
 
 ```

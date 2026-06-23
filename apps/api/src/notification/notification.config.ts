@@ -31,6 +31,7 @@ import {
   type RedisLike,
 } from '@bymax-one/nest-notification'
 
+import { resolveTenantId as resolveTrustedTenantId } from '../common/tenant-id.decorator.js'
 import { PrismaService } from '../prisma/prisma.service.js'
 import { resolveEmailProvider } from './providers/email-provider.resolver.js'
 import { PrismaNotificationLogRepository } from './providers/prisma-notification-log.repository.js'
@@ -78,15 +79,18 @@ export function resolveOtpStorage(redis: Redis | null): IOtpStorage {
 /**
  * Resolves the trusted tenant id from the request headers, never the body.
  *
- * Reads the gateway-verified `x-tenant-id` header (array-safe), falling back to
- * `'default'` when it is absent — closing the tenant-spoofing vector.
+ * Reads the gateway-verified `x-tenant-id` header and delegates to the shared
+ * trusted-header resolver so the library applies exactly the same rule as the
+ * `@TenantId` decorator elsewhere in the API: the candidate (first entry of a
+ * multi-value header) is trimmed, and an absent, empty-array, blank, or
+ * whitespace-only value falls back to the default tenant — a blank tenant id is
+ * never propagated, closing the tenant-spoofing vector.
  *
  * @param req - The framework-agnostic notification request.
  * @returns The resolved tenant id.
  */
 export function resolveTenantId(req: NotificationRequest): string {
-  const header = req.headers['x-tenant-id']
-  return Array.isArray(header) ? (header[0] ?? 'default') : (header ?? 'default')
+  return resolveTrustedTenantId(req.headers['x-tenant-id'])
 }
 
 /**

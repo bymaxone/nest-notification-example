@@ -54,9 +54,24 @@ describe('resolveTenantId', () => {
     expect(resolveTenantId({ headers: { 'x-tenant-id': ['globex', 'spoof'] } })).toBe('globex')
   })
 
+  it('trims surrounding whitespace from the header value', () => {
+    /** Padding must not become part of the tenant id — it is trimmed away. */
+    expect(resolveTenantId({ headers: { 'x-tenant-id': '  acme  ' } })).toBe('acme')
+  })
+
   it('falls back to "default" for an empty array header', () => {
     /** An array with no elements resolves to the default tenant. */
     expect(resolveTenantId({ headers: { 'x-tenant-id': [] } })).toBe('default')
+  })
+
+  it('falls back to "default" for a blank (whitespace-only) header', () => {
+    /** A whitespace-only header is treated as absent, never propagated. */
+    expect(resolveTenantId({ headers: { 'x-tenant-id': '   ' } })).toBe('default')
+  })
+
+  it('falls back to "default" when the array first element is blank', () => {
+    /** A blank first entry is treated as absent even when later entries exist. */
+    expect(resolveTenantId({ headers: { 'x-tenant-id': ['  ', 'spoof'] } })).toBe('default')
   })
 
   it('falls back to "default" when the header is absent', () => {

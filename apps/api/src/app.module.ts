@@ -17,6 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { BymaxNotificationModule, NotificationAuditInterceptor } from '@bymax-one/nest-notification'
 
+import { AdminModule } from './admin/admin.module.js'
 import { AuditModule } from './audit/audit.module.js'
 import { AuditEventBus } from './audit/audit-event.bus.js'
 import { NotificationExceptionFilter } from './common/notification-exception.filter.js'
@@ -64,6 +65,7 @@ applyNotificationServiceMetadata()
     EmailModule,
     DispatchModule,
     DebugModule,
+    AdminModule,
   ],
   providers: [
     // Map every library NotificationException to its catalog HTTP response globally.

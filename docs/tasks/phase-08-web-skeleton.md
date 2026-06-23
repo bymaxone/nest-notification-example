@@ -1,6 +1,6 @@
 # Phase 8 — Web Skeleton & Design System
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P8
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -71,14 +71,14 @@ domain (notification destinations, `x-tenant-id` header, the `/audit/stream` SSE
 
 ## Task index
 
-| ID  | Task                                                                                                             | Status  | Priority | Size | Depends on    |
-| --- | ---------------------------------------------------------------------------------------------------------------- | ------- | -------- | ---- | ------------- |
-| 8.1 | `apps/web` scaffold (Next 16 + React 19 + Tailwind 4)                                                            | 📋 ToDo | P0       | M    | —             |
-| 8.2 | Verbatim design system (`globals.css` + config + `components/ui/*`)                                              | 📋 ToDo | P0       | M    | 8.1           |
-| 8.3 | App shell — `layout` · `providers` · topbar · sidebar                                                            | 📋 ToDo | P0       | M    | 8.2           |
-| 8.4 | Global controls — tenant / role / live + `nuqs` URL state                                                        | 📋 ToDo | P1       | M    | 8.3           |
-| 8.5 | `lib/` clients (`utils` · `api-client` · `sse` · `error-codes` · `severity`) + finalize `audit-error-codes` gate | 📋 ToDo | P0       | M    | 8.1           |
-| 8.6 | Route placeholders + build/parity verification (closeout)                                                        | 📋 ToDo | P1       | S    | 8.3, 8.4, 8.5 |
+| ID  | Task                                                                                                             | Status | Priority | Size | Depends on    |
+| --- | ---------------------------------------------------------------------------------------------------------------- | ------ | -------- | ---- | ------------- |
+| 8.1 | `apps/web` scaffold (Next 16 + React 19 + Tailwind 4)                                                            | ✅     | P0       | M    | —             |
+| 8.2 | Verbatim design system (`globals.css` + config + `components/ui/*`)                                              | ✅     | P0       | M    | 8.1           |
+| 8.3 | App shell — `layout` · `providers` · topbar · sidebar                                                            | ✅     | P0       | M    | 8.2           |
+| 8.4 | Global controls — tenant / role / live + `nuqs` URL state                                                        | ✅     | P1       | M    | 8.3           |
+| 8.5 | `lib/` clients (`utils` · `api-client` · `sse` · `error-codes` · `severity`) + finalize `audit-error-codes` gate | ✅     | P0       | M    | 8.1           |
+| 8.6 | Route placeholders + build/parity verification (closeout)                                                        | ✅     | P1       | S    | 8.3, 8.4, 8.5 |
 
 ---
 
@@ -86,7 +86,7 @@ domain (notification destinations, `x-tenant-id` header, the `/audit/stream` SSE
 
 ### Task 8.1 — `apps/web` scaffold (Next 16 + React 19 + Tailwind 4)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -195,7 +195,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 8.2 — Verbatim design system (`globals.css` + config + `components/ui/*`)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 8.1
@@ -283,7 +283,7 @@ Completion Protocol:
 
 ### Task 8.3 — App shell — `layout` · `providers` · topbar · sidebar
 
-- **Status**: 📋 ToDo
+- **Status**: ✅
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 8.2
@@ -384,7 +384,7 @@ Completion Protocol:
 
 ### Task 8.4 — Global controls — tenant / role / live + `nuqs` URL state
 
-- **Status**: 📋 ToDo
+- **Status**: ✅
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 8.3
@@ -494,7 +494,7 @@ Completion Protocol:
 
 ### Task 8.5 — `lib/` clients — `utils` · `api-client` · `sse` · `error-codes` · `severity`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 8.1
@@ -626,7 +626,7 @@ Completion Protocol:
 
 ### Task 8.6 — Route placeholders + build/parity verification (closeout)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 8.3, 8.4, 8.5
@@ -751,4 +751,9 @@ If any DoD bullet is unmet or CI is red, set P8 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 8.1 ✅ 2026-06-23 — apps/web scaffold (Next 16 + React 19 + Tailwind 4)
+- 8.2 ✅ 2026-06-23 — verbatim design system (globals.css + config + components/ui)
+- 8.3 ✅ 2026-06-23 — app shell (layout · providers · topbar · sidebar)
+- 8.4 ✅ 2026-06-23 — global controls (tenant/role/live) + nuqs URL state
+- 8.5 ✅ 2026-06-23 — lib/ clients (utils · api-client · sse · error-codes · severity) + audit-error-codes gate
+- 8.6 ✅ 2026-06-23 — route placeholders + build/parity verification (closeout)

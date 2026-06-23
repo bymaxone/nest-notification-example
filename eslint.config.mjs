@@ -97,5 +97,41 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
+  {
+    // Relax unsafe-type rules for web Vitest unit tests.
+    //
+    // The main TS block above already applies `projectService` to `*.test.ts` /
+    // `*.test.tsx` (they are not in its ignores list), so we must NOT set
+    // `project` here — doing so causes a typescript-eslint parse error because
+    // `project` and `projectService` are mutually exclusive. This block only
+    // overrides rules; the parser project is inherited from the outer block.
+    //
+    // Mock call results (`mock.calls[0]![0]`) are typed as `any` by Vitest's
+    // type definitions; accessing `.searchParams` or passing them to `String()`
+    // triggers false-positive unsafe-access errors. `await act(syncCallback)`
+    // is the canonical testing-library pattern even when `act` returns void for
+    // sync callbacks — suppressing `await-thenable` avoids churn.
+    files: [
+      'apps/web/**/*.spec.ts',
+      'apps/web/**/*.spec.tsx',
+      'apps/web/**/*.test.ts',
+      'apps/web/**/*.test.tsx',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-base-to-string': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      // `await act(syncCallback)` is the canonical testing-library pattern;
+      // the rule fires when `act` returns void for a synchronous callback.
+      '@typescript-eslint/await-thenable': 'off',
+    },
+  },
   prettier,
 )

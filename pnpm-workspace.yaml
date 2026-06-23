@@ -13,10 +13,15 @@ packages:
 # `esbuild` (pulled in by `tsx`, used to run the Prisma seed script) links its
 # prebuilt platform binary in a postinstall — no compiler toolchain runs, so it is
 # safe to approve.
+#
+# `sharp` is pulled in by Next.js for image optimisation. Its postinstall links
+# the prebuilt libvips binary for the current platform — no compiler toolchain
+# is invoked, so it is safe to approve.
 allowBuilds:
   '@prisma/engines': true
   esbuild: true
   prisma: true
+  sharp: true
   unrs-resolver: true
 
 # Force a patched version of a transitive dependency carrying a known high-severity

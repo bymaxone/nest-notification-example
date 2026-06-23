@@ -1,6 +1,6 @@
 # Phase 9 — Console Core (Overview · Trigger Center · Explorer)
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 1 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P9
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -84,7 +84,7 @@ trigger-api.ts,api-client.ts}`.
 
 | ID  | Task                                                          | Status  | Priority | Size | Depends on |
 | --- | ------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 9.1 | Audit data layer — `lib/` clients, types, hooks, pivot helper | 📋 ToDo | P0       | M    | —          |
+| 9.1 | Audit data layer — `lib/` clients, types, hooks, pivot helper | ✅ Done | P0       | M    | —          |
 | 9.2 | Overview page — delivery-health charts                        | 📋 ToDo | P1       | L    | 9.1        |
 | 9.3 | Audit Explorer — facets, query bar, virtualized table         | 📋 ToDo | P0       | L    | 9.1        |
 | 9.4 | Live tail — SSE stream + follow-mode                          | 📋 ToDo | P0       | M    | 9.3        |
@@ -97,7 +97,7 @@ trigger-api.ts,api-client.ts}`.
 
 ### Task 9.1 — Audit data layer — `lib/` clients, types, hooks, pivot helper
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -772,4 +772,4 @@ If any DoD bullet is unmet or CI is red, set P9 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 9.1 ✅ 2026-06-23 — audit data layer (lib clients, types, hooks, pivot)

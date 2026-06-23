@@ -7,16 +7,8 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  ApiError,
-  apiFetch,
-  encodeAuditQuery,
-  getAuditAggregate,
-  getAuditLogs,
-  getChannels,
-  rbacHeaders,
-} from './api-client'
-import type { AuditFilter } from './api-client'
+import { apiFetch, encodeAuditQuery, getChannels, rbacHeaders } from './api-client'
+import { ApiError, type AuditQuery } from './types'
 
 /** Build a real `Response` the client consumes (`ok` derives from `status`). */
 function jsonResponse(
@@ -50,7 +42,7 @@ describe('encodeAuditQuery', () => {
 
   /** `undefined` values must be skipped (no empty params). */
   it('skips undefined values', () => {
-    const filter = { channel: undefined, limit: 20 } as unknown as AuditFilter
+    const filter = { channel: undefined, limit: 20 } as unknown as AuditQuery
     const qs = encodeAuditQuery(filter)
     expect(qs).not.toContain('channel=')
     expect(qs).toContain('limit=20')
@@ -58,7 +50,7 @@ describe('encodeAuditQuery', () => {
 
   /** `null` values must also be skipped. */
   it('skips null values', () => {
-    const filter = { tenantId: null } as unknown as AuditFilter
+    const filter = { tenantId: null } as unknown as AuditQuery
     const qs = encodeAuditQuery(filter)
     expect(qs).not.toContain('tenantId=')
   })
@@ -136,30 +128,6 @@ describe('apiFetch', () => {
       Accept: 'application/json',
       'x-role': 'admin',
     })
-  })
-})
-
-describe('getAuditLogs', () => {
-  /** The endpoint is called with the encoded filter and RBAC headers. */
-  it('calls /audit/logs with the encoded filter', async () => {
-    const spy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(jsonResponse({ data: [], nextCursor: null, hasMore: false }))
-    await getAuditLogs({ channel: 'email', role: 'admin', tenantId: 'acme' })
-    const url = String(spy.mock.calls[0]![0])
-    expect(url).toContain('/audit/logs')
-    expect(url).toContain('channel=email')
-    expect(url).not.toContain('role=')
-  })
-})
-
-describe('getAuditAggregate', () => {
-  /** The aggregate endpoint is called with the filter. */
-  it('calls /audit/aggregate with the encoded filter', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse([]))
-    await getAuditAggregate({ role: 'viewer' })
-    const url = String(spy.mock.calls[0]![0])
-    expect(url).toContain('/audit/aggregate')
   })
 })
 

@@ -15,7 +15,7 @@
 
 import { type MutableRefObject, useEffect, useRef, useState } from 'react'
 import { encodeAuditQuery } from './api-client'
-import type { AuditFilter, AuditLogRow } from './api-client'
+import type { AuditQuery, NotificationLog } from './types'
 
 /** Ring-buffer capacity — newest 10k rows, oldest dropped. */
 const BUFFER_CAPACITY = 10_000
@@ -69,7 +69,7 @@ export class RingBuffer<T> {
 /** The live audit tail result. */
 export interface AuditStream {
   /** Buffered live rows, oldest→newest. */
-  rows: AuditLogRow[]
+  rows: NotificationLog[]
   /** Empty the buffer (the "Clear" control). */
   clear: () => void
   /** Whether the EventSource is currently open. */
@@ -80,10 +80,10 @@ export interface AuditStream {
 
 /** Internal refs threaded through the stream subscription callback. */
 interface StreamRefs {
-  pendingRef: MutableRefObject<AuditLogRow[]>
+  pendingRef: MutableRefObject<NotificationLog[]>
   rafRef: MutableRefObject<number>
-  buffer: RingBuffer<AuditLogRow>
-  setRows: (rows: AuditLogRow[]) => void
+  buffer: RingBuffer<NotificationLog>
+  setRows: (rows: NotificationLog[]) => void
   setConnected: (v: boolean) => void
   setFailed: (v: boolean) => void
 }
@@ -112,9 +112,9 @@ function subscribeAuditStream(url: string, refs: StreamRefs): () => void {
   }
   source.onmessage = (event: MessageEvent<string>) => {
     if (!event.data) return // keep-alive ping — ignore
-    let row: AuditLogRow
+    let row: NotificationLog
     try {
-      row = JSON.parse(event.data) as AuditLogRow
+      row = JSON.parse(event.data) as NotificationLog
     } catch {
       return // skip malformed frames
     }
@@ -152,12 +152,12 @@ function subscribeAuditStream(url: string, refs: StreamRefs): () => void {
  * @param enabled - Whether to open the stream (gate this on the live toggle).
  * @returns The live {@link AuditStream}.
  */
-export function useAuditStream(filter: AuditFilter, enabled: boolean): AuditStream {
-  const bufferRef = useRef<RingBuffer<AuditLogRow> | null>(null)
-  const buffer = (bufferRef.current ??= new RingBuffer<AuditLogRow>(BUFFER_CAPACITY))
-  const pendingRef = useRef<AuditLogRow[]>([])
+export function useAuditStream(filter: AuditQuery, enabled: boolean): AuditStream {
+  const bufferRef = useRef<RingBuffer<NotificationLog> | null>(null)
+  const buffer = (bufferRef.current ??= new RingBuffer<NotificationLog>(BUFFER_CAPACITY))
+  const pendingRef = useRef<NotificationLog[]>([])
   const rafRef = useRef(0)
-  const [rows, setRows] = useState<AuditLogRow[]>([])
+  const [rows, setRows] = useState<NotificationLog[]>([])
   const [isConnected, setConnected] = useState(false)
   const [isFailed, setFailed] = useState(false)
 

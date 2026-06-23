@@ -49,8 +49,8 @@ structural template, reconciled with the current vault standard.
 
 ## Progress
 
-- **Overall progress:** 1 / 15 phases · 7 / 82 tasks done (7%)
-- **Active phase:** P1 — Local Stack & Environment
+- **Overall progress:** 2 / 15 phases · 12 / 82 tasks done (15%)
+- **Active phase:** P2 — Library Consumption & Export Audit
 - **Blocked:** none
 
 > All 15 Layer-3 task files are scaffolded under [`docs/tasks/`](./tasks/) (82 tasks total). Execute one phase at a time
@@ -63,7 +63,7 @@ structural template, reconciled with the current vault standard.
 | ID  | Phase                                        | Tasks file                          | Status | Progress | Size | Last updated |
 | --- | -------------------------------------------- | ----------------------------------- | ------ | -------- | ---- | ------------ |
 | P0  | Foundation, Tooling & CI Skeleton            | `phase-00-foundation-ci.md`         | ✅     | 7 / 7    | L    | 2026-06-23   |
-| P1  | Local Stack & Environment                    | `phase-01-local-stack.md`           | 🔄     | 4 / 5    | M    | 2026-06-23   |
+| P1  | Local Stack & Environment                    | `phase-01-local-stack.md`           | ✅     | 5 / 5    | M    | 2026-06-23   |
 | P2  | Library Consumption & Export Audit           | `phase-02-library-consumption.md`   | 📋     | 0 / 4    | M    | —            |
 | P3  | API Skeleton                                 | `phase-03-api-skeleton.md`          | 📋     | 0 / 6    | M    | —            |
 | P4  | Notification Wiring & Audit Store            | `phase-04-notification-wiring.md`   | 📋     | 0 / 7    | L    | —            |

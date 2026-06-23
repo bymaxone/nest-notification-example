@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 🔄 In Progress · **Progress**: 4 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 5 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -101,7 +101,7 @@ the notification-domain behavior.
 | 5.2 | OTP controller — generate/verify/resend/consume/status                      | ✅ Done | P0       | L    | 5.1                |
 | 5.3 | Email controller — send + send-template (+ attachment guard)                | ✅ Done | P0       | M    | —                  |
 | 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | ✅ Done | P1       | M    | 5.3                |
-| 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | 📋 ToDo | P2       | S    | —                  |
+| 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | ✅ Done | P2       | S    | —                  |
 | 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | 📋 ToDo | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
 
 ---
@@ -607,7 +607,7 @@ commit `feat(api): add dispatch facade, channels and config-status endpoints` (n
 
 ### Task 5.5 — `GET /debug/key` (hashTenantRecipient)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P2
 - **Size**: S
 - **Depends on**: —
@@ -619,12 +619,12 @@ Inspect-OTP panel can prove keys are hashed (never the plaintext recipient or th
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/debug/debug.controller.ts` exposes `GET /debug/key?recipient=…` → `{ key }` where
+- [x] `apps/api/src/debug/debug.controller.ts` exposes `GET /debug/key?recipient=…` → `{ key }` where
       `key = hashTenantRecipient(tenantId, recipient)` (the trusted `tenantId` from `x-tenant-id`), a 64-hex string.
-- [ ] The response carries only the opaque key — never the code, never the plaintext recipient.
-- [ ] `apps/api/src/debug/dto/debug.dto.ts` (query Zod schema: `recipient` email) + `debug.module.ts`; imported by
+- [x] The response carries only the opaque key — never the code, never the plaintext recipient.
+- [x] `apps/api/src/debug/dto/debug.dto.ts` (query Zod schema: `recipient` email) + `debug.module.ts`; imported by
       `app.module.ts`.
-- [ ] Unit spec proves the key is the 64-hex `hashTenantRecipient` output and that two tenants sharing a recipient get
+- [x] Unit spec proves the key is the 64-hex `hashTenantRecipient` output and that two tenants sharing a recipient get
       distinct keys; 100% covered.
 
 #### Files to create / modify
@@ -829,3 +829,4 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 - 5.2 ✅ 2026-06-23 — OTP controller (lifecycle over HTTP)
 - 5.3 ✅ 2026-06-23 — email controller (send + send-template + 413)
 - 5.4 ✅ 2026-06-23 — dispatch façade + channels + config/status
+- 5.5 ✅ 2026-06-23 — GET /debug/key (sha256 storage key)

@@ -1,6 +1,6 @@
 # Phase 7 — Roadmap Rejection Endpoints
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 3 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 3 / 3 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P7
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,7 +76,7 @@ The gold source for the **exact error strings** is the library itself — copy t
 | --- | ----------------------------------------------------- | ------- | -------- | ---- | ---------- |
 | 7.1 | Admin DTOs + isolated-module rejection probe helper   | ✅ Done | P0       | M    | —          |
 | 7.2 | AdminController + AdminModule — the three endpoints   | ✅ Done | P0       | M    | 7.1        |
-| 7.3 | Isolated e2e specs asserting the exact thrown strings | 📋 ToDo | P0       | M    | 7.2        |
+| 7.3 | Isolated e2e specs asserting the exact thrown strings | ✅ Done | P0       | M    | 7.2        |
 
 ---
 
@@ -379,7 +379,7 @@ Completion Protocol (run after finishing):
 
 ### Task 7.3 — Isolated e2e specs asserting the exact thrown strings
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 7.2
@@ -393,17 +393,17 @@ the per-phase completion protocol.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/test/admin-roadmap-rejection.e2e-spec.ts` boots the app (or an isolated test module mounting
+- [x] `apps/api/test/admin-roadmap-rejection.e2e-spec.ts` boots the app (or an isolated test module mounting
       `AdminModule`) with supertest and asserts each endpoint returns `200` with `rejected: true` and the **verbatim**
       library message for `sms`, `push`, and `async-useclass`.
-- [ ] A unit spec for the probe helper (`apps/api/src/admin/roadmap-rejection.probe.spec.ts`) covers **both** branches:
+- [x] A unit spec for the probe helper (`apps/api/src/admin/roadmap-rejection.probe.spec.ts`) covers **both** branches:
       the throwing path (returns `rejected: true` + the error message) **and** the non-throwing path (a `buildModule` that
       compiles cleanly → `rejected: false`, `errorMessage: ''`), proving the demo's premise check.
-- [ ] The three endpoint messages asserted match the library source **byte-for-byte** (no paraphrase).
-- [ ] `pnpm --filter @nest-notification-example/api test:cov` passes with **100%** statements/branches/functions/lines
+- [x] The three endpoint messages asserted match the library source **byte-for-byte** (no paraphrase).
+- [x] `pnpm --filter @nest-notification-example/api test:cov` passes with **100%** statements/branches/functions/lines
       for `apps/api/src/admin/**` (the controller, the helper, and the DTO module are fully covered or scoped-excluded per
       the §2 coverage rule — non-executable glue like `*.module.ts`/`*.dto.ts` is excluded from scope).
-- [ ] No suppression comments; tests are deterministic (each isolated module is closed; no leaked DI containers/handles).
+- [x] No suppression comments; tests are deterministic (each isolated module is closed; no leaked DI containers/handles).
 
 #### Files to create / modify
 
@@ -535,3 +535,4 @@ If any DoD bullet is unmet or CI is red, set P7 to `🟡 Partial`, not `✅`.
 
 - 7.1 ✅ 2026-06-23 — admin DTO + isolated-module rejection probe helper
 - 7.2 ✅ 2026-06-23 — AdminController + AdminModule (3 rejection endpoints)
+- 7.3 ✅ 2026-06-23 — isolated e2e + probe specs assert verbatim rejection strings

@@ -23,10 +23,12 @@ import type { RoadmapRejectionResult } from './dto/roadmap-rejection.result.js'
 
 /**
  * Minimal options factory supplied only to trigger the `forRootAsync({ useClass })` rejection.
- * The `createNotificationOptions` method is never called — the library throws before any
- * factory resolution inside `forRootAsync`.
+ *
+ * Exported for testing: the `createNotificationOptions` method is never invoked at runtime
+ * because the library throws at the `forRootAsync` call site before any factory resolution,
+ * but it must be implemented to satisfy {@link BymaxNotificationModuleOptionsFactory}.
  */
-class RejectedOptionsFactory implements BymaxNotificationModuleOptionsFactory {
+export class RejectedOptionsFactory implements BymaxNotificationModuleOptionsFactory {
   /**
    * Would create module options in a real useClass registration.
    * Never called here — the library throws at the `forRootAsync` call site before

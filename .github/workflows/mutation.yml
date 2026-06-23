@@ -82,6 +82,11 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          git clone --depth 1 https://github.com/bymaxone/nest-notification.git ../nest-notification
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       - name: Generate Prisma client
         run: pnpm --filter @nest-notification-example/api run db:generate
@@ -122,6 +127,11 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Build the pre-publish sibling library
+        run: |
+          git clone --depth 1 https://github.com/bymaxone/nest-notification.git ../nest-notification
+          pnpm -C ../nest-notification install --frozen-lockfile
+          pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
       - name: Restore Stryker incremental cache (web)
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4

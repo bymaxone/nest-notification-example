@@ -21,6 +21,7 @@ import { NotificationExceptionFilter } from './common/notification-exception.fil
 import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
 import { applyNotificationServiceMetadata } from './notification/notification-metadata.js'
+import { DispatchModule } from './dispatch/dispatch.module.js'
 import { EmailModule } from './email/email.module.js'
 import { notificationConfig } from './notification/notification.config.js'
 import { OtpModule } from './otp/otp.module.js'
@@ -54,6 +55,7 @@ applyNotificationServiceMetadata()
     }),
     OtpModule,
     EmailModule,
+    DispatchModule,
   ],
   providers: [
     // Map every library NotificationException to its catalog HTTP response globally.

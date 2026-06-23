@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 🔄 In Progress · **Progress**: 3 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 4 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -100,7 +100,7 @@ the notification-domain behavior.
 | 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | ✅ Done | P0       | M    | —                  |
 | 5.2 | OTP controller — generate/verify/resend/consume/status                      | ✅ Done | P0       | L    | 5.1                |
 | 5.3 | Email controller — send + send-template (+ attachment guard)                | ✅ Done | P0       | M    | —                  |
-| 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | 📋 ToDo | P1       | M    | 5.3                |
+| 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | ✅ Done | P1       | M    | 5.3                |
 | 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | 📋 ToDo | P2       | S    | —                  |
 | 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | 📋 ToDo | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
 
@@ -464,7 +464,7 @@ commit `feat(api): add email controller for raw and template sends` (no Co-Autho
 
 ### Task 5.4 — Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 5.3
@@ -477,21 +477,21 @@ from the injected `ResolvedNotificationOptions`), covering the `EMAIL_MISSING_BO
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/dispatch/dto/dispatch.dto.ts` exports a discriminated Zod schema mirroring the library's
+- [x] `apps/api/src/dispatch/dto/dispatch.dto.ts` exports a discriminated Zod schema mirroring the library's
       `DispatchInput` — `{ channel:'email', payload: EmailDispatchPayload }` | `{ channel:'otp', payload: OtpDispatchPayload }`
       — without `tenantId` (header-derived).
-- [ ] `apps/api/src/dispatch/dispatch.controller.ts` exposes `POST /dispatch` (→ `NotificationService.dispatch` →
+- [x] `apps/api/src/dispatch/dispatch.controller.ts` exposes `POST /dispatch` (→ `NotificationService.dispatch` →
       the discriminated `DispatchResult`), `GET /channels` (→ `getEnabledChannels()` → `['email','otp']`), and
       `GET /config/status`, deriving `tenantId` from `x-tenant-id` where needed.
-- [ ] `GET /config/status` returns the resolved module config read from the injected `ResolvedNotificationOptions` (via
-      the `BYMAX_NOTIFICATION_OPTIONS` token): the enabled channels + provider/storage/renderer names + `consumeOnVerify` +
-      `swallowErrors` + the `maskRecipient` mode. It demonstrates Feature-Coverage-Matrix rows 31 and 59 from a real surface
-      (no secrets in the response).
-- [ ] An email payload with neither template nor subject+html → the library throws `EMAIL_MISSING_BODY` → the P3 filter
+- [x] `GET /config/status` returns the resolved module config read from the injected `ResolvedNotificationOptions` (via
+      the `BYMAX_NOTIFICATION_OPTIONS` token) + the provider/storage/renderer token names: the enabled channels +
+      provider/storage/renderer names + `consumeOnVerify` + `swallowErrors` + whether `maskRecipient` is active. It
+      demonstrates Feature-Coverage-Matrix rows 31 and 59 from a real surface (no secrets in the response).
+- [x] An email payload with neither template nor subject+html → the library throws `EMAIL_MISSING_BODY` → the filter
       maps it; a request to a disabled channel → `CHANNEL_DISABLED`; both error paths are proven.
-- [ ] `/dispatch` is the **interceptor-audited** route (the audit interceptor is already `APP_INTERCEPTOR` from P4 —
+- [x] `/dispatch` is the **interceptor-audited** route (the audit interceptor is already `APP_INTERCEPTOR` from P4 —
       the resolver-derived tenant is the audited tenant; do not re-implement auditing in the controller).
-- [ ] `apps/api/src/dispatch/dispatch.module.ts` registers the controller; imported by `app.module.ts`. Unit spec at
+- [x] `apps/api/src/dispatch/dispatch.module.ts` registers the controller; imported by `app.module.ts`. Unit spec at
       100% (covering `/dispatch`, `/channels`, AND `/config/status`).
 
 #### Files to create / modify
@@ -828,3 +828,4 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 - 5.1 ✅ 2026-06-23 — OTP DTOs + verify→HTTP mapping helper
 - 5.2 ✅ 2026-06-23 — OTP controller (lifecycle over HTTP)
 - 5.3 ✅ 2026-06-23 — email controller (send + send-template + 413)
+- 5.4 ✅ 2026-06-23 — dispatch façade + channels + config/status

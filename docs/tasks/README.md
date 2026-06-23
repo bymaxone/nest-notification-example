@@ -14,7 +14,7 @@
 | P2    | `phase-02-library-consumption.md`   | `file:` link the lib, peers, subpath probe, export audit                            | ✅     |
 | P3    | `phase-03-api-skeleton.md`          | NestJS bootstrap, `/health`, exception filter, Redis/Prisma modules                 | ✅     |
 | P4    | `phase-04-notification-wiring.md`   | `forRootAsync`, providers/renderer, audit store + interceptor                       | ✅     |
-| P5    | `phase-05-otp-email-controllers.md` | `/otp/*`, `/email/*`, `/dispatch`, `/channels`, `/debug/key`                        | 🔄     |
+| P5    | `phase-05-otp-email-controllers.md` | `/otp/*`, `/email/*`, `/dispatch`, `/channels`, `/debug/key`                        | ✅     |
 | P6    | `phase-06-audit-read-api.md`        | `/audit/{logs,stream,aggregate}` (keyset + SSE)                                     | 📋     |
 | P7    | `phase-07-roadmap-rejection.md`     | `/admin/try-configure-{sms,push,async-useclass}`                                    | 📋     |
 | P8    | `phase-08-web-skeleton.md`          | Next.js shell + **verbatim** design system + global controls                        | 📋     |

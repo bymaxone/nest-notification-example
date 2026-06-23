@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 5 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 6 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -81,7 +81,7 @@ adapt** them rather than inventing configs.
 | 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | ✅ Done | P0       | M    | —             |
 | 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | ✅ Done | P1       | M    | —             |
 | 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | ✅ Done | P0       | M    | 4.2, 4.3, 4.4 |
-| 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | 📋 ToDo | P0       | M    | 4.5           |
+| 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | ✅ Done | P0       | M    | 4.5           |
 | 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | 📋 ToDo | P0       | M    | 4.6           |
 
 ---
@@ -661,7 +661,7 @@ commit `feat(api): wire BymaxNotificationModule forRootAsync config factory` (no
 
 ### Task 4.6 — `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 4.5
@@ -674,13 +674,13 @@ library's `NotificationAuditInterceptor` globally as `APP_INTERCEPTOR`, so inter
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/app.module.ts` calls `BymaxNotificationModule.forRootAsync({ imports: [ConfigModule, RedisModule,
+- [x] `apps/api/src/app.module.ts` calls `BymaxNotificationModule.forRootAsync({ imports: [ConfigModule, RedisModule,
 PrismaModule], inject: [ConfigService, REDIS, PrismaService], useFactory: notificationConfig })`.
-- [ ] `{ provide: APP_INTERCEPTOR, useClass: NotificationAuditInterceptor }` is registered in `app.module.ts` providers.
-- [ ] `RedisModule` + `PrismaModule` are imported so the `REDIS` token and `PrismaService` resolve in the factory.
-- [ ] The app **boots** (`Nest application successfully started`) against the local stack with `REDIS_URL` set and unset
+- [x] `{ provide: APP_INTERCEPTOR, useClass: NotificationAuditInterceptor }` is registered in `app.module.ts` providers.
+- [x] `RedisModule` + `PrismaModule` are imported so the `REDIS` token and `PrismaService` resolve in the factory.
+- [x] The app **boots** (`Nest application successfully started`) against the local stack with `REDIS_URL` set and unset
       (the `null` branch). `app.module.ts` is excluded from coverage (glue) per the conventions.
-- [ ] A module-init integration spec (`Test.createTestingModule`) compiles the module and asserts the
+- [x] A module-init integration spec (`Test.createTestingModule`) compiles the module and asserts the
       `NotificationService` (or the module) resolves without throwing.
 
 #### Files to create / modify
@@ -902,3 +902,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 - 4.3 ✅ 2026-06-23 — email providers + resolver
 - 4.4 ✅ 2026-06-23 — template registry + alternate renderers
 - 4.5 ✅ 2026-06-23 — notification.config forRootAsync useFactory
+- 4.6 ✅ 2026-06-23 — module assembly + audit interceptor

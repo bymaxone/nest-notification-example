@@ -1,6 +1,6 @@
 # Phase 6 — Audit Read-API (keyset + SSE)
 
-> **Status**: 🔄 In Progress · **Progress**: 4 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 5 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P6
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -83,7 +83,7 @@ and add the **source facet**. The library never imports Prisma; all read SQL liv
 | 6.2 | Audit read service — cursor codec + `where` builder | ✅ Done | P0       | M    | 6.1        |
 | 6.3 | `GET /audit/logs` keyset controller (410 on stale)  | ✅ Done | P0       | M    | 6.2        |
 | 6.4 | Audit event bus + `GET /audit/stream` (`@Sse`)      | ✅ Done | P0       | L    | 6.2        |
-| 6.5 | `GET /audit/aggregate` (time-bucketed) + wire-up    | 📋 ToDo | P1       | M    | 6.3, 6.4   |
+| 6.5 | `GET /audit/aggregate` (time-bucketed) + wire-up    | ✅ Done | P1       | M    | 6.3, 6.4   |
 
 ---
 
@@ -564,7 +564,7 @@ Completion Protocol:
 
 ### Task 6.5 — `GET /audit/aggregate` (time-bucketed) + wire-up
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 6.3, 6.4
@@ -577,19 +577,19 @@ service, bus, aggregate) so the three endpoints are reachable end-to-end.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit-aggregate.service.ts` exports `AuditAggregateService` (`@Injectable`) with a `query(q)`
+- [x] `apps/api/src/audit/audit-aggregate.service.ts` exports `AuditAggregateService` (`@Injectable`) with a `query(q)`
       that runs a parameterized `$queryRaw` (Prisma `Prisma.sql` tagged template) bucketing `NotificationLog.timestamp` via
       `date_trunc`, grouped by the requested dimension (`verb`/`channel`/`provider`), zero-filled via `generate_series`,
       honouring the time window + tenant restriction + the source facet.
-- [ ] `GET /audit/aggregate` (a handler on `AuditController` or a dedicated method) validates
+- [x] `GET /audit/aggregate` (a handler on `AuditController` or a dedicated method) validates
       `AuditAggregateQueryDto` via `ZodValidationPipe`, resolves the tenant restriction server-side, and returns the chart
       series.
-- [ ] `apps/api/src/audit/audit.module.ts` declares `AuditController` + `AuditSseController`, provides `AuditReadService`,
+- [x] `apps/api/src/audit/audit.module.ts` declares `AuditController` + `AuditSseController`, provides `AuditReadService`,
       `AuditEventBus`, `AuditAggregateService`, exports `AuditEventBus` (so the P4 write path can inject it to `emit`), and is
       imported by `app.module.ts`.
-- [ ] 100% unit-covered for the aggregate service (mock `$queryRaw`: each `groupBy` dimension, the source facet, the
+- [x] 100% unit-covered for the aggregate service (mock `$queryRaw`: each `groupBy` dimension, the source facet, the
       zero-fill shape) and the aggregate handler.
-- [ ] The full local gate passes: `pnpm typecheck && pnpm lint && pnpm test:cov && pnpm audit:exports`.
+- [x] The full local gate passes: `pnpm typecheck && pnpm lint && pnpm test:cov && pnpm audit:exports`.
 
 #### Files to create / modify
 
@@ -703,3 +703,4 @@ If any DoD bullet is unmet or CI is red, set P6 to `🟡 Partial`, not `✅`.
 - 6.2 ✅ 2026-06-23 — audit read service (cursor codec + where builder)
 - 6.3 ✅ 2026-06-23 — GET /audit/logs keyset controller (410 on stale)
 - 6.4 ✅ 2026-06-23 — audit event bus + GET /audit/stream (@Sse live tail)
+- 6.5 ✅ 2026-06-23 — GET /audit/aggregate + audit module wire-up

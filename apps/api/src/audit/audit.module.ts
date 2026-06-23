@@ -15,11 +15,12 @@ import { AuditController } from './audit.controller.js'
 import { AuditSseController } from './audit-sse.controller.js'
 import { AuditReadService } from './audit-read.service.js'
 import { AuditEventBus } from './audit-event.bus.js'
+import { AuditAggregateService } from './audit-aggregate.service.js'
 
 /** Composes the `/audit/*` read-API and exports the live-tail event bus. */
 @Module({
   controllers: [AuditController, AuditSseController],
-  providers: [AuditReadService, AuditEventBus],
+  providers: [AuditReadService, AuditEventBus, AuditAggregateService],
   exports: [AuditEventBus],
 })
 export class AuditModule {}

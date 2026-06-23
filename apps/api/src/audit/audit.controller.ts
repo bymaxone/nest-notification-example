@@ -25,7 +25,12 @@ import { PrismaService } from '../prisma/prisma.service.js'
 import { TenantId } from '../common/tenant-id.decorator.js'
 import { ZodValidationPipe } from '../common/zod-validation.pipe.js'
 import { auditQuerySchema, type AuditQueryDto } from './dto/audit-query.dto.js'
+import {
+  auditAggregateQuerySchema,
+  type AuditAggregateQueryDto,
+} from './dto/audit-aggregate-query.dto.js'
 import { AuditReadService, StaleCursorError, type AuditRestriction } from './audit-read.service.js'
+import { AuditAggregateService, type AuditAggregateRow } from './audit-aggregate.service.js'
 
 /** One page of the keyset-paginated audit log. */
 export interface AuditLogsPageResponse {
@@ -43,10 +48,12 @@ export class AuditController {
   /**
    * @param prisma - The application's Prisma client (owns all read SQL).
    * @param audit - The shared cursor codec + `where` compiler.
+   * @param aggregateService - The time-bucketed aggregation for the Overview charts.
    */
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditReadService,
+    private readonly aggregateService: AuditAggregateService,
   ) {}
 
   /**
@@ -90,6 +97,24 @@ export class AuditController {
         : null
 
     return { data: rows, nextCursor, hasMore }
+  }
+
+  /**
+   * Time-bucketed counts by `verb`/`channel`/`provider` for the Overview charts.
+   *
+   * The tenant restriction is resolved from `x-tenant-id` and overrides any query `tenantId`.
+   *
+   * @param tenantId - The trusted tenant from `x-tenant-id` (never the query/body).
+   * @param q - Validated aggregate query (groupBy, bucket, window, source facet).
+   * @returns The zero-filled chart series.
+   * @throws {BadRequestException} HTTP 400 when query params fail Zod validation.
+   */
+  @Get('aggregate')
+  aggregate(
+    @TenantId() tenantId: string,
+    @Query(new ZodValidationPipe(auditAggregateQuerySchema)) q: AuditAggregateQueryDto,
+  ): Promise<AuditAggregateRow[]> {
+    return this.aggregateService.query({ ...q, tenantId })
   }
 
   /**

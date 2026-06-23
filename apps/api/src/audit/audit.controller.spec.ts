@@ -13,21 +13,36 @@ import type { NotificationLog } from '@prisma/client'
 import type { PrismaService } from '../prisma/prisma.service.js'
 import { AuditController } from './audit.controller.js'
 import { AuditReadService, StaleCursorError } from './audit-read.service.js'
+import type { AuditAggregateService, AuditAggregateRow } from './audit-aggregate.service.js'
 import { auditQuerySchema, type AuditQueryDto } from './dto/audit-query.dto.js'
+import { auditAggregateQuerySchema } from './dto/audit-aggregate-query.dto.js'
 
 /** Mock surface of `PrismaService` the controller touches. */
 type FindMany = jest.Mock<(args: unknown) => Promise<NotificationLog[]>>
 
-/** Build a controller over a `findMany` mock + a real cursor codec; return all three. */
+/** Mock surface of `AuditAggregateService.query`. */
+type AggregateQuery = jest.Mock<(q: unknown) => Promise<AuditAggregateRow[]>>
+
+/** Build a controller over a `findMany` mock + a real cursor codec + an aggregate mock. */
 function buildController(rows: NotificationLog[]): {
   controller: AuditController
   audit: AuditReadService
   findMany: FindMany
+  aggregateQuery: AggregateQuery
 } {
   const findMany = jest.fn<(args: unknown) => Promise<NotificationLog[]>>().mockResolvedValue(rows)
   const prisma = { notificationLog: { findMany } } as unknown as PrismaService
   const audit = new AuditReadService()
-  return { controller: new AuditController(prisma, audit), audit, findMany }
+  const aggregateQuery = jest
+    .fn<(q: unknown) => Promise<AuditAggregateRow[]>>()
+    .mockResolvedValue([])
+  const aggregate = { query: aggregateQuery } as unknown as AuditAggregateService
+  return {
+    controller: new AuditController(prisma, audit, aggregate),
+    audit,
+    findMany,
+    aggregateQuery,
+  }
 }
 
 /** Build a `NotificationLog`-shaped row for the page assertions. */
@@ -157,5 +172,28 @@ describe('AuditController.list', () => {
   it('does not mistake a non-StaleCursorError for a stale cursor', () => {
     /** A guard assertion: only `StaleCursorError` carries the 410 semantics. */
     expect(new Error('x') instanceof StaleCursorError).toBe(false)
+  })
+})
+
+describe('AuditController.aggregate', () => {
+  it('delegates to the aggregate service with the trusted tenant overriding the query', async () => {
+    /**
+     * Scenario: an aggregate request whose query carries a (spoofed) tenantId.
+     * Contract: the handler resolves the tenant server-side and spreads it LAST so it overrides
+     * the query tenantId, then returns the service's chart series verbatim.
+     */
+    const { controller, aggregateQuery } = buildController([])
+    const series: AuditAggregateRow[] = [
+      { bucket: new Date('2026-06-23T12:00:00Z'), dimension: 'generated', n: 3 },
+    ]
+    aggregateQuery.mockResolvedValue(series)
+
+    const q = auditAggregateQuerySchema.parse({ tenantId: 'globex', groupBy: 'verb' })
+    const result = await controller.aggregate(TENANT, q)
+
+    expect(result).toBe(series)
+    const passed = aggregateQuery.mock.calls[0]?.[0] as { tenantId: string; groupBy: string }
+    expect(passed.tenantId).toBe(TENANT)
+    expect(passed.groupBy).toBe('verb')
   })
 })

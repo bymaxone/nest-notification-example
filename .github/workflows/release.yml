@@ -1,0 +1,186 @@
+name: Release
+
+# A `v*` tag builds and publishes the two GHCR images and records the release in
+# docs/RELEASES.md. A manual `workflow_dispatch` run validates the build WITHOUT
+# publishing (no registry push), so the pipeline can be exercised pre-release.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DATABASE_URL: postgresql://ci_runner@localhost/ci_placeholder
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      # Untrusted ref data flows through the environment — never interpolated
+      # via ${{ github.* }} into the script body (script-injection class).
+      - name: Assert the tag matches package.json version
+        if: github.ref_type == 'tag'
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "v${PKG_VERSION}" != "${TAG}" ]; then
+            echo "::error::tag ${TAG} does not match package.json version v${PKG_VERSION}"
+            exit 1
+          fi
+          echo "tag ${TAG} matches package.json version v${PKG_VERSION}"
+
+  build-and-push:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Check if API image already exists
+        id: api-exists
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if docker manifest inspect "ghcr.io/bymaxone/nest-notification-example-api:${TAG}" > /dev/null 2>&1; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Check if web image already exists
+        id: web-exists
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if docker manifest inspect "ghcr.io/bymaxone/nest-notification-example-web:${TAG}" > /dev/null 2>&1; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Log in to GHCR
+        if: >-
+          github.ref_type == 'tag' &&
+          (steps.api-exists.outputs.exists != 'true' || steps.web-exists.outputs.exists != 'true')
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: API image metadata
+        if: steps.api-exists.outputs.exists != 'true'
+        id: api-meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ghcr.io/bymaxone/nest-notification-example-api
+          flavor: latest=auto
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=tag
+      - name: Build and push API image
+        if: steps.api-exists.outputs.exists != 'true'
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          # Publish only on a real tag push; a manual dispatch validates the build
+          # without pushing (no credentials required).
+          push: ${{ github.ref_type == 'tag' }}
+          tags: ${{ steps.api-meta.outputs.tags }}
+          labels: ${{ steps.api-meta.outputs.labels }}
+
+      - name: Web image metadata
+        if: steps.web-exists.outputs.exists != 'true'
+        id: web-meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ghcr.io/bymaxone/nest-notification-example-web
+          flavor: latest=auto
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=tag
+      - name: Build and push web image
+        if: steps.web-exists.outputs.exists != 'true'
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: ${{ github.ref_type == 'tag' }}
+          tags: ${{ steps.web-meta.outputs.tags }}
+          labels: ${{ steps.web-meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'https://example.com/api' }}
+
+  update-releases-doc:
+    needs: build-and-push
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      # Untrusted ref data flows through the environment, never interpolated into
+      # the script body.
+      - name: Record the release in RELEASES.md
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if grep -qF "\`${TAG}\`" docs/RELEASES.md; then
+            echo "Tag ${TAG} already present — skipping."
+            exit 0
+          fi
+          LIB_SPEC="$(jq -r '.dependencies["@bymax-one/nest-notification"] // ""' apps/api/package.json 2>/dev/null || echo '')"
+          DATE="$(date -u +%Y-%m-%d)"
+          python3 - "$TAG" "$LIB_SPEC" "$DATE" << 'PYEOF'
+          import sys, re, pathlib
+
+          tag, lib_spec, date = sys.argv[1], sys.argv[2], sys.argv[3]
+
+          # A published dependency is a semver range (e.g. "^0.1.0"); a pre-publish
+          # checkout is a "file:"/"link:" spec with no version. Record whichever applies.
+          semver = re.search(r'\d+\.\d+\.\d+[^\s"]*', lib_spec)
+          lib_version = f'`{semver.group(0)}`' if semver else '`local link`'
+
+          path = pathlib.Path('docs/RELEASES.md')
+          content = path.read_text()
+          new_row = f'| {date} | `{tag}` | {lib_version} | Released images `{tag}` |\n'
+
+          # Insert above the first data row of the "Tested-version log" table so the
+          # newest release is on top.
+          content, count = re.subn(
+              r'(?m)^(\| (?:_pending_|\d{4}-\d{2}-\d{2} \| `v))',
+              new_row + r'\1',
+              content,
+              count=1,
+          )
+          if count == 0:
+              raise SystemExit('Could not locate the Tested-version log table in RELEASES.md')
+          path.write_text(content)
+          PYEOF
+      - name: Push bot commit
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if git diff --quiet -- docs/RELEASES.md; then
+            echo "No RELEASES.md change to commit."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs/RELEASES.md
+          git commit -m "chore(release): record ${TAG} in RELEASES.md [skip ci]"
+          git push origin HEAD:main

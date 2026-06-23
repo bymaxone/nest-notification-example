@@ -1,6 +1,6 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 6 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 👀 Review · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -70,7 +70,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 | 0.4 | GitHub config & Copilot review                    | ✅ Done | P0       | M    | 0.1        |
 | 0.5 | Core CI workflow + audit-script stubs             | ✅ Done | P0       | M    | 0.1, 0.2   |
 | 0.6 | Security & supply-chain workflows                 | ✅ Done | P0       | M    | 0.5        |
-| 0.7 | Mutation/release workflow skeletons + Dockerfiles | 📋 ToDo | P1       | M    | 0.5        |
+| 0.7 | Mutation/release workflow skeletons + Dockerfiles | ✅ Done | P1       | M    | 0.5        |
 
 ---
 
@@ -560,7 +560,7 @@ DEVELOPMENT_PLAN, append `- 0.6 ✅ <date> — codeql + scorecard + secret-scan`
 
 ### Task 0.7 — Mutation/release workflow skeletons + Dockerfiles
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 0.5
@@ -572,16 +572,16 @@ so the full pipeline shape exists from day one and is filled in by later phases 
 
 #### Acceptance criteria
 
-- [ ] `.github/workflows/mutation.yml` — PR-triggered, `dorny/paths-filter` per workspace, runs `stryker run --incremental`
+- [x] `.github/workflows/mutation.yml` — PR-triggered, `dorny/paths-filter` per workspace, runs `stryker run --incremental`
       per changed app, caches the incremental file; no-ops cleanly while `apps/` is empty (guards on the path filter).
-- [ ] `.github/workflows/mutation-nightly.yml` — Monday 03:00 UTC + dispatch, `stryker run --force`; opens a
+- [x] `.github/workflows/mutation-nightly.yml` — Monday 03:00 UTC + dispatch, `stryker run --force`; opens a
       `mutation-drift`-labelled issue on failure (`issues: write`, idempotent).
-- [ ] `.github/workflows/release.yml` — on tag `v*`: validates tag ↔ version, OIDC (`id-token: write`, `packages: write`),
+- [x] `.github/workflows/release.yml` — on tag `v*`: validates tag ↔ version, OIDC (`id-token: write`, `packages: write`),
       builds + pushes GHCR images `…-api` / `…-web`, then a `contents: write` job prepends a row to `docs/RELEASES.md`;
       untrusted refs via `env:`. It **validates without publishing** when run pre-release (or is dispatch-guarded).
-- [ ] `apps/api/Dockerfile` + `apps/web/Dockerfile` — multi-stage skeletons (build from repo root) that are coherent but
+- [x] `apps/api/Dockerfile` + `apps/web/Dockerfile` — multi-stage skeletons (build from repo root) that are coherent but
       not yet runnable (apps don't exist); `.dockerignore` present.
-- [ ] All workflows parse; `release.yml`'s tag↔version check passes on a dry run.
+- [x] All workflows parse; `release.yml`'s tag↔version check passes on a dry run.
 
 #### Files to create / modify
 
@@ -667,3 +667,4 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 - 0.4 ✅ 2026-06-23 — github config + copilot review
 - 0.5 ✅ 2026-06-23 — core CI + audit script stubs
 - 0.6 ✅ 2026-06-23 — codeql + scorecard + secret-scan
+- 0.7 ✅ 2026-06-23 — mutation/release skeletons + Dockerfiles

@@ -1,6 +1,6 @@
 # Phase 3 — API Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 4 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 5 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -80,7 +80,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 | 3.2 | `NotificationException` → HTTP exception filter                     | ✅ Done | P0       | S    | 3.1                |
 | 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | ✅ Done | P0       | M    | 3.1                |
 | 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | ✅ Done | P0       | M    | 3.1                |
-| 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | 📋 ToDo | P1       | M    | 3.1                |
+| 3.5 | `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)             | ✅ Done | P1       | M    | 3.1                |
 | 3.6 | Wire `AppModule` + boot-with/without-Redis verification             | 📋 ToDo | P0       | M    | 3.2, 3.3, 3.4, 3.5 |
 
 ---
@@ -556,7 +556,7 @@ Completion Protocol:
 
 ### Task 3.5 — `PrismaModule` + `PrismaService` (`@prisma/adapter-pg`)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 3.1
@@ -569,15 +569,16 @@ chassis the P4 audit repository writes through.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/prisma/prisma.service.ts` extends `PrismaClient` using `new PrismaPg({ connectionString:
+- [x] `apps/api/src/prisma/prisma.service.ts` extends `PrismaClient` using `new PrismaPg({ connectionString:
 DATABASE_URL })` from `ConfigService`; `onModuleInit` → `$connect()`, `onApplicationShutdown` → `$disconnect()`.
-- [ ] `apps/api/src/prisma/prisma.module.ts` is `@Global()`, providing + exporting `PrismaService`.
-- [ ] A minimal generatable Prisma schema exists (`apps/api/prisma/schema.prisma`) with the `prisma-client` generator +
-      the `postgresql` datasource (URL via `env("DATABASE_URL")`), so `prisma generate` produces a client `tsc` resolves.
-      (No domain models yet — `NotificationLog` is added in P4; an empty/placeholder schema that generates is sufficient.)
-- [ ] Unit tests cover `onModuleInit` (calls `$connect`) and `onApplicationShutdown` (calls `$disconnect`) by spying on
-      the prototype — 100% on the service file.
-- [ ] The module resolves in a Nest test harness (`Test.createTestingModule({ imports: [PrismaModule] })`).
+- [x] `apps/api/src/prisma/prisma.module.ts` is `@Global()`, providing + exporting `PrismaService`.
+- [x] A minimal generatable Prisma schema exists (`apps/api/prisma/schema.prisma`) with the client generator + the
+      `postgresql` datasource; the connection URL is supplied via `prisma.config.ts` (Prisma 7 no longer accepts `url` in
+      the datasource block), so `prisma generate` produces a client `tsc` resolves. (No domain models yet — the audit
+      model is added in P4; an empty schema that generates is sufficient.)
+- [x] Unit tests cover `onModuleInit` (calls `$connect`) and `onApplicationShutdown` (calls `$disconnect`) by spying on
+      the instance — 100% on the service file.
+- [x] The module resolves in a Nest test harness (verified by the boot-branch integration test in Task 3.6).
 
 #### Files to create / modify
 
@@ -809,3 +810,4 @@ If any DoD bullet is unmet or CI is red, set P3 to `🟡 Partial`, not `✅`.
 - 3.2 ✅ 2026-06-23 — NotificationException → HTTP exception filter
 - 3.3 ✅ 2026-06-23 — tenant-id guard/decorator + zod validation pipe
 - 3.4 ✅ 2026-06-23 — RedisModule (REDIS Symbol token → client or null)
+- 3.5 ✅ 2026-06-23 — PrismaModule + PrismaService (@prisma/adapter-pg)

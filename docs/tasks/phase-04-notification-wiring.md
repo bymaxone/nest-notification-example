@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 🔄 In progress · **Progress**: 2 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 3 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -78,7 +78,7 @@ adapt** them rather than inventing configs.
 | --- | --------------------------------------------------------------------- | ------- | -------- | ---- | ------------- |
 | 4.1 | `NotificationLog` Prisma schema + migration + seed                    | ✅ Done | P0       | M    | —             |
 | 4.2 | `PrismaNotificationLogRepository` (write side)                        | ✅ Done | P0       | S    | 4.1           |
-| 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | 📋 ToDo | P0       | M    | —             |
+| 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | ✅ Done | P0       | M    | —             |
 | 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | 📋 ToDo | P1       | M    | —             |
 | 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | 📋 ToDo | P0       | M    | 4.2, 4.3, 4.4 |
 | 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | 📋 ToDo | P0       | M    | 4.5           |
@@ -308,7 +308,7 @@ commit `feat(api): implement Prisma notification-log repository` (no Co-Authored
 
 ### Task 4.3 — Email providers — Nodemailer→Mailpit + Resend + NoOp resolver
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -321,15 +321,15 @@ Author the custom `NodemailerEmailProvider` (the headline bring-your-own-provide
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/providers/nodemailer-email.provider.ts` implements `IEmailProvider`
+- [x] `apps/api/src/notification/providers/nodemailer-email.provider.ts` implements `IEmailProvider`
       (`readonly name = 'nodemailer'`, `isConfigured()`, `async send(options): Promise<EmailSendResult>`) over a nodemailer
       SMTP transport built from `SMTP_URL`; throws on transport failure (so `EmailService` maps it to `EMAIL_SEND_FAILED`);
       returns `{ messageId }`.
-- [ ] `apps/api/src/notification/providers/email-provider.resolver.ts` exports `resolveEmailProvider(config)` →
+- [x] `apps/api/src/notification/providers/email-provider.resolver.ts` exports `resolveEmailProvider(config)` →
       `ResendEmailProvider` if `RESEND_API_KEY`, else `NodemailerEmailProvider` if `SMTP_URL`, else `new NoOpEmailProvider()`.
-- [ ] Unit specs (mocked transport / mocked Resend) prove: Nodemailer `send` returns the transport `messageId` and
+- [x] Unit specs (mocked transport / mocked Resend) prove: Nodemailer `send` returns the transport `messageId` and
       rethrows on failure; the resolver picks the right provider for each env permutation. 100% coverage of both files.
-- [ ] `nodemailer` is added to `apps/api` deps; `tsc --noEmit` exits 0.
+- [x] `nodemailer` is added to `apps/api` deps; `tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -899,3 +899,4 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 
 - 4.1 ✅ 2026-06-23 — NotificationLog schema + migration + seed
 - 4.2 ✅ 2026-06-23 — PrismaNotificationLogRepository (write side)
+- 4.3 ✅ 2026-06-23 — email providers + resolver

@@ -28,6 +28,17 @@ function buildRepository(): {
   return { repository: new PrismaNotificationLogRepository(prisma), create }
 }
 
+/** Reads the single captured `create` payload, failing the test if it was never called. */
+function capturedData(
+  create: jest.Mock<(args: CapturedCreate) => Promise<unknown>>,
+): Record<string, unknown> {
+  const call = create.mock.calls.at(0)
+  if (call === undefined) {
+    throw new Error('notificationLog.create was not called')
+  }
+  return call[0].data
+}
+
 describe('PrismaNotificationLogRepository', () => {
   let built: ReturnType<typeof buildRepository>
 
@@ -61,7 +72,7 @@ describe('PrismaNotificationLogRepository', () => {
 
     await built.repository.create(entry)
 
-    const { data } = built.create.mock.calls[0]![0]
+    const data = capturedData(built.create)
     expect(data).toEqual({
       timestamp: new Date(1_700_000_000_000),
       tenantId: 'acme',
@@ -94,7 +105,7 @@ describe('PrismaNotificationLogRepository', () => {
 
     await built.repository.create(entry)
 
-    const { data } = built.create.mock.calls[0]![0]
+    const data = capturedData(built.create)
     expect(data['purpose']).toBeNull()
     expect(data['messageId']).toBeNull()
     expect(data['errorMessage']).toBeNull()
@@ -120,7 +131,7 @@ describe('PrismaNotificationLogRepository', () => {
 
     await built.repository.create(entry)
 
-    const { data } = built.create.mock.calls[0]![0]
+    const data = capturedData(built.create)
     expect(JSON.stringify(data).includes(SAMPLE_CODE)).toBe(false)
   })
 })

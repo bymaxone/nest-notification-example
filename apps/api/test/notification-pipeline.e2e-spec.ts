@@ -36,7 +36,7 @@ const lib = await import('@bymax-one/nest-notification')
 /** Rows the audit repository would have persisted to Postgres. */
 let auditRows: Array<Record<string, unknown>> = []
 /** Whether the next audit write should fail (to prove the swallow). */
-let failNextAudit = false
+let shouldFailNextAudit = false
 /** Messages handed to the email provider (the browsable-inbox seam). */
 let sentEmails: Array<Record<string, unknown>> = []
 
@@ -44,7 +44,7 @@ let sentEmails: Array<Record<string, unknown>> = []
 const fakePrisma = {
   notificationLog: {
     create: (args: { data: Record<string, unknown> }): Promise<unknown> => {
-      if (failNextAudit) {
+      if (shouldFailNextAudit) {
         return Promise.reject(new Error('audit sink down'))
       }
       auditRows.push(args.data)
@@ -88,7 +88,7 @@ describe('Notification pipeline (e2e)', () => {
   beforeEach(() => {
     auditRows = []
     sentEmails = []
-    failNextAudit = false
+    shouldFailNextAudit = false
     storage.clear()
   })
 
@@ -133,7 +133,7 @@ describe('Notification pipeline (e2e)', () => {
 
   it('keeps delivering when the audit sink fails (swallowErrors default)', async () => {
     /** A rejected audit write must not surface to the caller — the send still resolves. */
-    failNextAudit = true
+    shouldFailNextAudit = true
 
     const result = await emailService.sendTemplate({
       tenantId: 'acme',

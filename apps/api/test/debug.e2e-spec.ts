@@ -8,7 +8,12 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals'
 import { hashTenantRecipient } from '@bymax-one/nest-notification'
 
-import { createTestApp, type TestAppHandle } from './test-app.factory.js'
+import {
+  createTestApp,
+  setupTestEnv,
+  teardownTestEnv,
+  type TestAppHandle,
+} from './test-app.factory.js'
 
 const request = (await import('supertest')).default
 
@@ -19,9 +24,13 @@ describe('Debug key (e2e)', () => {
   let handle: TestAppHandle
 
   beforeAll(async () => {
+    setupTestEnv()
     handle = await createTestApp()
   })
-  afterAll(() => handle.close())
+  afterAll(async () => {
+    await handle.close()
+    teardownTestEnv()
+  })
 
   it('returns the 64-hex hashTenantRecipient key, never the plaintext recipient', async () => {
     /** The Inspect-OTP panel reads only the opaque hashed key for `(tenant, recipient)`. */

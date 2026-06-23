@@ -10,7 +10,12 @@
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals'
 
-import { createTestApp, type TestAppHandle } from './test-app.factory.js'
+import {
+  createTestApp,
+  setupTestEnv,
+  teardownTestEnv,
+  type TestAppHandle,
+} from './test-app.factory.js'
 
 const request = (await import('supertest')).default
 
@@ -25,10 +30,14 @@ describe('Email sends (e2e)', () => {
   const http = (): ReturnType<typeof request> => request(handle.app.getHttpServer())
 
   beforeAll(async () => {
+    setupTestEnv()
     handle = await createTestApp()
   })
   beforeEach(() => handle.reset())
-  afterAll(() => handle.close())
+  afterAll(async () => {
+    await handle.close()
+    teardownTestEnv()
+  })
 
   it('sends a raw email returning { messageId }', async () => {
     /** /email/send hands the rendered body to the provider and returns its message id. */

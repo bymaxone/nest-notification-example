@@ -10,20 +10,71 @@
  *
  * `REDIS_URL` is unset so the OTP storage resolves to the in-memory branch; `DATABASE_URL`
  * is a non-secret, credential-free stub (PrismaService is overridden, so no connection
- * opens). Env is set at module load — before `AppModule` is imported — because
- * `ConfigModule.forRoot` validates `process.env` during initialization.
+ * opens). `ConfigModule.forRoot` validates `process.env` when `AppModule` is first
+ * imported, which `createTestApp` does lazily — so this module performs NO env mutation
+ * at load. Each spec calls {@link setupTestEnv} (`beforeAll`) before `createTestApp` and
+ * {@link teardownTestEnv} (`afterAll`), keeping the mutation scoped and restorable so it
+ * never leaks into a sibling e2e suite sharing the worker's ESM module cache.
  */
 import type { INestApplication } from '@nestjs/common'
 import type { TestingModuleBuilder } from '@nestjs/testing'
 
-process.env['DATABASE_URL'] ??= 'postgresql://localhost:5432/stub-db'
-delete process.env['REDIS_URL']
-
 const { Test } = await import('@nestjs/testing')
-const { AppModule } = await import('../src/app.module.js')
-const { PrismaService } = await import('../src/prisma/prisma.service.js')
 const lib = await import('@bymax-one/nest-notification')
 const express = (await import('express')).default
+
+/**
+ * Env keys this harness controls for a deterministic, stack-free boot:
+ *   - `DATABASE_URL` — a credential-free stub that passes `ConfigModule.forRoot`
+ *     validation (PrismaService is overridden, so no connection ever opens);
+ *   - `REDIS_URL` — `undefined` (unset) so the OTP storage resolves to the in-memory
+ *     branch rather than dialing Redis.
+ */
+const HARNESS_ENV: Readonly<Record<string, string | undefined>> = {
+  DATABASE_URL: 'postgresql://localhost:5432/stub-db',
+  REDIS_URL: undefined,
+}
+
+/** Original values of the {@link HARNESS_ENV} keys, captured by {@link setupTestEnv}. */
+let savedEnv: Record<string, string | undefined> | undefined
+
+/**
+ * Apply {@link HARNESS_ENV}, snapshotting each key's original value first.
+ *
+ * `ConfigModule.forRoot` validates `process.env` when `AppModule` is first imported
+ * (which `createTestApp` does lazily), so a spec MUST call this in `beforeAll` — before
+ * `createTestApp` — and pair it with {@link teardownTestEnv} in `afterAll`. Setting env
+ * here (rather than at module load) keeps the mutation explicit, scoped and restorable.
+ */
+export function setupTestEnv(): void {
+  savedEnv = {}
+  for (const [key, value] of Object.entries(HARNESS_ENV)) {
+    savedEnv[key] = process.env[key]
+    if (value === undefined) {
+      delete process.env[key]
+    } else {
+      process.env[key] = value
+    }
+  }
+}
+
+/**
+ * Restore the env snapshot taken by {@link setupTestEnv}: delete keys that were
+ * originally unset, otherwise put the original value back. A no-op if setup never ran.
+ */
+export function teardownTestEnv(): void {
+  if (savedEnv === undefined) {
+    return
+  }
+  for (const [key, value] of Object.entries(savedEnv)) {
+    if (value === undefined) {
+      delete process.env[key]
+    } else {
+      process.env[key] = value
+    }
+  }
+  savedEnv = undefined
+}
 
 /**
  * JSON body limit for the e2e app. Raised above Nest's 100 KB default so an attachment
@@ -56,6 +107,11 @@ export interface TestAppHandle {
 export async function createTestApp(
   customize?: (builder: TestingModuleBuilder) => TestingModuleBuilder,
 ): Promise<TestAppHandle> {
+  // Imported lazily (not at module load) so the AppModule metadata that triggers
+  // `ConfigModule.forRoot` validation runs only after `setupTestEnv` has set the env.
+  const { AppModule } = await import('../src/app.module.js')
+  const { PrismaService } = await import('../src/prisma/prisma.service.js')
+
   const sentEmails: CapturedEmail[] = []
   const auditRows: Array<Record<string, unknown>> = []
 

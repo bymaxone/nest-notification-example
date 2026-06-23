@@ -12,7 +12,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals'
 import type { ResolvedNotificationOptions } from '@bymax-one/nest-notification'
 
-import { createTestApp, lib, type TestAppHandle } from './test-app.factory.js'
+import {
+  createTestApp,
+  lib,
+  setupTestEnv,
+  teardownTestEnv,
+  type TestAppHandle,
+} from './test-app.factory.js'
 
 const request = (await import('supertest')).default
 
@@ -31,6 +37,7 @@ describe('OTP lifecycle (e2e)', () => {
     (await handle.storage.get(TENANT, recipient, PURPOSE))?.code ?? ''
 
   beforeAll(async () => {
+    setupTestEnv()
     handle = await createTestApp()
     const options = handle.app.get<ResolvedNotificationOptions>(lib.BYMAX_NOTIFICATION_OPTIONS)
     if (!options.otp) {
@@ -40,7 +47,10 @@ describe('OTP lifecycle (e2e)', () => {
   })
 
   beforeEach(() => handle.reset())
-  afterAll(() => handle.close())
+  afterAll(async () => {
+    await handle.close()
+    teardownTestEnv()
+  })
 
   it('generates an OTP returning { expiresAt, cooldownSeconds } without the code', async () => {
     /** generate persists a code and returns only its expiry + cooldown — never the code. */

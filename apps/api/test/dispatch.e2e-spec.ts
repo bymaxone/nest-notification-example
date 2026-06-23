@@ -9,7 +9,13 @@
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals'
 
-import { createTestApp, lib, type TestAppHandle } from './test-app.factory.js'
+import {
+  createTestApp,
+  lib,
+  setupTestEnv,
+  teardownTestEnv,
+  type TestAppHandle,
+} from './test-app.factory.js'
 
 const request = (await import('supertest')).default
 
@@ -21,10 +27,14 @@ describe('Dispatch façade (e2e)', () => {
   const http = (): ReturnType<typeof request> => request(handle.app.getHttpServer())
 
   beforeAll(async () => {
+    setupTestEnv()
     handle = await createTestApp()
   })
   beforeEach(() => handle.reset())
-  afterAll(() => handle.close())
+  afterAll(async () => {
+    await handle.close()
+    teardownTestEnv()
+  })
 
   it('dispatches an email payload and returns the email result', async () => {
     /** /dispatch email → NotificationService.dispatch → { channel: 'email', messageId }. */

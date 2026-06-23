@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 3 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -99,7 +99,7 @@ the notification-domain behavior.
 | --- | --------------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
 | 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | ✅ Done | P0       | M    | —                  |
 | 5.2 | OTP controller — generate/verify/resend/consume/status                      | ✅ Done | P0       | L    | 5.1                |
-| 5.3 | Email controller — send + send-template (+ attachment guard)                | 📋 ToDo | P0       | M    | —                  |
+| 5.3 | Email controller — send + send-template (+ attachment guard)                | ✅ Done | P0       | M    | —                  |
 | 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | 📋 ToDo | P1       | M    | 5.3                |
 | 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | 📋 ToDo | P2       | S    | —                  |
 | 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | 📋 ToDo | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
@@ -359,7 +359,7 @@ row Progress to `2 / 6` in DEVELOPMENT_PLAN.md, append `- 5.2 ✅ <date> — OTP
 
 ### Task 5.3 — Email controller — send + send-template (+ attachment guard)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -371,15 +371,15 @@ oversize-attachment path that surfaces as HTTP 413.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/email/dto/email.dto.ts` exports Zod schemas for send (raw: `to`/`subject`/`html` + optional
+- [x] `apps/api/src/email/dto/email.dto.ts` exports Zod schemas for send (raw: `to`/`subject`/`html` + optional
       `text`/`from`/`fromName`/`replyTo`/`cc`/`bcc`/`tags`/`attachments`) and send-template (`to`/`template`/`data` +
       optional `locale`/…). `tenantId` is **not** in either body schema.
-- [ ] `apps/api/src/email/email.controller.ts` exposes `POST /email/send` (→ `EmailService.send` → `{ messageId }`) and
+- [x] `apps/api/src/email/email.controller.ts` exposes `POST /email/send` (→ `EmailService.send` → `{ messageId }`) and
       `POST /email/send-template` (→ `EmailService.sendTemplate` → `{ messageId }`), deriving `tenantId` from `x-tenant-id`.
-- [ ] An oversize attachment makes the library throw `EMAIL_ATTACHMENTS_TOO_LARGE`, which the P3 exception filter maps
+- [x] An oversize attachment makes the library throw `EMAIL_ATTACHMENTS_TOO_LARGE`, which the exception filter maps
       to **413**; a unit/e2e proves the 413 path.
-- [ ] `apps/api/src/email/email.module.ts` registers the controller; imported by `app.module.ts`.
-- [ ] Unit spec mocks `EmailService` and proves both routes + the 413 path at 100%.
+- [x] `apps/api/src/email/email.module.ts` registers the controller; imported by `app.module.ts`.
+- [x] Unit spec mocks `EmailService` and proves both routes + the 413 path at 100%.
 
 #### Files to create / modify
 
@@ -827,3 +827,4 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 
 - 5.1 ✅ 2026-06-23 — OTP DTOs + verify→HTTP mapping helper
 - 5.2 ✅ 2026-06-23 — OTP controller (lifecycle over HTTP)
+- 5.3 ✅ 2026-06-23 — email controller (send + send-template + 413)

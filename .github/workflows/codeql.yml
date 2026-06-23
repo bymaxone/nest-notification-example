@@ -21,6 +21,10 @@ permissions:
 
 jobs:
   analyze:
+    # Code scanning upload requires Code Security (GitHub Advanced Security), which is
+    # unavailable on a private repository; gate to public so analysis runs and uploads
+    # SARIF once the repo is published.
+    if: github.event.repository.visibility == 'public'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 

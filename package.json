@@ -17,6 +17,7 @@
     "format:check": "prettier --check .",
     "test": "pnpm -r --workspace-concurrency=1 --if-present run test",
     "test:cov": "pnpm -r --workspace-concurrency=1 --if-present run test:cov",
+    "test:e2e": "pnpm -r --workspace-concurrency=1 --if-present run test:e2e",
     "audit:exports": "node scripts/audit-library-exports.mjs",
     "audit:error-codes": "node scripts/audit-error-codes.mjs",
     "infra:up": "docker compose up -d --wait",

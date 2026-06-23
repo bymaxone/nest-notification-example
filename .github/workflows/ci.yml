@@ -154,7 +154,10 @@ jobs:
         run: pnpm audit:error-codes
 
   dependency-review:
-    if: github.event_name == 'pull_request'
+    # Dependency review needs the Dependency graph + GitHub Advanced Security, which are
+    # unavailable on a private repository; gate it to public so it runs and gates pull
+    # requests once the repo is published.
+    if: github.event_name == 'pull_request' && github.event.repository.visibility == 'public'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

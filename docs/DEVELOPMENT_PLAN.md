@@ -50,7 +50,7 @@ structural template, reconciled with the current vault standard.
 ## Progress
 
 - **Overall progress:** 0 / 15 phases · 0 / 82 tasks done (0%)
-- **Active phase:** — (P0 ready to start)
+- **Active phase:** P0 — Foundation, Tooling & CI Skeleton
 - **Blocked:** none
 
 > All 15 Layer-3 task files are scaffolded under [`docs/tasks/`](./tasks/) (82 tasks total). Execute one phase at a time
@@ -62,7 +62,7 @@ structural template, reconciled with the current vault standard.
 
 | ID | Phase | Tasks file | Status | Progress | Size | Last updated |
 | --- | --- | --- | --- | --- | --- | --- |
-| P0 | Foundation, Tooling & CI Skeleton | `phase-00-foundation-ci.md` | 📋 | 0 / 7 | L | — |
+| P0 | Foundation, Tooling & CI Skeleton | `phase-00-foundation-ci.md` | 🔄 | 0 / 7 | L | 2026-06-23 |
 | P1 | Local Stack & Environment | `phase-01-local-stack.md` | 📋 | 0 / 5 | M | — |
 | P2 | Library Consumption & Export Audit | `phase-02-library-consumption.md` | 📋 | 0 / 4 | M | — |
 | P3 | API Skeleton | `phase-03-api-skeleton.md` | 📋 | 0 / 6 | M | — |

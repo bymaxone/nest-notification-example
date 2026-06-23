@@ -1,6 +1,6 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 3 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -66,7 +66,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 | --- | ------------------------------------------------- | ------- | -------- | ---- | ---------- |
 | 0.1 | pnpm workspace + TypeScript foundation            | ✅ Done | P0       | M    | —          |
 | 0.2 | Lint, format & commit governance                  | ✅ Done | P0       | S    | 0.1        |
-| 0.3 | Mandatory repo & community-health files           | 📋 ToDo | P1       | S    | 0.1        |
+| 0.3 | Mandatory repo & community-health files           | ✅ Done | P1       | S    | 0.1        |
 | 0.4 | GitHub config & Copilot review                    | 📋 ToDo | P0       | M    | 0.1        |
 | 0.5 | Core CI workflow + audit-script stubs             | 📋 ToDo | P0       | M    | 0.1, 0.2   |
 | 0.6 | Security & supply-chain workflows                 | 📋 ToDo | P0       | M    | 0.5        |
@@ -239,7 +239,7 @@ DEVELOPMENT_PLAN to `2 / 7`, append `- 0.2 ✅ <date> — lint/format/commit gov
 
 ### Task 0.3 — Mandatory repo & community-health files
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 0.1
@@ -251,14 +251,14 @@ ready to be made public.
 
 #### Acceptance criteria
 
-- [ ] `LICENSE` (MIT © Bymax One), `CHANGELOG.md` (Keep a Changelog, `## [Unreleased]`), `SECURITY.md` (report → email,
+- [x] `LICENSE` (MIT © Bymax One), `CHANGELOG.md` (Keep a Changelog, `## [Unreleased]`), `SECURITY.md` (report → email,
       not a public issue), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 by reference link).
-- [ ] `CLAUDE.md` + `AGENTS.md` (repo invariants for AI agents — link to OVERVIEW/DEVELOPMENT_PLAN; the run/test/gate
+- [x] `CLAUDE.md` + `AGENTS.md` (repo invariants for AI agents — link to OVERVIEW/DEVELOPMENT_PLAN; the run/test/gate
       cheat-sheet; **no phase/task references**).
-- [ ] `README.md` with the centered badge header (CI, coverage, mutation, license, TS-strict, Node, NestJS, Next,
+- [x] `README.md` with the centered badge header (CI, coverage, mutation, license, TS-strict, Node, NestJS, Next,
       React, Tailwind, Prisma), a one-line tagline, a nav-link row, `## Overview`, `## Quick start`, an architecture
       diagram, a `## Documentation` table linking the `docs/*.md`, and `## License`.
-- [ ] `pnpm exec markdown-link-check` (or the CI step) reports no broken links.
+- [x] `pnpm exec markdown-link-check` (or the CI step) reports no broken links.
 
 #### Files to create / modify
 
@@ -663,3 +663,4 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 
 - 0.1 ✅ 2026-06-23 — pnpm workspace + TS foundation
 - 0.2 ✅ 2026-06-23 — lint/format/commit governance
+- 0.3 ✅ 2026-06-23 — repo & community-health files

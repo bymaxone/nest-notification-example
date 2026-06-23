@@ -214,7 +214,12 @@ export class AuditEventBus {
     filter: AuditQueryDto,
     restriction?: AuditRestriction,
   ): AsyncGenerator<AuditSseEvent> {
-    const where = this.audit.buildWhere(filter, restriction)
+    // Replay anchors its lower bound on the cursor, never on `buildWhere`'s default `now-1h`
+    // window: a client reconnecting after >1h offline must still receive every row since the
+    // cursor. An explicit `filter.from` is honored when the caller pinned a window.
+    const replayFilter: AuditQueryDto =
+      filter.from === undefined ? { ...filter, from: from.timestamp.toISOString() } : filter
+    const where = this.audit.buildWhere(replayFilter, restriction)
     const fromClause: Prisma.NotificationLogWhereInput = {
       OR: [
         { timestamp: { gt: from.timestamp } },

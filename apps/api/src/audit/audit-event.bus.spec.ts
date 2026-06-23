@@ -312,6 +312,47 @@ describe('AuditEventBus.replaySince', () => {
     expect(orClause.OR[0]).toEqual({ timestamp: { gt: anchor } })
     expect(orClause.OR[1]).toEqual({ timestamp: anchor, id: { gt: 'row-0' } })
   })
+
+  it('replays rows older than the default 1h window by anchoring on the cursor', async () => {
+    /**
+     * Resumable-live-tail contract: a client offline for >1h reconnects with a cursor whose
+     * timestamp predates `buildWhere`'s default `now-1h` window. The replay lower bound is
+     * derived from the cursor (not the default window), so the row is still replayed and the
+     * compiled `timestamp.gte` equals the cursor timestamp rather than `now-1h`.
+     */
+    const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000)
+    const staleRow = makeRow({
+      id: 'row-stale',
+      timestamp: new Date(threeHoursAgo.getTime() + 1000),
+    })
+    const { bus, audit, findMany } = buildBus([staleRow])
+    const lastId = audit.encodeCursor({ timestamp: threeHoursAgo, id: 'row-anchor' })
+
+    const out = await firstValueFrom(bus.replaySince(lastId, filter()).pipe(toArray()))
+
+    // The row older than the default window is replayed, not dropped by a stale lower bound.
+    expect(out).toHaveLength(1)
+    const passed = findMany.mock.calls[0]?.[0] as { where: { timestamp: { gte: Date } } }
+    expect(passed.where.timestamp.gte).toEqual(threeHoursAgo)
+    expect(passed.where.timestamp.gte.getTime()).toBeLessThan(Date.now() - 60 * 60 * 1000)
+  })
+
+  it('honors an explicit from window instead of the cursor anchor', async () => {
+    /**
+     * When the caller pins an explicit `from`, the replay respects that window rather than
+     * deriving the lower bound from the cursor — covers the explicit-window branch.
+     */
+    const explicitFrom = new Date('2026-06-23T10:00:00.000Z')
+    const { bus, audit, findMany } = buildBus([])
+    const lastId = audit.encodeCursor({ timestamp: new Date('2026-06-23T09:00:00Z'), id: 'row-0' })
+
+    await firstValueFrom(
+      bus.replaySince(lastId, filter({ from: explicitFrom.toISOString() })).pipe(toArray()),
+    )
+
+    const passed = findMany.mock.calls[0]?.[0] as { where: { timestamp: { gte: Date } } }
+    expect(passed.where.timestamp.gte).toEqual(explicitFrom)
+  })
 })
 
 describe('AuditEventBus.toEvent', () => {

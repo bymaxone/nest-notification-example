@@ -67,10 +67,7 @@ export default tseslint.config(
     languageOptions: {
       globals: { ...globals.node },
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ['apps/api/src/*/*.spec.ts'],
-          defaultProject: './apps/api/tsconfig.spec.json',
-        },
+        project: ['./apps/api/tsconfig.spec.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },

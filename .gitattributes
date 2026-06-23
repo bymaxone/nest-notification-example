@@ -1,0 +1,21 @@
+# Normalize line endings to LF on checkin; let Git pick the working-tree EOL.
+* text=auto eol=lf
+
+# Shell scripts and Git hooks must stay LF even on Windows checkouts.
+*.sh text eol=lf
+.husky/* text eol=lf
+
+# Treat the lockfile as generated: collapse it in diffs and exclude it from
+# language statistics so it does not skew the repo's reported composition.
+pnpm-lock.yaml linguist-generated=true -diff
+
+# Binary assets — never normalize or diff.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

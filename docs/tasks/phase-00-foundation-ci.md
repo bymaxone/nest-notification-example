@@ -1,6 +1,6 @@
 # Phase 0 — Foundation, Tooling & CI Skeleton
 
-> **Status**: 🔄 In Progress · **Progress**: 0 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 1 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P0
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded *REQUIRED READING* — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -64,7 +64,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 
 | ID | Task | Status | Priority | Size | Depends on |
 | --- | --- | --- | --- | --- | --- |
-| 0.1 | pnpm workspace + TypeScript foundation | 📋 ToDo | P0 | M | — |
+| 0.1 | pnpm workspace + TypeScript foundation | ✅ Done | P0 | M | — |
 | 0.2 | Lint, format & commit governance | 📋 ToDo | P0 | S | 0.1 |
 | 0.3 | Mandatory repo & community-health files | 📋 ToDo | P1 | S | 0.1 |
 | 0.4 | GitHub config & Copilot review | 📋 ToDo | P0 | M | 0.1 |
@@ -78,7 +78,7 @@ than inventing: `nest-logger-example` and `nest-auth-example` (both under `~/Doc
 
 ### Task 0.1 — pnpm workspace + TypeScript foundation
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -90,16 +90,16 @@ empty tree, ready for `apps/*` to be added later.
 
 #### Acceptance criteria
 
-- [ ] `pnpm install --frozen-lockfile` succeeds on the empty workspace.
-- [ ] `pnpm-workspace.yaml` declares `packages: ['apps/*']`; root `package.json` sets `packageManager: pnpm@11.x`,
+- [x] `pnpm install --frozen-lockfile` succeeds on the empty workspace.
+- [x] `pnpm-workspace.yaml` declares `packages: ['apps/*']`; root `package.json` sets `packageManager: pnpm@11.x`,
   `engines: { node: '>=24', pnpm: '>=11' }`, `"type": "module"`, and the root scripts (`typecheck`, `lint`,
   `format`, `format:check`, `test:cov`, `audit:exports`, `audit:error-codes`, `infra:up`, `infra:down` — placeholders
   that no-op or fan out with `pnpm -r --workspace-concurrency=1`).
-- [ ] `tsconfig.base.json` enables `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`,
+- [x] `tsconfig.base.json` enables `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`,
   `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `isolatedModules`, `verbatimModuleSyntax`,
   `moduleResolution: Bundler`, `target/lib` for Node 24.
-- [ ] `.nvmrc` = `24`; `.npmrc` has `frozen-lockfile=true`; `.editorconfig`, `.gitignore`, `.gitattributes` present.
-- [ ] `pnpm typecheck` exits 0 (a root `tsconfig.json` with `"files": []` to avoid TS18003 on the empty tree).
+- [x] `.nvmrc` = `24`; `.npmrc` has `frozen-lockfile=true`; `.editorconfig`, `.gitignore`, `.gitattributes` present.
+- [x] `pnpm typecheck` exits 0 (a root `tsconfig.json` with `"files": []` to avoid TS18003 on the empty tree).
 
 #### Files to create / modify
 
@@ -661,4 +661,4 @@ If any DoD bullet is unmet or CI is red, set P0 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 0.1 ✅ 2026-06-23 — pnpm workspace + TS foundation

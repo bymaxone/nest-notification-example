@@ -1,0 +1,27 @@
+{
+  "name": "nest-notification-example",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.8.0",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present run dev",
+    "build": "pnpm -r --workspace-concurrency=1 --if-present run build",
+    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm -r --workspace-concurrency=1 --if-present run typecheck",
+    "lint": "pnpm -r --workspace-concurrency=1 --if-present run lint",
+    "format": "pnpm -r --workspace-concurrency=1 --if-present run format",
+    "format:check": "pnpm -r --workspace-concurrency=1 --if-present run format:check",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present run test",
+    "test:cov": "pnpm -r --workspace-concurrency=1 --if-present run test:cov",
+    "audit:exports": "node scripts/audit-library-exports.mjs",
+    "audit:error-codes": "node scripts/audit-error-codes.mjs",
+    "infra:up": "docker compose up -d --wait",
+    "infra:down": "docker compose down"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

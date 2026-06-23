@@ -5,5 +5,11 @@ packages:
 # the ESLint toolchain). Its build step only links the prebuilt platform binary shipped
 # as an optional dependency — no compiler toolchain is invoked — so it is safe to run.
 # (pnpm v11 build-approval map; replaces the deprecated onlyBuiltDependencies list.)
+#
+# Prisma's CLI and engine packages run a postinstall that fetches/links the query
+# engine the @prisma/adapter-pg driver client depends on — required so that
+# `prisma generate` and the generated client resolve.
 allowBuilds:
+  '@prisma/engines': true
+  prisma: true
   unrs-resolver: true

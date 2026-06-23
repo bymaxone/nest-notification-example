@@ -12,7 +12,7 @@
 | P0    | `phase-00-foundation-ci.md`         | pnpm workspace, toolchain, governance files, **full CI/CD + go-public scaffolding** | ✅     |
 | P1    | `phase-01-local-stack.md`           | docker-compose (postgres/redis/mailpit) + Zod env schema                            | ✅     |
 | P2    | `phase-02-library-consumption.md`   | `file:` link the lib, peers, subpath probe, export audit                            | ✅     |
-| P3    | `phase-03-api-skeleton.md`          | NestJS bootstrap, `/health`, exception filter, Redis/Prisma modules                 | 📋     |
+| P3    | `phase-03-api-skeleton.md`          | NestJS bootstrap, `/health`, exception filter, Redis/Prisma modules                 | 🔄     |
 | P4    | `phase-04-notification-wiring.md`   | `forRootAsync`, providers/renderer, audit store + interceptor                       | 📋     |
 | P5    | `phase-05-otp-email-controllers.md` | `/otp/*`, `/email/*`, `/dispatch`, `/channels`, `/debug/key`                        | 📋     |
 | P6    | `phase-06-audit-read-api.md`        | `/audit/{logs,stream,aggregate}` (keyset + SSE)                                     | 📋     |

@@ -1,6 +1,6 @@
 # Phase 3 — API Skeleton
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 1 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P3
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,7 +76,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 
 | ID  | Task                                                                | Status  | Priority | Size | Depends on         |
 | --- | ------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
-| 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health`              | 📋 ToDo | P0       | M    | —                  |
+| 3.1 | `main.ts` bootstrap + `AppModule` skeleton + `/health`              | ✅ Done | P0       | M    | —                  |
 | 3.2 | `NotificationException` → HTTP exception filter                     | 📋 ToDo | P0       | S    | 3.1                |
 | 3.3 | `x-tenant-id` guard + `@TenantId()` decorator + Zod validation pipe | 📋 ToDo | P0       | M    | 3.1                |
 | 3.4 | `RedisModule` — `REDIS` `Symbol` token → client or `null`           | 📋 ToDo | P0       | M    | 3.1                |
@@ -89,7 +89,7 @@ inventing: `nest-logger-example/apps/api/src/{main.ts,health,common,prisma}` and
 
 ### Task 3.1 — `main.ts` bootstrap + `AppModule` skeleton + `/health`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -102,15 +102,15 @@ shutdown — all config read from `ConfigService`.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/main.ts` boots NestJS (`NestExpressApplication`), registers `helmet()`, enables CORS with
+- [x] `apps/api/src/main.ts` boots NestJS (`NestExpressApplication`), registers `helmet()`, enables CORS with
       `origin = WEB_ORIGIN`, `allowedHeaders` including `Content-Type`/`Accept`/`x-tenant-id`/`x-role`, and
       `exposedHeaders` including `Retry-After`; listens on `PORT` from `ConfigService<Env, true>`.
-- [ ] A single coordinated `SIGTERM`/`SIGINT` shutdown runs `app.close()` (firing `OnApplicationShutdown` hooks) then
+- [x] A single coordinated `SIGTERM`/`SIGINT` shutdown runs `app.close()` (firing `OnApplicationShutdown` hooks) then
       `process.exit(0)`, idempotent across both signals.
-- [ ] `apps/api/src/app.module.ts` imports `ConfigModule.forRoot` (validating via the P1 `env.schema`) + `HealthModule`;
+- [x] `apps/api/src/app.module.ts` imports `ConfigModule.forRoot` (validating via the P1 `env.schema`) + `HealthModule`;
       no notification module, no domain controllers yet.
-- [ ] `apps/api/src/health/{health.controller.ts,health.module.ts}` expose `GET /health` → `{ status: 'ok' }` (200).
-- [ ] The app starts (`pnpm --filter @nest-notification-example/api start` or the dev script) and `curl /health` → 200.
+- [x] `apps/api/src/health/{health.controller.ts,health.module.ts}` expose `GET /health` → `{ status: 'ok' }` (200).
+- [x] The app starts (`pnpm --filter @nest-notification-example/api start` or the dev script) and `curl /health` → 200.
 
 #### Files to create / modify
 
@@ -805,4 +805,4 @@ If any DoD bullet is unmet or CI is red, set P3 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 3.1 ✅ 2026-06-23 — main.ts bootstrap + AppModule skeleton + /health

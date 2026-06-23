@@ -2,10 +2,10 @@
  * Trusted tenant resolution for `apps/api`.
  *
  * Layer: app/common. The tenant identifier ALWAYS comes from the trusted
- * `x-tenant-id` request header — never the request body. A missing header resolves
- * to `'default'` (the request is not rejected). The resolution logic lives in a pure
- * helper so it is unit-testable at 100% without an HTTP harness, and the param
- * decorator delegates to it.
+ * `x-tenant-id` request header — never the request body. A missing OR blank
+ * header resolves to `'default'` (the request is not rejected). The resolution
+ * logic lives in a pure helper so it is unit-testable at 100% without an HTTP
+ * harness, and the param decorator delegates to it.
  *
  * @module
  */
@@ -17,17 +17,18 @@ export const DEFAULT_TENANT_ID = 'default'
 /**
  * Resolve the trusted tenant id from a raw `x-tenant-id` header value.
  *
- * A multi-value header collapses to its first entry; an absent (or empty-array)
- * header resolves to {@link DEFAULT_TENANT_ID}. The body is never consulted.
+ * A multi-value header collapses to its first entry; the candidate is trimmed and
+ * an absent, empty-array, blank, or whitespace-only value resolves to
+ * {@link DEFAULT_TENANT_ID} so a blank tenant id is never propagated downstream.
+ * The body is never consulted.
  *
  * @param header - The raw header value (`string`, `string[]`, or `undefined`).
- * @returns The resolved tenant id, defaulting to {@link DEFAULT_TENANT_ID}.
+ * @returns The resolved, trimmed tenant id, defaulting to {@link DEFAULT_TENANT_ID}.
  */
 export function resolveTenantId(header: string | string[] | undefined): string {
-  if (Array.isArray(header)) {
-    return header[0] ?? DEFAULT_TENANT_ID
-  }
-  return header ?? DEFAULT_TENANT_ID
+  const candidate = Array.isArray(header) ? header[0] : header
+  const trimmed = candidate?.trim()
+  return trimmed ? trimmed : DEFAULT_TENANT_ID
 }
 
 /**

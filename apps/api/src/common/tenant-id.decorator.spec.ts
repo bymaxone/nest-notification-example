@@ -2,9 +2,11 @@
  * Unit tests for the trusted-tenant resolution.
  *
  * Covers {@link resolveTenantId} (single header, multi-value header, absent header,
- * empty array) and {@link tenantIdFactory} (the decorator factory pulling the header
- * off the execution context) — proving the tenant is derived only from the
- * `x-tenant-id` header and defaults to `'default'`, never from the request body.
+ * empty array, blank/whitespace-only single value, and a blank first multi-value
+ * entry) and {@link tenantIdFactory} (the decorator factory pulling the header off
+ * the execution context) — proving the tenant is derived only from the
+ * `x-tenant-id` header and defaults to `'default'`, never from the request body and
+ * never as a blank value.
  */
 import type { ExecutionContext } from '@nestjs/common'
 import { describe, expect, it } from '@jest/globals'
@@ -24,9 +26,29 @@ describe('resolveTenantId', () => {
     expect(resolveTenantId('acme')).toBe('acme')
   })
 
+  it('trims surrounding whitespace from a single header value', () => {
+    /** A padded `x-tenant-id:  acme ` header resolves to the trimmed tenant `acme`. */
+    expect(resolveTenantId('  acme ')).toBe('acme')
+  })
+
   it('collapses a multi-value header to its first entry', () => {
     /** A repeated header arrives as an array; only the first value is trusted. */
     expect(resolveTenantId(['acme', 'globex'])).toBe('acme')
+  })
+
+  it('falls back to the default tenant for a blank single header value', () => {
+    /** An empty-string header value must resolve to `default`, never propagate ''. */
+    expect(resolveTenantId('')).toBe(DEFAULT_TENANT_ID)
+  })
+
+  it('falls back to the default tenant for a whitespace-only single header value', () => {
+    /** A whitespace-only header value must resolve to `default`, never propagate it. */
+    expect(resolveTenantId('   ')).toBe(DEFAULT_TENANT_ID)
+  })
+
+  it('falls back to the default tenant when the first multi-value entry is blank', () => {
+    /** A multi-value header whose first entry is blank must still resolve to `default`. */
+    expect(resolveTenantId(['  ', 'globex'])).toBe(DEFAULT_TENANT_ID)
   })
 
   it('falls back to the default tenant when the header is absent', () => {

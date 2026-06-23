@@ -17,12 +17,16 @@ import type { Prisma } from '@prisma/client'
 import type { INotificationLogRepository, NotificationLogEntry } from '@bymax-one/nest-notification'
 
 import { PrismaService } from '../../prisma/prisma.service.js'
+import { AuditEventBus } from '../../audit/audit-event.bus.js'
 
 /**
  * Persists notification audit entries with Prisma.
  *
  * The library calls {@link create} fire-and-forget (gated by `audit.swallowErrors`),
- * so it stays cheap and side-effect-free beyond the single insert.
+ * so it stays cheap and side-effect-free beyond the single insert. After the row commits,
+ * it is broadcast to the audit SSE live tail through {@link AuditEventBus} — best-effort, so
+ * a live-tail fan-out failure can never break the delivery path. The bus is fed ONLY here, on
+ * the write path, never from the read/stream path, which closes the SSE feedback loop.
  */
 @Injectable()
 export class PrismaNotificationLogRepository implements INotificationLogRepository {
@@ -31,15 +35,20 @@ export class PrismaNotificationLogRepository implements INotificationLogReposito
 
   /**
    * @param prisma - The application's global Prisma client.
+   * @param bus - The audit live-tail event bus (best-effort broadcast of each persisted row).
    */
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly bus: AuditEventBus,
+  ) {}
 
   /**
    * Maps a {@link NotificationLogEntry} to a `notification_logs` row and inserts it.
    *
    * Absent optionals become `null` (so the column is explicitly cleared), the numeric
    * `timestamp` becomes a `Date`, and absent `metadata` is omitted (left `undefined`)
-   * so Prisma stores SQL `NULL` rather than a JSON `null`.
+   * so Prisma stores SQL `NULL` rather than a JSON `null`. The committed row is then
+   * broadcast to the live tail (best-effort).
    *
    * @param entry - The masked, code-free audit entry produced by the pipeline.
    * @returns A promise that resolves once the row is written.
@@ -62,6 +71,7 @@ export class PrismaNotificationLogRepository implements INotificationLogReposito
         ? {}
         : { metadata: entry.metadata as Prisma.InputJsonValue }),
     }
-    await this.prisma.notificationLog.create({ data })
+    const created = await this.prisma.notificationLog.create({ data })
+    this.bus.publishPersisted(created)
   }
 }

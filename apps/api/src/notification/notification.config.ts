@@ -31,6 +31,7 @@ import {
   type RedisLike,
 } from '@bymax-one/nest-notification'
 
+import { AuditEventBus } from '../audit/audit-event.bus.js'
 import { resolveTenantId as resolveTrustedTenantId } from '../common/tenant-id.decorator.js'
 import { PrismaService } from '../prisma/prisma.service.js'
 import { resolveEmailProvider } from './providers/email-provider.resolver.js'
@@ -99,12 +100,14 @@ export function resolveTenantId(req: NotificationRequest): string {
  * @param config - The schema-typed configuration service.
  * @param redis - The shared `ioredis` client, or `null` when `REDIS_URL` is unset.
  * @param prisma - The application's Prisma client (the audit write side).
+ * @param bus - The audit live-tail bus; the repository broadcasts each persisted row through it.
  * @returns The fully-wired `BymaxNotificationModuleOptions`.
  */
 export function notificationConfig(
   config: ConfigService,
   redis: Redis | null,
   prisma: PrismaService,
+  bus: AuditEventBus,
 ): BymaxNotificationModuleOptions {
   const shouldMask = config.get<boolean>('AUDIT_MASK_RECIPIENT', true) !== false
   const fromName = config.get<string>('MAIL_FROM_NAME')
@@ -135,7 +138,7 @@ export function notificationConfig(
       },
     },
     audit: {
-      repository: new PrismaNotificationLogRepository(prisma),
+      repository: new PrismaNotificationLogRepository(prisma, bus),
       swallowErrors: true,
       maskRecipient: shouldMask ? maskRecipient : (recipient: string): string => recipient,
     },

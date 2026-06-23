@@ -1,6 +1,6 @@
 # Phase 6 — Audit Read-API (keyset + SSE)
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 5 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P6
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -79,11 +79,11 @@ and add the **source facet**. The library never imports Prisma; all read SQL liv
 
 | ID  | Task                                                | Status  | Priority | Size | Depends on |
 | --- | --------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 6.1 | Audit query DTOs + indexes + source facet           | 📋 ToDo | P0       | M    | —          |
-| 6.2 | Audit read service — cursor codec + `where` builder | 📋 ToDo | P0       | M    | 6.1        |
-| 6.3 | `GET /audit/logs` keyset controller (410 on stale)  | 📋 ToDo | P0       | M    | 6.2        |
-| 6.4 | Audit event bus + `GET /audit/stream` (`@Sse`)      | 📋 ToDo | P0       | L    | 6.2        |
-| 6.5 | `GET /audit/aggregate` (time-bucketed) + wire-up    | 📋 ToDo | P1       | M    | 6.3, 6.4   |
+| 6.1 | Audit query DTOs + indexes + source facet           | ✅ Done | P0       | M    | —          |
+| 6.2 | Audit read service — cursor codec + `where` builder | ✅ Done | P0       | M    | 6.1        |
+| 6.3 | `GET /audit/logs` keyset controller (410 on stale)  | ✅ Done | P0       | M    | 6.2        |
+| 6.4 | Audit event bus + `GET /audit/stream` (`@Sse`)      | ✅ Done | P0       | L    | 6.2        |
+| 6.5 | `GET /audit/aggregate` (time-bucketed) + wire-up    | ✅ Done | P1       | M    | 6.3, 6.4   |
 
 ---
 
@@ -91,7 +91,7 @@ and add the **source facet**. The library never imports Prisma; all read SQL liv
 
 ### Task 6.1 — Audit query DTOs + indexes + source facet
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -103,21 +103,21 @@ the `source` facet union, and ensure the `NotificationLog` table carries the ind
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/dto/audit-query.dto.ts` exports `auditQuerySchema` (Zod) + inferred `AuditQueryDto` with:
+- [x] `apps/api/src/audit/dto/audit-query.dto.ts` exports `auditQuerySchema` (Zod) + inferred `AuditQueryDto` with:
       `tenantId`, `channel`, `verb`, `recipient`, `purpose`, `provider`, `source` (`'service' | 'interceptor'` — omitted ⇒
       both), free-text `q`, ISO-8601 `from`/`to`, opaque `cursor`, and `limit` (coerced int, clamped 1–100, default 50).
-- [ ] `channel`/`verb`/`purpose` Zod enums are built from **local const arrays** and pinned with a **type-level parity
+- [x] `channel`/`verb`/`purpose` Zod enums are built from **local const arrays** and pinned with a **type-level parity
       guard** (`satisfies`) against the imported **types** `NotificationChannel` and `OtpPurpose` (from
       `@bymax-one/nest-notification/shared`) and the verb union `type NotificationLogVerb` (from the package root
       `@bymax-one/nest-notification`) — never against a runtime array, which `./shared` does not export. The `./shared`
       subpath exports only: `type OtpPurpose`, `type NotificationChannel`, `type NotificationErrorResponse`,
       `NOTIFICATION_ERROR_CODES`, `type NotificationErrorCode`, `DEFAULT_TTLS`.
-- [ ] `apps/api/src/audit/dto/audit-aggregate-query.dto.ts` exports `auditAggregateQuerySchema` extending the base with
+- [x] `apps/api/src/audit/dto/audit-aggregate-query.dto.ts` exports `auditAggregateQuerySchema` extending the base with
       `groupBy` (bounded allow-list: `verb`/`channel`/`provider`), `bucket` (`auto`/`1m`/`5m`/`1h`), plus a `resolveBucket`
       helper, and `AuditAggregateQueryDto`.
-- [ ] `apps/api/prisma/schema.prisma` `NotificationLog` has a composite index on `([timestamp, id])` (keyset) and indexes
+- [x] `apps/api/prisma/schema.prisma` `NotificationLog` has a composite index on `([timestamp, id])` (keyset) and indexes
       supporting `(tenantId, channel, verb)` filtering; a migration is generated.
-- [ ] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0; the parity-guard line compiles.
+- [x] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0; the parity-guard line compiles.
 
 #### Files to create / modify
 
@@ -223,7 +223,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 6.2 — Audit read service — cursor codec + `where` builder
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 6.1
@@ -236,18 +236,18 @@ reuses so they behave identically.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit-read.service.ts` exports `AuditReadService` (`@Injectable`) with `encodeCursor`,
+- [x] `apps/api/src/audit/audit-read.service.ts` exports `AuditReadService` (`@Injectable`) with `encodeCursor`,
       `decodeCursor`, and `buildWhere(q, restriction?)` returning a Prisma `NotificationLogWhereInput`.
-- [ ] `decodeCursor` throws an exported `StaleCursorError` (controllers map it to HTTP 410) on any malformed/foreign
+- [x] `decodeCursor` throws an exported `StaleCursorError` (controllers map it to HTTP 410) on any malformed/foreign
       cursor or invalid date; `encodeCursor({ timestamp, id })` round-trips through `decodeCursor`.
-- [ ] `buildWhere` applies the time window (default `now-1h`..`now`), the `tenantId` (RBAC restriction wins over the
+- [x] `buildWhere` applies the time window (default `now-1h`..`now`), the `tenantId` (RBAC restriction wins over the
       query param), `channel`/`verb`/`purpose`/`recipient`/`provider` equality, free-text `q` on the message column
       (case-insensitive `contains`), and the **source facet**: `source === 'interceptor'` ⇒
       `providerName: '__interceptor__'`; `source === 'service'` ⇒ `providerName: { not: '__interceptor__' }`; omitted ⇒ no
       source predicate.
-- [ ] 100% unit-covered: cursor round-trip, every `StaleCursorError` branch, each filter field, and all three source
+- [x] 100% unit-covered: cursor round-trip, every `StaleCursorError` branch, each filter field, and all three source
       modes.
-- [ ] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0.
+- [x] `pnpm --filter @nest-notification-example/api exec tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -329,7 +329,7 @@ Completion Protocol:
 
 ### Task 6.3 — `GET /audit/logs` keyset controller (410 on stale)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 6.2
@@ -341,17 +341,17 @@ shared codec, returning `{ data, nextCursor, hasMore }`, mapping `StaleCursorErr
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit.controller.ts` exports `AuditController` (`@Controller('audit')`) with
+- [x] `apps/api/src/audit/audit.controller.ts` exports `AuditController` (`@Controller('audit')`) with
       `@Get('logs')` validating `AuditQueryDto` via `ZodValidationPipe`, resolving the tenant restriction server-side from
       the trusted source, building the `where` via `AuditReadService.buildWhere`, applying the tuple keyset clause
       `(timestamp < cur.timestamp) OR (timestamp = cur.timestamp AND id < cur.id)`, ordering `timestamp desc, id desc`,
       taking `limit`, and returning `{ data, nextCursor, hasMore }`.
-- [ ] An exported `AuditLogsPageResponse` interface documents the response shape.
-- [ ] A stale/foreign/malformed `cursor` → `GoneException` (HTTP 410) with a "restart pagination" message; a valid query
+- [x] An exported `AuditLogsPageResponse` interface documents the response shape.
+- [x] A stale/foreign/malformed `cursor` → `GoneException` (HTTP 410) with a "restart pagination" message; a valid query
       with no cursor returns the first page.
-- [ ] `nextCursor` is the last row's encoded cursor when a full page is returned, else `null`; `hasMore === (rows.length
+- [x] `nextCursor` is the last row's encoded cursor when a full page is returned, else `null`; `hasMore === (rows.length
 === limit)`.
-- [ ] 100% unit-covered (mock `PrismaService`): first page, mid pagination, last page (`hasMore=false`,
+- [x] 100% unit-covered (mock `PrismaService`): first page, mid pagination, last page (`hasMore=false`,
       `nextCursor=null`), and the 410 path.
 
 #### Files to create / modify
@@ -443,7 +443,7 @@ Completion Protocol:
 
 ### Task 6.4 — Audit event bus + `GET /audit/stream` (`@Sse`)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 6.2
@@ -456,20 +456,20 @@ event's `id` being the row's keyset cursor.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit-event.bus.ts` exports `AuditEventBus` (`@Injectable`) wrapping a Node `EventEmitter`,
+- [x] `apps/api/src/audit/audit-event.bus.ts` exports `AuditEventBus` (`@Injectable`) wrapping a Node `EventEmitter`,
       with `emit(entry)`, a `matches(entry, filter)` predicate (mirrors `buildWhere`, including the source facet),
       `replaySince(lastId, filter, restriction)` (keyset-fetches rows newer than the cursor, `EMPTY` on missing/malformed
       `lastId` — never throws), and `toEvent(entry)` mapping to `{ data, id: cursor }`.
-- [ ] The audit **write path** (the repository and/or interceptor from P4) calls `AuditEventBus.emit` after a row is
-      persisted, so a fresh live-tail connection sees new rows without a reconnect. The emit is best-effort and must never
-      throw back into the delivery path.
-- [ ] `apps/api/src/audit/audit-sse.controller.ts` exports `AuditSseController` with `@Sse('stream')` (on
+- [x] The audit **write path** (the repository from P4) calls `AuditEventBus.publishPersisted` after a row is
+      persisted, so a fresh live-tail connection sees new rows without a reconnect. The emit is best-effort and never
+      throws back into the delivery path.
+- [x] `apps/api/src/audit/audit-sse.controller.ts` exports `AuditSseController` with `@Sse('stream')` (on
       `@Controller('audit')`) returning `merge(replay$, live$, keepAlive$)`; `@Header('X-Accel-Buffering','no')` +
       `@Header('Cache-Control','no-cache')`; `live$` applies the server-side tenant restriction then `matches`; keep-alive
       every 15 s emits a `ping`.
-- [ ] The stream route is **never** access-logged or audited per-event (feedback-loop guard) — no audit row is written
-      from the read path, and any access-logging interceptor excludes this route.
-- [ ] 100% unit-covered: `matches` per field + source facet; `replaySince` (undefined/empty/malformed → EMPTY; valid →
+- [x] The stream route is **never** access-logged or audited per-event (feedback-loop guard) — no audit row is written
+      from the read path, and the global audit interceptor only records dispatch-shaped calls (never the read routes).
+- [x] 100% unit-covered: `matches` per field + source facet; `replaySince` (undefined/empty/malformed → EMPTY; valid →
       replayed rows); `toEvent`; the controller merge (live entry passes/blocks on restriction; keep-alive emits).
 
 #### Files to create / modify
@@ -564,7 +564,7 @@ Completion Protocol:
 
 ### Task 6.5 — `GET /audit/aggregate` (time-bucketed) + wire-up
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 6.3, 6.4
@@ -577,19 +577,19 @@ service, bus, aggregate) so the three endpoints are reachable end-to-end.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit-aggregate.service.ts` exports `AuditAggregateService` (`@Injectable`) with a `query(q)`
+- [x] `apps/api/src/audit/audit-aggregate.service.ts` exports `AuditAggregateService` (`@Injectable`) with a `query(q)`
       that runs a parameterized `$queryRaw` (Prisma `Prisma.sql` tagged template) bucketing `NotificationLog.timestamp` via
       `date_trunc`, grouped by the requested dimension (`verb`/`channel`/`provider`), zero-filled via `generate_series`,
       honouring the time window + tenant restriction + the source facet.
-- [ ] `GET /audit/aggregate` (a handler on `AuditController` or a dedicated method) validates
+- [x] `GET /audit/aggregate` (a handler on `AuditController` or a dedicated method) validates
       `AuditAggregateQueryDto` via `ZodValidationPipe`, resolves the tenant restriction server-side, and returns the chart
       series.
-- [ ] `apps/api/src/audit/audit.module.ts` declares `AuditController` + `AuditSseController`, provides `AuditReadService`,
+- [x] `apps/api/src/audit/audit.module.ts` declares `AuditController` + `AuditSseController`, provides `AuditReadService`,
       `AuditEventBus`, `AuditAggregateService`, exports `AuditEventBus` (so the P4 write path can inject it to `emit`), and is
       imported by `app.module.ts`.
-- [ ] 100% unit-covered for the aggregate service (mock `$queryRaw`: each `groupBy` dimension, the source facet, the
+- [x] 100% unit-covered for the aggregate service (mock `$queryRaw`: each `groupBy` dimension, the source facet, the
       zero-fill shape) and the aggregate handler.
-- [ ] The full local gate passes: `pnpm typecheck && pnpm lint && pnpm test:cov && pnpm audit:exports`.
+- [x] The full local gate passes: `pnpm typecheck && pnpm lint && pnpm test:cov && pnpm audit:exports`.
 
 #### Files to create / modify
 
@@ -699,4 +699,8 @@ If any DoD bullet is unmet or CI is red, set P6 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 6.1 ✅ 2026-06-23 — audit query DTOs + indexes + source facet
+- 6.2 ✅ 2026-06-23 — audit read service (cursor codec + where builder)
+- 6.3 ✅ 2026-06-23 — GET /audit/logs keyset controller (410 on stale)
+- 6.4 ✅ 2026-06-23 — audit event bus + GET /audit/stream (@Sse live tail)
+- 6.5 ✅ 2026-06-23 — GET /audit/aggregate + audit module wire-up

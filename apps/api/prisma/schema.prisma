@@ -43,6 +43,8 @@ model NotificationLog {
   @@index([tenantId, channel, verb])
   // Per-user activity timeline (newest first).
   @@index([userId, timestamp(sort: Desc)])
+  // Global keyset pagination over (timestamp DESC, id DESC) for the Audit Explorer.
+  @@index([timestamp(sort: Desc), id(sort: Desc)])
   @@map("notification_logs")
 }
 

@@ -17,6 +17,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
 import { BymaxNotificationModule, NotificationAuditInterceptor } from '@bymax-one/nest-notification'
 
+import { AuditModule } from './audit/audit.module.js'
+import { AuditEventBus } from './audit/audit-event.bus.js'
 import { NotificationExceptionFilter } from './common/notification-exception.filter.js'
 import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
@@ -46,12 +48,16 @@ applyNotificationServiceMetadata()
     HealthModule,
     RedisModule,
     PrismaModule,
+    // The audit read-API + live-tail bus. Imported before the notification module so the
+    // exported AuditEventBus is injectable into the options factory below.
+    AuditModule,
     // Resolve the library options at runtime through DI: the factory reads the
-    // validated config and receives the REDIS token (an ioredis client or null) and
-    // PrismaService, so the wired graph matches a production deployment.
+    // validated config and receives the REDIS token (an ioredis client or null),
+    // PrismaService, and the AuditEventBus, so the wired graph matches a production
+    // deployment and each persisted audit row reaches the SSE live tail.
     BymaxNotificationModule.forRootAsync({
-      imports: [ConfigModule, RedisModule, PrismaModule],
-      inject: [ConfigService, REDIS, PrismaService],
+      imports: [ConfigModule, RedisModule, PrismaModule, AuditModule],
+      inject: [ConfigService, REDIS, PrismaService, AuditEventBus],
       useFactory: notificationConfig,
     }),
     OtpModule,

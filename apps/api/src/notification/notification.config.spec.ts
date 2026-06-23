@@ -15,6 +15,7 @@ import {
   RedisOtpStorage,
 } from '@bymax-one/nest-notification'
 
+import type { AuditEventBus } from '../audit/audit-event.bus.js'
 import type { PrismaService } from '../prisma/prisma.service.js'
 import {
   maskRecipient,
@@ -28,6 +29,9 @@ const prisma = {} as unknown as PrismaService
 
 /** A stand-in ioredis client — the config never calls it, only constructs the store. */
 const fakeRedis = {} as unknown as Redis
+
+/** A stand-in audit bus — the config only constructs the repository, never broadcasts. */
+const fakeBus = {} as unknown as AuditEventBus
 
 /** Build a minimal `ConfigService` over a plain record, honoring the 2-arg default form. */
 function fakeConfig(env: Record<string, unknown>): ConfigService {
@@ -106,6 +110,7 @@ describe('notificationConfig', () => {
       fakeConfig({ MAIL_FROM: 'no-reply@notification.local', MAIL_FROM_NAME: 'Bymax' }),
       null,
       prisma,
+      fakeBus,
     )
 
     expect(options.global?.redisNamespace).toBe('notification')
@@ -132,6 +137,7 @@ describe('notificationConfig', () => {
       fakeConfig({ MAIL_FROM: 'no-reply@notification.local', AUDIT_MASK_RECIPIENT: false }),
       fakeRedis,
       prisma,
+      fakeBus,
     )
 
     expect(options.otp?.storage).toBeInstanceOf(RedisOtpStorage)

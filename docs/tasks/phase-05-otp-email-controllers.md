@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -97,12 +97,12 @@ the notification-domain behavior.
 
 | ID  | Task                                                                        | Status  | Priority | Size | Depends on         |
 | --- | --------------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
-| 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | 📋 ToDo | P0       | M    | —                  |
-| 5.2 | OTP controller — generate/verify/resend/consume/status                      | 📋 ToDo | P0       | L    | 5.1                |
-| 5.3 | Email controller — send + send-template (+ attachment guard)                | 📋 ToDo | P0       | M    | —                  |
-| 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | 📋 ToDo | P1       | M    | 5.3                |
-| 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | 📋 ToDo | P2       | S    | —                  |
-| 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | 📋 ToDo | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
+| 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | ✅ Done | P0       | M    | —                  |
+| 5.2 | OTP controller — generate/verify/resend/consume/status                      | ✅ Done | P0       | L    | 5.1                |
+| 5.3 | Email controller — send + send-template (+ attachment guard)                | ✅ Done | P0       | M    | —                  |
+| 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | ✅ Done | P1       | M    | 5.3                |
+| 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | ✅ Done | P2       | S    | —                  |
+| 5.6 | e2e suite — full OTP+email+dispatch HTTP surface                            | ✅ Done | P0       | L    | 5.2, 5.3, 5.4, 5.5 |
 
 ---
 
@@ -110,7 +110,7 @@ the notification-domain behavior.
 
 ### Task 5.1 — OTP DTOs + verify→HTTP mapping helper
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -123,16 +123,16 @@ unit-tested in isolation.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/otp/dto/otp.dto.ts` exports Zod schemas + inferred types for generate, verify, resend, consume,
+- [x] `apps/api/src/otp/dto/otp.dto.ts` exports Zod schemas + inferred types for generate, verify, resend, consume,
       status — each with `recipient` (email) + `purpose` (string) and route-specific fields (`code` for verify;
       `deliverVia`/`emailTemplate`/`emailData`/`locale` for generate/resend). `tenantId` is **not** in any body schema
       (it comes from the header).
-- [ ] `apps/api/src/otp/otp-verify-mapping.ts` exports `mapOtpVerifyResult(result): { status: number; body: unknown }`
+- [x] `apps/api/src/otp/otp-verify-mapping.ts` exports `mapOtpVerifyResult(result): { status: number; body: unknown }`
       — `valid` → 200, `invalid_code` → 401 (body carries `remainingAttempts`), `not_found` → 404, `max_attempts` → 429
       (**no `Retry-After`** — `verify` carries no cooldown); a JSDoc states the expiry-as-not-found 404 choice.
-- [ ] No `tenantId` accepted from the body in any DTO; schemas reject unknown keys is **not** required, but every field
+- [x] No `tenantId` accepted from the body in any DTO; schemas reject unknown keys is **not** required, but every field
       has an explicit type/constraint.
-- [ ] `pnpm typecheck` exits 0; the mapping helper has a co-located `.spec.ts` proving all four branches at 100%.
+- [x] `pnpm typecheck` exits 0; the mapping helper has a co-located `.spec.ts` proving all four branches at 100%.
 
 #### Files to create / modify
 
@@ -242,7 +242,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 5.2 — OTP controller — generate/verify/resend/consume/status
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 5.1
@@ -254,16 +254,16 @@ header, applying the verify→HTTP mapping helper, and surfacing `Retry-After` o
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/otp/otp.controller.ts` exposes `POST /otp/{generate,verify,resend,consume}` + `GET /otp/status`,
+- [x] `apps/api/src/otp/otp.controller.ts` exposes `POST /otp/{generate,verify,resend,consume}` + `GET /otp/status`,
       each parsing its DTO (5.1) and reading `tenantId` from the trusted `x-tenant-id` header (P3 decorator/guard).
-- [ ] `POST /otp/verify` calls `OtpService.verify`, applies `mapOtpVerifyResult`, and sets the status via
+- [x] `POST /otp/verify` calls `OtpService.verify`, applies `mapOtpVerifyResult`, and sets the status via
       `@Res({ passthrough: true })` (interceptors still run). The verify `max_attempts` → 429 sets **no** `Retry-After`
       (verify carries no cooldown — only generate/resend cooldown does).
-- [ ] `POST /otp/generate` + `/otp/resend` return `{ expiresAt, cooldownSeconds }`; an active cooldown surfaces 429 +
-      `Retry-After` (the library throws `OTP_COOLDOWN_ACTIVE` → the P3 exception filter maps it; controller exposes the header).
-- [ ] `POST /otp/consume` → 204/200 idempotent; `GET /otp/status` returns the `OtpStatusResult` (never the code).
-- [ ] `apps/api/src/otp/otp.module.ts` registers the controller; it is imported by `app.module.ts`.
-- [ ] Unit spec (`otp.controller.spec.ts`) mocks `OtpService` and proves every route + the verify status-mapping
+- [x] `POST /otp/generate` + `/otp/resend` return `{ expiresAt, cooldownSeconds }`; an active cooldown surfaces 429 +
+      `Retry-After` (the library throws `OTP_COOLDOWN_ACTIVE` → the exception filter maps it + sets the header).
+- [x] `POST /otp/consume` → 204 idempotent; `GET /otp/status` returns the `OtpStatusResult` (never the code).
+- [x] `apps/api/src/otp/otp.module.ts` registers the controller; it is imported by `app.module.ts`.
+- [x] Unit spec (`otp.controller.spec.ts`) mocks `OtpService` and proves every route + the verify status-mapping
       branches at 100%.
 
 #### Files to create / modify
@@ -359,7 +359,7 @@ row Progress to `2 / 6` in DEVELOPMENT_PLAN.md, append `- 5.2 ✅ <date> — OTP
 
 ### Task 5.3 — Email controller — send + send-template (+ attachment guard)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -371,15 +371,15 @@ oversize-attachment path that surfaces as HTTP 413.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/email/dto/email.dto.ts` exports Zod schemas for send (raw: `to`/`subject`/`html` + optional
+- [x] `apps/api/src/email/dto/email.dto.ts` exports Zod schemas for send (raw: `to`/`subject`/`html` + optional
       `text`/`from`/`fromName`/`replyTo`/`cc`/`bcc`/`tags`/`attachments`) and send-template (`to`/`template`/`data` +
       optional `locale`/…). `tenantId` is **not** in either body schema.
-- [ ] `apps/api/src/email/email.controller.ts` exposes `POST /email/send` (→ `EmailService.send` → `{ messageId }`) and
+- [x] `apps/api/src/email/email.controller.ts` exposes `POST /email/send` (→ `EmailService.send` → `{ messageId }`) and
       `POST /email/send-template` (→ `EmailService.sendTemplate` → `{ messageId }`), deriving `tenantId` from `x-tenant-id`.
-- [ ] An oversize attachment makes the library throw `EMAIL_ATTACHMENTS_TOO_LARGE`, which the P3 exception filter maps
+- [x] An oversize attachment makes the library throw `EMAIL_ATTACHMENTS_TOO_LARGE`, which the exception filter maps
       to **413**; a unit/e2e proves the 413 path.
-- [ ] `apps/api/src/email/email.module.ts` registers the controller; imported by `app.module.ts`.
-- [ ] Unit spec mocks `EmailService` and proves both routes + the 413 path at 100%.
+- [x] `apps/api/src/email/email.module.ts` registers the controller; imported by `app.module.ts`.
+- [x] Unit spec mocks `EmailService` and proves both routes + the 413 path at 100%.
 
 #### Files to create / modify
 
@@ -464,7 +464,7 @@ commit `feat(api): add email controller for raw and template sends` (no Co-Autho
 
 ### Task 5.4 — Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 5.3
@@ -477,21 +477,21 @@ from the injected `ResolvedNotificationOptions`), covering the `EMAIL_MISSING_BO
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/dispatch/dto/dispatch.dto.ts` exports a discriminated Zod schema mirroring the library's
+- [x] `apps/api/src/dispatch/dto/dispatch.dto.ts` exports a discriminated Zod schema mirroring the library's
       `DispatchInput` — `{ channel:'email', payload: EmailDispatchPayload }` | `{ channel:'otp', payload: OtpDispatchPayload }`
       — without `tenantId` (header-derived).
-- [ ] `apps/api/src/dispatch/dispatch.controller.ts` exposes `POST /dispatch` (→ `NotificationService.dispatch` →
+- [x] `apps/api/src/dispatch/dispatch.controller.ts` exposes `POST /dispatch` (→ `NotificationService.dispatch` →
       the discriminated `DispatchResult`), `GET /channels` (→ `getEnabledChannels()` → `['email','otp']`), and
       `GET /config/status`, deriving `tenantId` from `x-tenant-id` where needed.
-- [ ] `GET /config/status` returns the resolved module config read from the injected `ResolvedNotificationOptions` (via
-      the `BYMAX_NOTIFICATION_OPTIONS` token): the enabled channels + provider/storage/renderer names + `consumeOnVerify` +
-      `swallowErrors` + the `maskRecipient` mode. It demonstrates Feature-Coverage-Matrix rows 31 and 59 from a real surface
-      (no secrets in the response).
-- [ ] An email payload with neither template nor subject+html → the library throws `EMAIL_MISSING_BODY` → the P3 filter
+- [x] `GET /config/status` returns the resolved module config read from the injected `ResolvedNotificationOptions` (via
+      the `BYMAX_NOTIFICATION_OPTIONS` token) + the provider/storage/renderer token names: the enabled channels +
+      provider/storage/renderer names + `consumeOnVerify` + `swallowErrors` + whether `maskRecipient` is active. It
+      demonstrates Feature-Coverage-Matrix rows 31 and 59 from a real surface (no secrets in the response).
+- [x] An email payload with neither template nor subject+html → the library throws `EMAIL_MISSING_BODY` → the filter
       maps it; a request to a disabled channel → `CHANNEL_DISABLED`; both error paths are proven.
-- [ ] `/dispatch` is the **interceptor-audited** route (the audit interceptor is already `APP_INTERCEPTOR` from P4 —
+- [x] `/dispatch` is the **interceptor-audited** route (the audit interceptor is already `APP_INTERCEPTOR` from P4 —
       the resolver-derived tenant is the audited tenant; do not re-implement auditing in the controller).
-- [ ] `apps/api/src/dispatch/dispatch.module.ts` registers the controller; imported by `app.module.ts`. Unit spec at
+- [x] `apps/api/src/dispatch/dispatch.module.ts` registers the controller; imported by `app.module.ts`. Unit spec at
       100% (covering `/dispatch`, `/channels`, AND `/config/status`).
 
 #### Files to create / modify
@@ -607,7 +607,7 @@ commit `feat(api): add dispatch facade, channels and config-status endpoints` (n
 
 ### Task 5.5 — `GET /debug/key` (hashTenantRecipient)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P2
 - **Size**: S
 - **Depends on**: —
@@ -619,12 +619,12 @@ Inspect-OTP panel can prove keys are hashed (never the plaintext recipient or th
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/debug/debug.controller.ts` exposes `GET /debug/key?recipient=…` → `{ key }` where
+- [x] `apps/api/src/debug/debug.controller.ts` exposes `GET /debug/key?recipient=…` → `{ key }` where
       `key = hashTenantRecipient(tenantId, recipient)` (the trusted `tenantId` from `x-tenant-id`), a 64-hex string.
-- [ ] The response carries only the opaque key — never the code, never the plaintext recipient.
-- [ ] `apps/api/src/debug/dto/debug.dto.ts` (query Zod schema: `recipient` email) + `debug.module.ts`; imported by
+- [x] The response carries only the opaque key — never the code, never the plaintext recipient.
+- [x] `apps/api/src/debug/dto/debug.dto.ts` (query Zod schema: `recipient` email) + `debug.module.ts`; imported by
       `app.module.ts`.
-- [ ] Unit spec proves the key is the 64-hex `hashTenantRecipient` output and that two tenants sharing a recipient get
+- [x] Unit spec proves the key is the 64-hex `hashTenantRecipient` output and that two tenants sharing a recipient get
       distinct keys; 100% covered.
 
 #### Files to create / modify
@@ -694,7 +694,7 @@ row Progress to `5 / 6` in DEVELOPMENT_PLAN.md, append `- 5.5 ✅ <date> — GET
 
 ### Task 5.6 — e2e suite — full OTP+email+dispatch HTTP surface
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 5.2, 5.3, 5.4, 5.5
@@ -707,21 +707,21 @@ then run the full local gate and close the phase.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/test/otp.e2e-spec.ts` proves the OTP lifecycle over HTTP: generate → `{ expiresAt, cooldownSeconds }`;
+- [x] `apps/api/test/otp.e2e-spec.ts` proves the OTP lifecycle over HTTP: generate → `{ expiresAt, cooldownSeconds }`;
       verify wrong code → 401 with decreasing `remainingAttempts`; the `(defaultMaxAttempts + 1)`th wrong attempt → 429
       (`max_attempts`, with NO `Retry-After` — verify carries no cooldown) where the attempt count is read from the
       configured `otp.defaultMaxAttempts` (default 5), not a magic literal; a second **generate** in the cooldown window →
       429 + `Retry-After` (the only Retry-After path); consume → idempotent; status → state without the code; verify a
       correct code → 200; expired/unknown → 404.
-- [ ] `apps/api/test/email.e2e-spec.ts` proves `/email/send` + `/email/send-template` return `{ messageId }`, an oversize
+- [x] `apps/api/test/email.e2e-spec.ts` proves `/email/send` + `/email/send-template` return `{ messageId }`, an oversize
       attachment → 413, an XSS-payload template escapes the html body only, and a `pt-BR` request with only `en` registered
       falls back to `en` (`TEMPLATE_NOT_FOUND` when neither exists).
-- [ ] `apps/api/test/dispatch.e2e-spec.ts` proves `/dispatch` (email + otp), `/channels` → `['email','otp']`,
+- [x] `apps/api/test/dispatch.e2e-spec.ts` proves `/dispatch` (email + otp), `/channels` → `['email','otp']`,
       `/config/status` → the resolved-config shape (enabled channels + provider/storage/renderer names + flags, no secrets),
       and the `EMAIL_MISSING_BODY` + `CHANNEL_DISABLED` error paths; `apps/api/test/debug.e2e-spec.ts` proves `/debug/key`
       returns the 64-hex key.
-- [ ] The e2e app uses `InMemoryOtpStorage` + a mocked transport (no Mailpit/Resend needed); `x-tenant-id` is exercised.
-- [ ] `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov && pnpm audit:exports && pnpm audit:error-codes`
+- [x] The e2e app uses `InMemoryOtpStorage` + a mocked transport (no Mailpit/Resend needed); `x-tenant-id` is exercised.
+- [x] `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:cov && pnpm audit:exports && pnpm audit:error-codes`
       all pass; `apps/api` coverage is 100% on all four metrics.
 
 #### Files to create / modify
@@ -825,4 +825,9 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 5.1 ✅ 2026-06-23 — OTP DTOs + verify→HTTP mapping helper
+- 5.2 ✅ 2026-06-23 — OTP controller (lifecycle over HTTP)
+- 5.3 ✅ 2026-06-23 — email controller (send + send-template + 413)
+- 5.4 ✅ 2026-06-23 — dispatch façade + channels + config/status
+- 5.5 ✅ 2026-06-23 — GET /debug/key (sha256 storage key)
+- 5.6 ✅ 2026-06-23 — e2e suite for the full OTP+email+dispatch surface

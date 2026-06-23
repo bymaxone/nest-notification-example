@@ -10,15 +10,41 @@
  * @module
  */
 import { type ArgumentsHost, Catch, type ExceptionFilter, Injectable } from '@nestjs/common'
-import { NotificationException } from '@bymax-one/nest-notification'
+import { NotificationException, type NotificationErrorResponse } from '@bymax-one/nest-notification'
 import type { Response } from 'express'
+
+/**
+ * Reads a `Retry-After` header value from a catalog body's `details.retryAfter`.
+ *
+ * Only the cooldown error (`OTP_COOLDOWN_ACTIVE`) carries a string `retryAfter` (in
+ * whole seconds); every other catalog entry has no such detail, so this returns
+ * `undefined` and no header is set.
+ *
+ * `HttpException.getResponse()` is typed `string | object` and CAN return a bare
+ * string; reading `.error.details` off a string would throw mid-handling (degrading
+ * the catalog response to a 500). A non-object body therefore short-circuits to
+ * `undefined` (no header); only an object body is narrowed to the catalog shape.
+ *
+ * @param body - The exception's response body (`string | object`); the catalog body is
+ *   `{ error: { code, message, details } }`, but a plain string is also possible.
+ * @returns The `Retry-After` value, or `undefined` when the body carries no cooldown.
+ */
+function retryAfterOf(body: string | object): string | undefined {
+  if (typeof body !== 'object') {
+    return undefined
+  }
+  const details = (body as NotificationErrorResponse).error.details
+  const retryAfter = details?.['retryAfter']
+  return typeof retryAfter === 'string' ? retryAfter : undefined
+}
 
 /** Serializes a {@link NotificationException} to its catalog body and status. */
 @Catch(NotificationException)
 @Injectable()
 export class NotificationExceptionFilter implements ExceptionFilter {
   /**
-   * Forward the exception's catalog body with its catalog HTTP status.
+   * Forward the exception's catalog body with its catalog HTTP status, attaching a
+   * `Retry-After` header for the cooldown error so a client can time its retry.
    *
    * @param exception - The thrown library exception.
    * @param host - The arguments host used to reach the HTTP response.
@@ -26,6 +52,12 @@ export class NotificationExceptionFilter implements ExceptionFilter {
   catch(exception: NotificationException, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>()
     // `getResponse()` already IS the catalog body `{ error: { code, message, details } }`.
-    response.status(exception.getStatus()).json(exception.getResponse())
+    const body = exception.getResponse()
+    const retryAfter = retryAfterOf(body)
+    if (retryAfter !== undefined) {
+      // The cooldown 429 surfaces a standard Retry-After header (CORS exposes it).
+      response.setHeader('Retry-After', retryAfter)
+    }
+    response.status(exception.getStatus()).json(body)
   }
 }

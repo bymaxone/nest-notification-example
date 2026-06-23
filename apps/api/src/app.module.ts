@@ -22,6 +22,7 @@ import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
 import { applyNotificationServiceMetadata } from './notification/notification-metadata.js'
 import { notificationConfig } from './notification/notification.config.js'
+import { OtpModule } from './otp/otp.module.js'
 import { PrismaModule } from './prisma/prisma.module.js'
 import { PrismaService } from './prisma/prisma.service.js'
 import { RedisModule, REDIS } from './redis/redis.module.js'
@@ -50,6 +51,7 @@ applyNotificationServiceMetadata()
       inject: [ConfigService, REDIS, PrismaService],
       useFactory: notificationConfig,
     }),
+    OtpModule,
   ],
   providers: [
     // Map every library NotificationException to its catalog HTTP response globally.

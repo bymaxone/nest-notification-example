@@ -1,6 +1,6 @@
 # Phase 5 — OTP & Email Controllers
 
-> **Status**: 🔄 In Progress · **Progress**: 1 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 2 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P5
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -98,7 +98,7 @@ the notification-domain behavior.
 | ID  | Task                                                                        | Status  | Priority | Size | Depends on         |
 | --- | --------------------------------------------------------------------------- | ------- | -------- | ---- | ------------------ |
 | 5.1 | OTP DTOs + verify→HTTP mapping helper                                       | ✅ Done | P0       | M    | —                  |
-| 5.2 | OTP controller — generate/verify/resend/consume/status                      | 📋 ToDo | P0       | L    | 5.1                |
+| 5.2 | OTP controller — generate/verify/resend/consume/status                      | ✅ Done | P0       | L    | 5.1                |
 | 5.3 | Email controller — send + send-template (+ attachment guard)                | 📋 ToDo | P0       | M    | —                  |
 | 5.4 | Dispatch façade — `POST /dispatch` + `GET /channels` + `GET /config/status` | 📋 ToDo | P1       | M    | 5.3                |
 | 5.5 | `GET /debug/key` (hashTenantRecipient)                                      | 📋 ToDo | P2       | S    | —                  |
@@ -242,7 +242,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 5.2 — OTP controller — generate/verify/resend/consume/status
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 5.1
@@ -254,16 +254,16 @@ header, applying the verify→HTTP mapping helper, and surfacing `Retry-After` o
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/otp/otp.controller.ts` exposes `POST /otp/{generate,verify,resend,consume}` + `GET /otp/status`,
+- [x] `apps/api/src/otp/otp.controller.ts` exposes `POST /otp/{generate,verify,resend,consume}` + `GET /otp/status`,
       each parsing its DTO (5.1) and reading `tenantId` from the trusted `x-tenant-id` header (P3 decorator/guard).
-- [ ] `POST /otp/verify` calls `OtpService.verify`, applies `mapOtpVerifyResult`, and sets the status via
+- [x] `POST /otp/verify` calls `OtpService.verify`, applies `mapOtpVerifyResult`, and sets the status via
       `@Res({ passthrough: true })` (interceptors still run). The verify `max_attempts` → 429 sets **no** `Retry-After`
       (verify carries no cooldown — only generate/resend cooldown does).
-- [ ] `POST /otp/generate` + `/otp/resend` return `{ expiresAt, cooldownSeconds }`; an active cooldown surfaces 429 +
-      `Retry-After` (the library throws `OTP_COOLDOWN_ACTIVE` → the P3 exception filter maps it; controller exposes the header).
-- [ ] `POST /otp/consume` → 204/200 idempotent; `GET /otp/status` returns the `OtpStatusResult` (never the code).
-- [ ] `apps/api/src/otp/otp.module.ts` registers the controller; it is imported by `app.module.ts`.
-- [ ] Unit spec (`otp.controller.spec.ts`) mocks `OtpService` and proves every route + the verify status-mapping
+- [x] `POST /otp/generate` + `/otp/resend` return `{ expiresAt, cooldownSeconds }`; an active cooldown surfaces 429 +
+      `Retry-After` (the library throws `OTP_COOLDOWN_ACTIVE` → the exception filter maps it + sets the header).
+- [x] `POST /otp/consume` → 204 idempotent; `GET /otp/status` returns the `OtpStatusResult` (never the code).
+- [x] `apps/api/src/otp/otp.module.ts` registers the controller; it is imported by `app.module.ts`.
+- [x] Unit spec (`otp.controller.spec.ts`) mocks `OtpService` and proves every route + the verify status-mapping
       branches at 100%.
 
 #### Files to create / modify
@@ -826,3 +826,4 @@ If any DoD bullet is unmet or CI is red, set P5 to `🟡 Partial`, not `✅`.
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
 - 5.1 ✅ 2026-06-23 — OTP DTOs + verify→HTTP mapping helper
+- 5.2 ✅ 2026-06-23 — OTP controller (lifecycle over HTTP)

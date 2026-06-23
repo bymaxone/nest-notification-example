@@ -15,7 +15,9 @@
     "test:cov": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.cjs --coverage",
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config test/jest-e2e.config.cjs",
     "postinstall": "prisma generate",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@bymax-one/nest-notification": "file:../../../nest-notification",
@@ -31,7 +33,9 @@
     "helmet": "^8.2.0",
     "ioredis": "^5",
     "mjml": "^4",
+    "nodemailer": ">=9.0.1",
     "pg": "^8",
+    "react": "^19",
     "reflect-metadata": "^0.2",
     "resend": "^4",
     "rxjs": "^7.8",
@@ -44,10 +48,13 @@
     "@types/express": "^5",
     "@types/jest": "^30.0.0",
     "@types/node": "^24",
+    "@types/nodemailer": "^7",
+    "@types/react": "^19",
     "@types/supertest": "^7",
     "jest": "^30.0.0",
     "prisma": "^7.8.0",
     "supertest": "^7",
-    "ts-jest": "^29.0.0"
+    "ts-jest": "^29.0.0",
+    "tsx": "^4"
   }
 }

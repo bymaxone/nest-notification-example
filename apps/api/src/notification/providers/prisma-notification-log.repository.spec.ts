@@ -1,0 +1,137 @@
+/**
+ * Unit tests for {@link PrismaNotificationLogRepository}.
+ *
+ * Proves the `NotificationLogEntry → notification_logs` mapping against a mocked
+ * `PrismaService`: every field maps, the numeric timestamp becomes a `Date`, absent
+ * optionals become `null`, absent `metadata` is omitted, and a sample OTP code is
+ * never present in the persisted row (the never-coded invariant at the write seam).
+ */
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
+import type { NotificationLogEntry } from '@bymax-one/nest-notification'
+
+import type { PrismaService } from '../../prisma/prisma.service.js'
+import { PrismaNotificationLogRepository } from './prisma-notification-log.repository.js'
+
+/** A sample 6-digit code that must never appear in any persisted audit row. */
+const SAMPLE_CODE = '123456'
+
+/** The shape of the captured `create` argument we assert against. */
+type CapturedCreate = { data: Record<string, unknown> }
+
+/** Build a repository over a `notificationLog.create` jest mock and return both. */
+function buildRepository(): {
+  repository: PrismaNotificationLogRepository
+  create: jest.Mock<(args: CapturedCreate) => Promise<unknown>>
+} {
+  const create = jest.fn<(args: CapturedCreate) => Promise<unknown>>().mockResolvedValue({})
+  const prisma = { notificationLog: { create } } as unknown as PrismaService
+  return { repository: new PrismaNotificationLogRepository(prisma), create }
+}
+
+/** Reads the single captured `create` payload, failing the test if it was never called. */
+function capturedData(
+  create: jest.Mock<(args: CapturedCreate) => Promise<unknown>>,
+): Record<string, unknown> {
+  const call = create.mock.calls.at(0)
+  if (call === undefined) {
+    throw new Error('notificationLog.create was not called')
+  }
+  return call[0].data
+}
+
+describe('PrismaNotificationLogRepository', () => {
+  let built: ReturnType<typeof buildRepository>
+
+  beforeEach(() => {
+    built = buildRepository()
+  })
+
+  it('names itself "prisma"', () => {
+    /** The name is surfaced in diagnostics and must match the storage backend. */
+    expect(built.repository.name).toBe('prisma')
+  })
+
+  it('maps every field of a fully-populated entry to the create row', async () => {
+    /**
+     * A complete entry exercises the present-value side of each `??` and the
+     * metadata-included branch of the conditional spread.
+     */
+    const entry: NotificationLogEntry = {
+      timestamp: 1_700_000_000_000,
+      tenantId: 'acme',
+      channel: 'email',
+      verb: 'sent',
+      recipient: 'j***@acme.com',
+      purpose: 'welcome',
+      providerName: 'nodemailer',
+      messageId: 'msg-1',
+      errorMessage: 'none',
+      userId: 'user-1',
+      metadata: { source: 'test' },
+    }
+
+    await built.repository.create(entry)
+
+    const data = capturedData(built.create)
+    expect(data).toEqual({
+      timestamp: new Date(1_700_000_000_000),
+      tenantId: 'acme',
+      channel: 'email',
+      verb: 'sent',
+      recipient: 'j***@acme.com',
+      purpose: 'welcome',
+      providerName: 'nodemailer',
+      messageId: 'msg-1',
+      errorMessage: 'none',
+      userId: 'user-1',
+      metadata: { source: 'test' },
+    })
+    expect(data['timestamp']).toBeInstanceOf(Date)
+  })
+
+  it('coerces absent optionals to null and omits absent metadata', async () => {
+    /**
+     * A minimal entry exercises the `?? null` fallbacks and the metadata-omitted
+     * branch — Prisma then stores SQL NULL rather than a JSON null.
+     */
+    const entry: NotificationLogEntry = {
+      timestamp: 1_700_000_000_000,
+      tenantId: 'globex',
+      channel: 'otp',
+      verb: 'failed',
+      recipient: 'g***@globex.com',
+      providerName: '__interceptor__',
+    }
+
+    await built.repository.create(entry)
+
+    const data = capturedData(built.create)
+    expect(data['purpose']).toBeNull()
+    expect(data['messageId']).toBeNull()
+    expect(data['errorMessage']).toBeNull()
+    expect(data['userId']).toBeNull()
+    expect('metadata' in data).toBe(false)
+  })
+
+  it('never persists an OTP code in the row', async () => {
+    /**
+     * The entry carries no code field by contract; serializing the persisted row
+     * must not surface a sample code anywhere — the never-coded write-seam invariant.
+     */
+    const entry: NotificationLogEntry = {
+      timestamp: 1_700_000_000_000,
+      tenantId: 'acme',
+      channel: 'otp',
+      verb: 'generated',
+      recipient: 'j***@acme.com',
+      purpose: 'email_verification',
+      providerName: 'memory',
+      metadata: { attempts: 0 },
+    }
+
+    await built.repository.create(entry)
+
+    const data = capturedData(built.create)
+    expect(JSON.stringify(data).includes(SAMPLE_CODE)).toBe(false)
+  })
+})

@@ -4,11 +4,14 @@
 // accepts `url` in the datasource block): the runtime PrismaService wires it
 // from ConfigService through the @prisma/adapter-pg driver adapter, and the
 // Prisma CLI reads it from `prisma.config.ts`. The schema only declares the
-// datasource provider.
+// datasource provider plus the application's domain models.
 //
-// No domain models are declared yet — the audit-store models are introduced
-// when the delivery pipeline persists its log. This schema is kept generatable
-// (with no models) so `@prisma/client` types resolve for the typecheck.
+// `NotificationLog` is the delivery audit store written through the library's
+// `INotificationLogRepository` port (the library never imports Prisma). Every
+// column mirrors a field of the library's `NotificationLogEntry`; there is
+// deliberately NO `code` column — a generated OTP code must never be persisted.
+// The recipient is stored already-masked when an `audit.maskRecipient` masker is
+// configured, and `errorMessage` carries a message only (never a stack trace).
 
 generator client {
   provider = "prisma-client-js"
@@ -16,4 +19,39 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+/// One delivery-audit entry — mirrors the library's `NotificationLogEntry`.
+/// Indexed for tenant-scoped keyset pagination and channel/verb filtering.
+model NotificationLog {
+  id           String   @id @default(uuid())
+  timestamp    DateTime @default(now())
+  tenantId     String
+  channel      String
+  verb         String
+  recipient    String
+  purpose      String?
+  providerName String
+  messageId    String?
+  errorMessage String?  @db.Text
+  userId       String?
+  metadata     Json?
+
+  // Tenant-scoped recent-activity feed (newest first).
+  @@index([tenantId, timestamp(sort: Desc)])
+  // Tenant-scoped filtering by channel + verb (e.g. all failed OTP sends).
+  @@index([tenantId, channel, verb])
+  // Per-user activity timeline (newest first).
+  @@index([userId, timestamp(sort: Desc)])
+  @@map("notification_logs")
+}
+
+/// A demo tenant the example seeds (`acme`, `globex`) so multi-tenant isolation
+/// is visible end-to-end. The id is the human-readable tenant slug.
+model Tenant {
+  id        String   @id
+  name      String
+  createdAt DateTime @default(now())
+
+  @@map("tenants")
 }

@@ -284,6 +284,25 @@ export type ServerOtpPurpose = OtpPurpose
 /** Type-position proof: the delivery channel union (`email`, `otp`, `sms`, `push`). */
 export type ServerNotificationChannel = NotificationChannel
 
+// ─── Wired-surface proofs (now exercised by the live notification pipeline) ─────
+// The feature-drivable exports below are no longer probe-only: they are wired by the
+// application's notification module and driven end-to-end by the integration suite
+// (a programmatic template send → masked audit row, and the atomic OTP lifecycle).
+// These aliases keep the resolved-options + DTO surface anchored to the wiring so the
+// export-usage audit attributes them to a real consumption site.
+
+/** Type-position proof: the resolved options the wired module publishes at runtime. */
+export type WiredResolvedOptions = ResolvedNotificationOptions
+
+/** Type-position proof: the template-send input the wired `EmailService` consumes. */
+export type WiredEmailSendTemplateInput = EmailSendTemplateInput
+
+/** Type-position proof: the generate input the wired `OtpService` consumes. */
+export type WiredOtpGenerateInput = OtpGenerateInput
+
+/** Type-position proof: the verify result the wired `OtpService` returns. */
+export type WiredOtpVerifyResult = OtpVerifyResult
+
 // ─── Runtime proofs ───────────────────────────────────────────────────────────
 
 /**

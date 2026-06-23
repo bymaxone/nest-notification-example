@@ -1,6 +1,6 @@
 # Phase 4 — Notification Wiring & Audit Store
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P4
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,13 +76,13 @@ adapt** them rather than inventing configs.
 
 | ID  | Task                                                                  | Status  | Priority | Size | Depends on    |
 | --- | --------------------------------------------------------------------- | ------- | -------- | ---- | ------------- |
-| 4.1 | `NotificationLog` Prisma schema + migration + seed                    | 📋 ToDo | P0       | M    | —             |
-| 4.2 | `PrismaNotificationLogRepository` (write side)                        | 📋 ToDo | P0       | S    | 4.1           |
-| 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | 📋 ToDo | P0       | M    | —             |
-| 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | 📋 ToDo | P1       | M    | —             |
-| 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | 📋 ToDo | P0       | M    | 4.2, 4.3, 4.4 |
-| 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | 📋 ToDo | P0       | M    | 4.5           |
-| 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | 📋 ToDo | P0       | M    | 4.6           |
+| 4.1 | `NotificationLog` Prisma schema + migration + seed                    | ✅ Done | P0       | M    | —             |
+| 4.2 | `PrismaNotificationLogRepository` (write side)                        | ✅ Done | P0       | S    | 4.1           |
+| 4.3 | Email providers — Nodemailer→Mailpit + Resend + NoOp resolver         | ✅ Done | P0       | M    | —             |
+| 4.4 | Template registry + alternate renderers (Handlebars/MJML/React Email) | ✅ Done | P1       | M    | —             |
+| 4.5 | `notification.config.ts` — the `forRootAsync` useFactory              | ✅ Done | P0       | M    | 4.2, 4.3, 4.4 |
+| 4.6 | `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly | ✅ Done | P0       | M    | 4.5           |
+| 4.7 | Boot probe — end-to-end send → Mailpit → masked audit row             | ✅ Done | P0       | M    | 4.6           |
 
 ---
 
@@ -90,7 +90,7 @@ adapt** them rather than inventing configs.
 
 ### Task 4.1 — `NotificationLog` Prisma schema + migration + seed
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -102,15 +102,15 @@ migration, and write an idempotent `seed.ts` that creates the `acme` / `globex` 
 
 #### Acceptance criteria
 
-- [ ] `apps/api/prisma/schema.prisma` declares `model NotificationLog` mirroring the library's `NotificationLogEntry`
+- [x] `apps/api/prisma/schema.prisma` declares `model NotificationLog` mirroring the library's `NotificationLogEntry`
       (`id`, `timestamp`, `tenantId`, `channel`, `verb`, `recipient`, `purpose?`, `providerName`, `messageId?`,
       `errorMessage? @db.Text`, `userId?`, `metadata? Json`) mapped to `notification_logs`, with the three indexes
       (`[tenantId, timestamp(Desc)]`, `[tenantId, channel, verb]`, `[userId, timestamp(Desc)]`), and a `model Tenant`
       (`id`, `name`, `createdAt`).
-- [ ] `apps/api/prisma/migrations/<ts>_init/migration.sql` creates both tables + indexes; `migration_lock.toml` present.
-- [ ] `apps/api/prisma/seed.ts` is idempotent (upsert), creates tenants `acme` + `globex`, redacts the DB URL on error,
+- [x] `apps/api/prisma/migrations/<ts>_init/migration.sql` creates both tables + indexes; `migration_lock.toml` present.
+- [x] `apps/api/prisma/seed.ts` is idempotent (upsert), creates tenants `acme` + `globex`, redacts the DB URL on error,
       and uses the `@prisma/adapter-pg` connection pattern.
-- [ ] `prisma generate` succeeds; `prisma migrate deploy` (or `dev`) against the local Postgres creates `notification_logs`.
+- [x] `prisma generate` succeeds; `prisma migrate deploy` (or `dev`) against the local Postgres creates `notification_logs`.
 
 #### Files to create / modify
 
@@ -206,7 +206,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 4.2 — `PrismaNotificationLogRepository` (write side)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: S
 - **Depends on**: 4.1
@@ -218,14 +218,14 @@ through the interface, with a unit spec proving the `NotificationLogEntry → ro
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/providers/prisma-notification-log.repository.ts` implements
+- [x] `apps/api/src/notification/providers/prisma-notification-log.repository.ts` implements
       `INotificationLogRepository` (`readonly name = 'prisma'`, `async create(entry): Promise<void>`), injects
       `PrismaService`, and maps every `NotificationLogEntry` field to a `notificationLog.create` row (nullables → `null`,
       `metadata` → `undefined` when absent, `timestamp` → `new Date(entry.timestamp)`).
-- [ ] No OTP code, no stack trace, and no unmasked-PII column is written (the entry arrives already masked).
-- [ ] A unit spec asserts the field mapping (with a mocked `PrismaService`) at 100% coverage and that
+- [x] No OTP code, no stack trace, and no unmasked-PII column is written (the entry arrives already masked).
+- [x] A unit spec asserts the field mapping (with a mocked `PrismaService`) at 100% coverage and that
       `JSON.stringify(row)` never contains a sample code.
-- [ ] `tsc --noEmit` exits 0; the repository is exported for the config to import.
+- [x] `tsc --noEmit` exits 0; the repository is exported for the config to import.
 
 #### Files to create / modify
 
@@ -308,7 +308,7 @@ commit `feat(api): implement Prisma notification-log repository` (no Co-Authored
 
 ### Task 4.3 — Email providers — Nodemailer→Mailpit + Resend + NoOp resolver
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -321,15 +321,15 @@ Author the custom `NodemailerEmailProvider` (the headline bring-your-own-provide
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/providers/nodemailer-email.provider.ts` implements `IEmailProvider`
+- [x] `apps/api/src/notification/providers/nodemailer-email.provider.ts` implements `IEmailProvider`
       (`readonly name = 'nodemailer'`, `isConfigured()`, `async send(options): Promise<EmailSendResult>`) over a nodemailer
       SMTP transport built from `SMTP_URL`; throws on transport failure (so `EmailService` maps it to `EMAIL_SEND_FAILED`);
       returns `{ messageId }`.
-- [ ] `apps/api/src/notification/providers/email-provider.resolver.ts` exports `resolveEmailProvider(config)` →
+- [x] `apps/api/src/notification/providers/email-provider.resolver.ts` exports `resolveEmailProvider(config)` →
       `ResendEmailProvider` if `RESEND_API_KEY`, else `NodemailerEmailProvider` if `SMTP_URL`, else `new NoOpEmailProvider()`.
-- [ ] Unit specs (mocked transport / mocked Resend) prove: Nodemailer `send` returns the transport `messageId` and
+- [x] Unit specs (mocked transport / mocked Resend) prove: Nodemailer `send` returns the transport `messageId` and
       rethrows on failure; the resolver picks the right provider for each env permutation. 100% coverage of both files.
-- [ ] `nodemailer` is added to `apps/api` deps; `tsc --noEmit` exits 0.
+- [x] `nodemailer` is added to `apps/api` deps; `tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -425,7 +425,7 @@ row Progress to `3 / 7` in docs/DEVELOPMENT_PLAN.md, append `- 4.3 ✅ <date> �
 
 ### Task 4.4 — Template registry + alternate renderers (Handlebars/MJML/React Email)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: —
@@ -438,15 +438,15 @@ only (subject/text raw).
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/templates.ts` exports `TEMPLATES` — at least `otp_code`, `otp_password_reset`,
+- [x] `apps/api/src/notification/templates.ts` exports `TEMPLATES` — at least `otp_code`, `otp_password_reset`,
       `welcome` (each `subject` + `html` + `text`), registered per `name::locale` with an `en` fallback, referencing the
       `CANONICAL_EMAIL_TEMPLATES` names so providers/templates agree on the wire.
-- [ ] `apps/api/src/notification/renderers/{handlebars,mjml,react-email}.renderer.ts` each implement
+- [x] `apps/api/src/notification/renderers/{handlebars,mjml,react-email}.renderer.ts` each implement
       `IEmailTemplateRenderer` (adapted from the library's `docs/templates/*.example.md`), exported for the providers panel
       to showcase in a later phase.
-- [ ] A unit spec proves the **default** renderer (`new DefaultTemplateRenderer({ templates: TEMPLATES })`)
+- [x] A unit spec proves the **default** renderer (`new DefaultTemplateRenderer({ templates: TEMPLATES })`)
       HTML-escapes an injected `<script>` in the **html** body but leaves subject + text raw, and falls back to `en`.
-- [ ] `handlebars`, `mjml`, `@react-email/*` added as apps/api deps; `tsc --noEmit` exits 0.
+- [x] `handlebars`, `mjml`, `@react-email/*` added as apps/api deps; `tsc --noEmit` exits 0.
 
 #### Files to create / modify
 
@@ -517,7 +517,7 @@ commit `feat(api): add template registry + handlebars/mjml/react-email renderers
 
 ### Task 4.5 — `notification.config.ts` — the `forRootAsync` useFactory
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 4.2, 4.3, 4.4
@@ -530,19 +530,19 @@ renderer, and audit repository (all DI-dependent adapters passed as **instances*
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/notification.config.ts` exports a factory
+- [x] `apps/api/src/notification/notification.config.ts` exports a factory
       `(config: ConfigService, redis: Redis | null, prisma: PrismaService) => BymaxNotificationModuleOptions` with the
       parameters **annotated** in `inject` order (`[ConfigService, REDIS, PrismaService]`).
-- [ ] `global` sets `redisNamespace: 'notification'`, `defaultLocale` from env, and a `tenantIdResolver` whose param is
+- [x] `global` sets `redisNamespace: 'notification'`, `defaultLocale` from env, and a `tenantIdResolver` whose param is
       annotated `(req: NotificationRequest)` (imported from `@bymax-one/nest-notification`; an untyped `(req)` fails
       `noImplicitAny`) that reads the **trusted** `x-tenant-id` header (array-safe), never the body.
-- [ ] `email` uses `resolveEmailProvider(config)`, `defaultFrom`/`defaultFromName` from env,
+- [x] `email` uses `resolveEmailProvider(config)`, `defaultFrom`/`defaultFromName` from env,
       `templateRenderer: new DefaultTemplateRenderer({ templates: TEMPLATES })`, `maxAttachmentBytes: 10 * 1024 * 1024`.
-- [ ] `otp` uses `redis ? new RedisOtpStorage({ redisClient: redis }) : new InMemoryOtpStorage()`, `defaultLength: 6`,
+- [x] `otp` uses `redis ? new RedisOtpStorage({ redisClient: redis }) : new InMemoryOtpStorage()`, `defaultLength: 6`,
       TTL + cooldown from env, and the `perPurpose` overrides (`password_reset`, `email_verification`).
-- [ ] `audit` uses `new PrismaNotificationLogRepository(prisma)` (an **instance**), `swallowErrors: true`, and
+- [x] `audit` uses `new PrismaNotificationLogRepository(prisma)` (an **instance**), `swallowErrors: true`, and
       `maskRecipient` derived from `AUDIT_MASK_RECIPIENT` (the `j***@acme.com` masker, or identity when disabled).
-- [ ] A unit spec proves: REDIS null → `InMemoryOtpStorage`; REDIS present → `RedisOtpStorage`; `AUDIT_MASK_RECIPIENT`
+- [x] A unit spec proves: REDIS null → `InMemoryOtpStorage`; REDIS present → `RedisOtpStorage`; `AUDIT_MASK_RECIPIENT`
       toggles the masker; the resolver returns the header tenant and `'default'` when absent. 100% coverage of the file.
 
 #### Files to create / modify
@@ -661,7 +661,7 @@ commit `feat(api): wire BymaxNotificationModule forRootAsync config factory` (no
 
 ### Task 4.6 — `NotificationAuditInterceptor` as `APP_INTERCEPTOR` + module assembly
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 4.5
@@ -674,13 +674,13 @@ library's `NotificationAuditInterceptor` globally as `APP_INTERCEPTOR`, so inter
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/app.module.ts` calls `BymaxNotificationModule.forRootAsync({ imports: [ConfigModule, RedisModule,
+- [x] `apps/api/src/app.module.ts` calls `BymaxNotificationModule.forRootAsync({ imports: [ConfigModule, RedisModule,
 PrismaModule], inject: [ConfigService, REDIS, PrismaService], useFactory: notificationConfig })`.
-- [ ] `{ provide: APP_INTERCEPTOR, useClass: NotificationAuditInterceptor }` is registered in `app.module.ts` providers.
-- [ ] `RedisModule` + `PrismaModule` are imported so the `REDIS` token and `PrismaService` resolve in the factory.
-- [ ] The app **boots** (`Nest application successfully started`) against the local stack with `REDIS_URL` set and unset
+- [x] `{ provide: APP_INTERCEPTOR, useClass: NotificationAuditInterceptor }` is registered in `app.module.ts` providers.
+- [x] `RedisModule` + `PrismaModule` are imported so the `REDIS` token and `PrismaService` resolve in the factory.
+- [x] The app **boots** (`Nest application successfully started`) against the local stack with `REDIS_URL` set and unset
       (the `null` branch). `app.module.ts` is excluded from coverage (glue) per the conventions.
-- [ ] A module-init integration spec (`Test.createTestingModule`) compiles the module and asserts the
+- [x] A module-init integration spec (`Test.createTestingModule`) compiles the module and asserts the
       `NotificationService` (or the module) resolves without throwing.
 
 #### Files to create / modify
@@ -768,7 +768,7 @@ commit `feat(api): wire forRootAsync + register notification audit interceptor` 
 
 ### Task 4.7 — Boot probe — end-to-end send → Mailpit → masked audit row
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 4.6
@@ -783,16 +783,16 @@ Re-run `pnpm audit:exports` as the gate (it must stay green, preserving every re
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/library-probe.ts` (the file P2 created — **extend** it, do not replace it: keep every existing
+- [x] `apps/api/src/library-probe.ts` (the file P2 created — **extend** it, do not replace it: keep every existing
       reference) now also references the otherwise-hard-to-exercise wired exports (the resolved options type, the `REDIS`
       token, `getEnabledChannels`) so the export-usage audit sees them; it is **not** an HTTP route.
-- [ ] An integration spec (against the test compose stack) sends a `welcome`/`otp_code` template email via
+- [x] An integration spec (against the test compose stack) sends a `welcome`/`otp_code` template email via
       `EmailService.sendTemplate`, then asserts: (a) `getEnabledChannels()` deep-equals `['email','otp']`; (b) the message
       is retrievable from Mailpit's API (`GET :8025/api/v1/messages`); (c) exactly one `notification_logs` row was written
       with the **masked** recipient (`j***@…`) and **no** code anywhere in the row (`JSON.stringify(row)` excludes the code).
-- [ ] The atomic OTP storage behavior (max-attempts cannot be exceeded; cooldown blocks a second generate) and the
+- [x] The atomic OTP storage behavior (max-attempts cannot be exceeded; cooldown blocks a second generate) and the
       renderer html-only escape are unit-proven (may reuse 4.4 specs; add the storage assertions here).
-- [ ] `pnpm --filter @nest-notification-example/api test:cov` passes at 100% for the new executable files; `pnpm audit:exports` is **re-run as the
+- [x] `pnpm --filter @nest-notification-example/api test:cov` passes at 100% for the new executable files; `pnpm audit:exports` is **re-run as the
       gate** and exits 0 (the P2 references are preserved alongside the newly-added ones).
 
 #### Files to create / modify
@@ -897,4 +897,10 @@ If any DoD bullet is unmet or CI is red, set P4 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 4.1 ✅ 2026-06-23 — NotificationLog schema + migration + seed
+- 4.2 ✅ 2026-06-23 — PrismaNotificationLogRepository (write side)
+- 4.3 ✅ 2026-06-23 — email providers + resolver
+- 4.4 ✅ 2026-06-23 — template registry + alternate renderers
+- 4.5 ✅ 2026-06-23 — notification.config forRootAsync useFactory
+- 4.6 ✅ 2026-06-23 — module assembly + audit interceptor
+- 4.7 ✅ 2026-06-23 — boot probe: send → Mailpit → masked audit row

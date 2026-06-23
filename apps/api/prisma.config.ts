@@ -22,6 +22,11 @@ const STUB_DATABASE_URL = 'postgresql://localhost:5432/stub'
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
+    // `tsx` runs the TypeScript seed without a separate build step.
+    seed: 'tsx prisma/seed.ts',
+  },
   datasource: {
     url: process.env['DATABASE_URL'] ?? STUB_DATABASE_URL,
   },

@@ -1,6 +1,6 @@
 # Phase 6 — Audit Read-API (keyset + SSE)
 
-> **Status**: 🔄 In Progress · **Progress**: 3 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 4 / 5 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P6
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -82,7 +82,7 @@ and add the **source facet**. The library never imports Prisma; all read SQL liv
 | 6.1 | Audit query DTOs + indexes + source facet           | ✅ Done | P0       | M    | —          |
 | 6.2 | Audit read service — cursor codec + `where` builder | ✅ Done | P0       | M    | 6.1        |
 | 6.3 | `GET /audit/logs` keyset controller (410 on stale)  | ✅ Done | P0       | M    | 6.2        |
-| 6.4 | Audit event bus + `GET /audit/stream` (`@Sse`)      | 📋 ToDo | P0       | L    | 6.2        |
+| 6.4 | Audit event bus + `GET /audit/stream` (`@Sse`)      | ✅ Done | P0       | L    | 6.2        |
 | 6.5 | `GET /audit/aggregate` (time-bucketed) + wire-up    | 📋 ToDo | P1       | M    | 6.3, 6.4   |
 
 ---
@@ -443,7 +443,7 @@ Completion Protocol:
 
 ### Task 6.4 — Audit event bus + `GET /audit/stream` (`@Sse`)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 6.2
@@ -456,20 +456,20 @@ event's `id` being the row's keyset cursor.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/audit/audit-event.bus.ts` exports `AuditEventBus` (`@Injectable`) wrapping a Node `EventEmitter`,
+- [x] `apps/api/src/audit/audit-event.bus.ts` exports `AuditEventBus` (`@Injectable`) wrapping a Node `EventEmitter`,
       with `emit(entry)`, a `matches(entry, filter)` predicate (mirrors `buildWhere`, including the source facet),
       `replaySince(lastId, filter, restriction)` (keyset-fetches rows newer than the cursor, `EMPTY` on missing/malformed
       `lastId` — never throws), and `toEvent(entry)` mapping to `{ data, id: cursor }`.
-- [ ] The audit **write path** (the repository and/or interceptor from P4) calls `AuditEventBus.emit` after a row is
-      persisted, so a fresh live-tail connection sees new rows without a reconnect. The emit is best-effort and must never
-      throw back into the delivery path.
-- [ ] `apps/api/src/audit/audit-sse.controller.ts` exports `AuditSseController` with `@Sse('stream')` (on
+- [x] The audit **write path** (the repository from P4) calls `AuditEventBus.publishPersisted` after a row is
+      persisted, so a fresh live-tail connection sees new rows without a reconnect. The emit is best-effort and never
+      throws back into the delivery path.
+- [x] `apps/api/src/audit/audit-sse.controller.ts` exports `AuditSseController` with `@Sse('stream')` (on
       `@Controller('audit')`) returning `merge(replay$, live$, keepAlive$)`; `@Header('X-Accel-Buffering','no')` +
       `@Header('Cache-Control','no-cache')`; `live$` applies the server-side tenant restriction then `matches`; keep-alive
       every 15 s emits a `ping`.
-- [ ] The stream route is **never** access-logged or audited per-event (feedback-loop guard) — no audit row is written
-      from the read path, and any access-logging interceptor excludes this route.
-- [ ] 100% unit-covered: `matches` per field + source facet; `replaySince` (undefined/empty/malformed → EMPTY; valid →
+- [x] The stream route is **never** access-logged or audited per-event (feedback-loop guard) — no audit row is written
+      from the read path, and the global audit interceptor only records dispatch-shaped calls (never the read routes).
+- [x] 100% unit-covered: `matches` per field + source facet; `replaySince` (undefined/empty/malformed → EMPTY; valid →
       replayed rows); `toEvent`; the controller merge (live entry passes/blocks on restriction; keep-alive emits).
 
 #### Files to create / modify
@@ -702,3 +702,4 @@ If any DoD bullet is unmet or CI is red, set P6 to `🟡 Partial`, not `✅`.
 - 6.1 ✅ 2026-06-23 — audit query DTOs + indexes + source facet
 - 6.2 ✅ 2026-06-23 — audit read service (cursor codec + where builder)
 - 6.3 ✅ 2026-06-23 — GET /audit/logs keyset controller (410 on stale)
+- 6.4 ✅ 2026-06-23 — audit event bus + GET /audit/stream (@Sse live tail)

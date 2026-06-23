@@ -1,5 +1,5 @@
 {
-  "$comment": "Public exports intentionally NOT demonstrated in apps/. Each entry needs { symbol, reason, issue }. Keep empty unless a genuinely-internal symbol leaks into the published .d.ts — never use this to make CI green for a real, demonstrable export.",
+  "$comment": "Public exports intentionally NOT demonstrated in apps/ yet. Each entry needs { symbol, reason, issue }. The entries below are the browser-only ./react surface (hooks and their types), temporarily allow-listed until the web app consumes the React subpath — at which point they are demonstrated there and removed from this list. The list otherwise stays empty: never use it to make CI green for a real, demonstrable export from apps/api.",
   "ignored": [
     {
       "symbol": "useOtpInput",

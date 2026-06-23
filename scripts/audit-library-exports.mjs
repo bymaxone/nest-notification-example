@@ -26,24 +26,21 @@ import { extname, join } from 'node:path'
 import process from 'node:process'
 
 /**
- * Root of the linked library package. With pnpm workspaces, the package may
- * land in the root `node_modules` (hoisted) or, when it is a dependency of a
- * single workspace package only, in that package's own `node_modules`. Check
- * both locations so the script works regardless of pnpm's hoisting decision.
+ * Candidate locations for the linked library package, in priority order. With
+ * pnpm workspaces the package may land in the root `node_modules` (hoisted) or,
+ * when it is a dependency of a single workspace package only, in that package's
+ * own `node_modules`. Both `apps/api` and `apps/web` may declare the dependency
+ * and have it isolated under their own `node_modules`, so all three locations
+ * are checked. The first that exists wins; the dts paths are derived from it.
  */
-const LIB_ROOT = existsSync('node_modules/@bymax-one/nest-notification')
-  ? 'node_modules/@bymax-one/nest-notification'
-  : 'apps/api/node_modules/@bymax-one/nest-notification'
-
-/** Root of the linked library's compiled output. */
-const PKG = join(LIB_ROOT, 'dist')
-
-/** The three published subpaths, each with its declaration file. */
-const SUBPATHS = [
-  { name: '.', dts: join(PKG, 'server', 'index.d.ts') },
-  { name: './shared', dts: join(PKG, 'shared', 'index.d.ts') },
-  { name: './react', dts: join(PKG, 'react', 'index.d.ts') },
+const LIB_CANDIDATES = [
+  'node_modules/@bymax-one/nest-notification',
+  'apps/api/node_modules/@bymax-one/nest-notification',
+  'apps/web/node_modules/@bymax-one/nest-notification',
 ]
+
+/** First candidate location that actually contains the package, or `undefined`. */
+const LIB_ROOT = LIB_CANDIDATES.find((path) => existsSync(path))
 
 /** Application source roots searched for references. */
 const APP_ROOTS = ['apps/api', 'apps/web']
@@ -130,15 +127,22 @@ if (sources.length === 0) {
 // The library is linked only once an apps/ package declares the `file:` dependency.
 // Until then there is nothing to audit, so the gate is a no-op; once the package IS
 // linked, a missing subpath declaration is a real build error (the loop below exits 2).
-const LIB_LINKED =
-  existsSync('node_modules/@bymax-one/nest-notification') ||
-  existsSync('apps/api/node_modules/@bymax-one/nest-notification')
-if (!LIB_LINKED) {
+if (LIB_ROOT === undefined) {
   console.log(
     '• @bymax-one/nest-notification not linked yet — export-usage audit is a no-op (exit 0)',
   )
   process.exit(0)
 }
+
+/** Root of the linked library's compiled output, under whichever location holds it. */
+const PKG = join(LIB_ROOT, 'dist')
+
+/** The three published subpaths, each with its declaration file. */
+const SUBPATHS = [
+  { name: '.', dts: join(PKG, 'server', 'index.d.ts') },
+  { name: './shared', dts: join(PKG, 'shared', 'index.d.ts') },
+  { name: './react', dts: join(PKG, 'react', 'index.d.ts') },
+]
 
 const corpus = sources.map((f) => readFileSync(f, 'utf8'))
 

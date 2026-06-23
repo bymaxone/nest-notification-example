@@ -35,8 +35,17 @@ function renderSwitcher(search: string, onUrlUpdate: OnUrlUpdateFunction = vi.fn
 /** A userEvent instance that skips the pointer-events check jsdom cannot satisfy. */
 const user = userEvent.setup({ pointerEventsCheck: 0 })
 
+// Radix Select calls the Pointer Capture API on open/close, which jsdom omits.
+// Capture the (absent) originals up front so each per-test stub can be reverted
+// afterwards: Vitest shares one jsdom environment across test files, so a
+// lingering stub would leak the patched prototype into other suites.
+const pointerCaptureOriginals = {
+  hasPointerCapture: Element.prototype.hasPointerCapture,
+  setPointerCapture: Element.prototype.setPointerCapture,
+  releasePointerCapture: Element.prototype.releasePointerCapture,
+}
+
 beforeEach(() => {
-  // Radix Select calls the Pointer Capture API on open/close; jsdom omits it.
   // Stub the trio locally so the dropdown can open under test.
   Element.prototype.hasPointerCapture = (): boolean => false
   Element.prototype.setPointerCapture = (): void => {}
@@ -46,6 +55,10 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  // Revert the prototype to its pre-stub state so the patch never leaks.
+  Element.prototype.hasPointerCapture = pointerCaptureOriginals.hasPointerCapture
+  Element.prototype.setPointerCapture = pointerCaptureOriginals.setPointerCapture
+  Element.prototype.releasePointerCapture = pointerCaptureOriginals.releasePointerCapture
 })
 
 describe('TenantRoleSwitcher', () => {

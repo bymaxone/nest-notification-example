@@ -18,17 +18,16 @@ import {
 } from './api-client'
 import type { AuditFilter } from './api-client'
 
-/** Build a minimal `Response`-like object the client consumes. */
+/** Build a real `Response` the client consumes (`ok` derives from `status`). */
 function jsonResponse(
   body: unknown,
-  options: { ok?: boolean; status?: number; statusText?: string } = {},
+  options: { status?: number; statusText?: string } = {},
 ): Response {
-  return {
-    ok: options.ok ?? true,
+  return new Response(JSON.stringify(body), {
     status: options.status ?? 200,
     statusText: options.statusText ?? 'OK',
-    json: () => Promise.resolve(body),
-  } as unknown as Response
+    headers: { 'content-type': 'application/json' },
+  })
 }
 
 afterEach(() => {
@@ -115,7 +114,7 @@ describe('apiFetch', () => {
   /** A non-2xx response throws an ApiError with the status code. */
   it('throws ApiError on a non-2xx response', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      jsonResponse({}, { ok: false, status: 404, statusText: 'Not Found' }),
+      jsonResponse({}, { status: 404, statusText: 'Not Found' }),
     )
     await expect(apiFetch('/test', {})).rejects.toMatchObject({ status: 404 })
   })

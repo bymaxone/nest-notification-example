@@ -15,7 +15,10 @@ services:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test:
-        ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-notification_example}']
+        [
+          'CMD-SHELL',
+          'pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-notification_example}',
+        ]
       interval: 5s
       timeout: 5s
       retries: 10

@@ -1,6 +1,6 @@
 # Phase 11 — Optional Auth Seam (`@bymax-one/nest-auth`)
 
-> **Status**: 🔄 In Progress · **Progress**: 2 / 3 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 3 / 3 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P11
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -77,7 +77,7 @@ invent new ones.
 | ---- | ----------------------------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
 | 11.1 | `NotificationAuthEmailProvider` adapter (7 port methods → canonical templates)      | ✅ Done | P0       | M    | —          |
 | 11.2 | Journey 13 — auth password-reset OTP rendered + sent + audited through the pipeline | ✅ Done | P0       | M    | 11.1       |
-| 11.3 | `docs/AUTH_INTEGRATION.md` — boundary, namespace isolation, no-duplication          | 📋 ToDo | P1       | S    | 11.1, 11.2 |
+| 11.3 | `docs/AUTH_INTEGRATION.md` — boundary, namespace isolation, no-duplication          | ✅ Done | P1       | S    | 11.1, 11.2 |
 
 ---
 
@@ -341,7 +341,7 @@ Completion Protocol (run after finishing):
 
 ### Task 11.3 — `docs/AUTH_INTEGRATION.md` — boundary, namespace isolation, no-duplication
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 11.1, 11.2
@@ -355,15 +355,15 @@ journey 13. It expands OVERVIEW §14 into a standalone consumer guide.
 
 #### Acceptance criteria
 
-- [ ] `docs/AUTH_INTEGRATION.md` exists with: a one-paragraph summary of the seam; the **ownership boundary table** (who
+- [x] `docs/AUTH_INTEGRATION.md` exists with: a one-paragraph summary of the seam; the **ownership boundary table** (who
       owns auth-OTP / MFA / email delivery / general OTP / transactional email) mirroring OVERVIEW §14; the **7-method →
       canonical-template** mapping table the adapter implements (Task 11.1); the **Redis-namespace isolation** section
       (`notification:` vs `auth:`, keys never overlap); the **no-OTP-duplication** rule (reason 1); and a "Try it" pointer to
       journey 13 (`POST /auth-demo/password-reset`).
-- [ ] Code references point at the real produced files (`apps/api/src/notification/auth-email.provider.ts`,
+- [x] Code references point at the real produced files (`apps/api/src/notification/auth-email.provider.ts`,
       `auth-demo.controller.ts`); the doc states `nest-auth` is an **illustrative peer, not a hard dependency**.
-- [ ] No phase/task references; English-only; `markdown-link-check` reports no dead links.
-- [ ] The doc is linked from the README Documentation table / the docs index (matching how the other `docs/*.md` are
+- [x] No phase/task references; English-only; `markdown-link-check` reports no dead links.
+- [x] The doc is linked from the README Documentation table / the docs index (matching how the other `docs/*.md` are
       linked) so it is discoverable.
 
 #### Files to create / modify
@@ -479,6 +479,7 @@ If any DoD bullet is unmet or CI is red, set P11 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
+- 11.3 ✅ 2026-06-23 — docs/AUTH_INTEGRATION.md (boundary, namespaces, no-duplication)
 - 11.2 ✅ 2026-06-23 — journey 13: auth password-reset OTP sent + audited via the adapter
 - 11.1 ✅ 2026-06-23 — NotificationAuthEmailProvider adapter (7 port methods → canonical templates)
   </content>

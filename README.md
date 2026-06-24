@@ -134,12 +134,13 @@ second backend. Full diagram in
 
 ## 📖 Documentation
 
-| Doc                                          | What it covers                                        |
-| -------------------------------------------- | ----------------------------------------------------- |
-| [OVERVIEW](docs/OVERVIEW.md)                 | Product blueprint & repository layout (master spec)   |
-| [DEVELOPMENT_PLAN](docs/DEVELOPMENT_PLAN.md) | The phased build plan, quality gates & CI matrix      |
-| [Task files](docs/tasks/README.md)           | Per-phase task breakdown & status conventions         |
-| [Design system](docs/design_system.html)     | The shared Bymax UI design system (open in a browser) |
+| Doc                                          | What it covers                                                       |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| [OVERVIEW](docs/OVERVIEW.md)                 | Product blueprint & repository layout (master spec)                  |
+| [AUTH_INTEGRATION](docs/AUTH_INTEGRATION.md) | Composing with `@bymax-one/nest-auth`: boundary, namespace isolation |
+| [DEVELOPMENT_PLAN](docs/DEVELOPMENT_PLAN.md) | The phased build plan, quality gates & CI matrix                     |
+| [Task files](docs/tasks/README.md)           | Per-phase task breakdown & status conventions                        |
+| [Design system](docs/design_system.html)     | The shared Bymax UI design system (open in a browser)                |
 
 The full reference set (Getting Started, Features, Architecture, Environment, Providers, Multi-Tenancy, Database,
 Deployment, Troubleshooting, Releases) is authored alongside the application build.

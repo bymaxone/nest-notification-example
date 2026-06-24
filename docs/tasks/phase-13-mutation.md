@@ -77,7 +77,7 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 | ---- | -------------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
 | 13.1 | api Stryker config + baseline measurement                            | ✅ Done | P0       | M    | —          |
 | 13.2 | api hardening → `break: 100` (kill survivors / document equivalents) | ✅ Done | P0       | L    | 13.1       |
-| 13.3 | web Stryker config + `lib/**` → 100, `components/**` driven up       | ✅ Done | P0       | L    | —          |
+| 13.3 | web Stryker config + `lib/**` → ~100%, `components/**` driven up     | ✅ Done | P0       | L    | —          |
 | 13.4 | `docs/stryker/{BASELINE,HISTORY,IMPLEMENTATION_PLAN}.md`             | ✅ Done | P1       | M    | 13.2, 13.3 |
 | 13.5 | Wire `mutation.yml` + `mutation-nightly.yml` to real configs         | ✅ Done | P0       | M    | 13.2, 13.3 |
 
@@ -302,7 +302,7 @@ Completion Protocol:
 
 ---
 
-### Task 13.3 — web Stryker config + `lib/**` → 100, `components/**` driven up
+### Task 13.3 — web Stryker config + `lib/**` → ~100% (1 documented equivalent), `components/**` driven up
 
 - **Status**: ✅ Done
 - **Priority**: P0

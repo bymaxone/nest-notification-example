@@ -191,8 +191,8 @@ describe('validateEnv', () => {
       // The key constraint is a MINIMUM length: a realistic multi-character key must pass (a
       // `.max(1)` mutant would reject anything longer than one character).
       expect(
-        validateEnv({ ...MINIMAL_VALID_ENV, RESEND_API_KEY: 're_live_abc123' }).RESEND_API_KEY,
-      ).toBe('re_live_abc123')
+        validateEnv({ ...MINIMAL_VALID_ENV, RESEND_API_KEY: 're_test_abc123' }).RESEND_API_KEY,
+      ).toBe('re_test_abc123')
     })
 
     it('accepts a full MAIL_FROM address (min length, not max)', () => {

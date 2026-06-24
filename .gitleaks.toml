@@ -1,0 +1,15 @@
+# gitleaks configuration — extend the default ruleset and allowlist known test fixtures.
+#
+# The secret-scan workflow runs `gitleaks detect --source .`, which scans the full commit
+# history; this config is auto-loaded from the repo root. The env-schema unit test feeds the
+# Zod validator deliberately fake, non-functional credentials (a placeholder RESEND_API_KEY),
+# which the entropy-based `generic-api-key` rule would otherwise flag. The allowlist is scoped
+# to that single fixture file so real secrets anywhere else still fail the scan.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Env-schema unit test fixtures use fake, non-functional credentials to exercise the validator."
+paths = [
+  '''apps/api/src/config/env\.schema\.spec\.ts''',
+]

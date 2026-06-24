@@ -22,6 +22,25 @@ function headersOf(spy: ReturnType<typeof vi.spyOn>, call = 0): Record<string, s
   return spy.mock.calls[call]![1]!.headers as Record<string, string>
 }
 
+/**
+ * Assert the Nth fetch call carried the exact POST envelope — path suffix, JSON content-type +
+ * trusted tenant header, and the verbatim JSON body. Pins every route/body literal a fire sends.
+ */
+function expectFire(
+  spy: ReturnType<typeof vi.spyOn>,
+  call: number,
+  pathSuffix: string,
+  tenant: string,
+  body: unknown,
+): void {
+  expect(String(spy.mock.calls[call]![0])).toContain(pathSuffix)
+  expect(spy.mock.calls[call]![1]).toEqual({
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-tenant-id': tenant },
+    body: JSON.stringify(body),
+  })
+}
+
 /** Stub fetch to resolve every call with the given status. */
 function stubFetch(status = 201): ReturnType<typeof vi.spyOn> {
   return vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status }))
@@ -43,8 +62,11 @@ describe('triggerApi', () => {
   it('sendEmail fires /email/send', async () => {
     const spy = stubFetch(201)
     const result = await triggerApi.sendEmail('acme')
-    expect(String(spy.mock.calls[0]![0])).toContain('/email/send')
-    expect(headersOf(spy)['x-tenant-id']).toBe('acme')
+    expectFire(spy, 0, '/email/send', 'acme', {
+      to: 'demo@example.com',
+      subject: 'Hello from the console',
+      html: '<p>Hi there</p>',
+    })
     expect(result).toMatchObject({
       status: 201,
       ok: true,
@@ -66,7 +88,11 @@ describe('triggerApi', () => {
   it('generateOtp fires /otp/generate', async () => {
     const spy = stubFetch()
     const result = await triggerApi.generateOtp('acme')
-    expect(String(spy.mock.calls[0]![0])).toContain('/otp/generate')
+    expectFire(spy, 0, '/otp/generate', 'acme', {
+      recipient: 'demo@example.com',
+      purpose: 'login',
+      deliverVia: 'manual',
+    })
     expect(result).toMatchObject({ channel: 'otp', verb: 'generated', purpose: 'login' })
   })
 
@@ -74,9 +100,12 @@ describe('triggerApi', () => {
   it('verifyWrong fires /otp/verify and reports not-ok on 4xx', async () => {
     const spy = stubFetch(400)
     const result = await triggerApi.verifyWrong('acme')
-    expect(String(spy.mock.calls[0]![0])).toContain('/otp/verify')
-    expect(bodyOf(spy).code).toBe('000000')
-    expect(result).toMatchObject({ status: 400, ok: false, verb: 'failed' })
+    expectFire(spy, 0, '/otp/verify', 'acme', {
+      recipient: 'demo@example.com',
+      purpose: 'login',
+      code: '000000',
+    })
+    expect(result).toMatchObject({ status: 400, ok: false, channel: 'otp', verb: 'failed' })
   })
 
   /** tripCooldown generates then resends (two calls), returning the resend status. */
@@ -87,9 +116,22 @@ describe('triggerApi', () => {
       .mockResolvedValueOnce(new Response(null, { status: 429 }))
     const result = await triggerApi.tripCooldown('acme')
     expect(spy).toHaveBeenCalledTimes(2)
-    expect(String(spy.mock.calls[0]![0])).toContain('/otp/generate')
-    expect(String(spy.mock.calls[1]![0])).toContain('/otp/resend')
-    expect(result).toMatchObject({ status: 429, ok: false, verb: 'cooldown_blocked' })
+    expectFire(spy, 0, '/otp/generate', 'acme', {
+      recipient: 'demo@example.com',
+      purpose: 'login',
+      deliverVia: 'manual',
+    })
+    expectFire(spy, 1, '/otp/resend', 'acme', {
+      recipient: 'demo@example.com',
+      purpose: 'login',
+      deliverVia: 'manual',
+    })
+    expect(result).toMatchObject({
+      status: 429,
+      ok: false,
+      channel: 'otp',
+      verb: 'cooldown_blocked',
+    })
   })
 
   /** forceMaxAttempts generates then verifies repeatedly, returning the final status. */
@@ -97,7 +139,17 @@ describe('triggerApi', () => {
     const spy = stubFetch(429)
     const result = await triggerApi.forceMaxAttempts('acme')
     expect(spy).toHaveBeenCalledTimes(7) // 1 generate + 6 verifies
-    expect(result).toMatchObject({ status: 429, verb: 'max_attempts_exceeded' })
+    expectFire(spy, 0, '/otp/generate', 'acme', {
+      recipient: 'demo@example.com',
+      purpose: 'login',
+      deliverVia: 'manual',
+    })
+    expectFire(spy, 1, '/otp/verify', 'acme', {
+      recipient: 'demo@example.com',
+      purpose: 'login',
+      code: '000000',
+    })
+    expect(result).toMatchObject({ status: 429, channel: 'otp', verb: 'max_attempts_exceeded' })
   })
 
   /** oversizeAttachment fires /email/send-template with a large attachment. */
@@ -105,25 +157,39 @@ describe('triggerApi', () => {
     const spy = stubFetch(413)
     const result = await triggerApi.oversizeAttachment('acme')
     expect(String(spy.mock.calls[0]![0])).toContain('/email/send-template')
-    const attachments = bodyOf(spy).attachments as Array<{ content: string }>
+    expect(headersOf(spy)).toEqual({ 'content-type': 'application/json', 'x-tenant-id': 'acme' })
+    expect(spy.mock.calls[0]![1]!.method).toBe('POST')
+    const body = bodyOf(spy)
+    expect(body.to).toBe('demo@example.com')
+    expect(body.template).toBe('welcome')
+    expect(body.data).toEqual({ name: 'Demo' })
+    const attachments = body.attachments as Array<{ filename: string; content: string }>
+    expect(attachments[0]!.filename).toBe('huge.bin')
     expect(attachments[0]!.content.length).toBeGreaterThan(10 * 1024 * 1024)
-    expect(result).toMatchObject({ status: 413, ok: false })
+    expect(result).toMatchObject({ status: 413, ok: false, channel: 'email', verb: 'failed' })
   })
 
   /** spoofTenant forges the body tenantId but keeps the trusted header tenant. */
   it('spoofTenant forges only the body tenantId', async () => {
     const spy = stubFetch(201)
-    await triggerApi.spoofTenant('acme', 'globex')
+    const result = await triggerApi.spoofTenant('acme', 'globex')
     expect(headersOf(spy)['x-tenant-id']).toBe('acme') // trusted header unchanged
-    expect(bodyOf(spy).tenantId).toBe('globex') // forged body tenant
+    expectFire(spy, 0, '/dispatch', 'acme', {
+      channel: 'otp',
+      tenantId: 'globex', // forged body tenant, ignored by the resolver
+      payload: { recipient: 'demo@example.com', purpose: 'login', deliverVia: 'manual' },
+    })
+    expect(result).toMatchObject({ channel: 'otp', verb: 'sent', purpose: 'login' })
   })
 
   /** dispatch fires /dispatch through the façade. */
   it('dispatch fires /dispatch', async () => {
     const spy = stubFetch(201)
     const result = await triggerApi.dispatch('acme')
-    expect(String(spy.mock.calls[0]![0])).toContain('/dispatch')
-    expect(bodyOf(spy).channel).toBe('email')
+    expectFire(spy, 0, '/dispatch', 'acme', {
+      channel: 'email',
+      payload: { to: 'demo@example.com', subject: 'Dispatched', html: '<p>Via façade</p>' },
+    })
     expect(result).toMatchObject({ channel: 'email', verb: 'sent', ok: true })
   })
 })

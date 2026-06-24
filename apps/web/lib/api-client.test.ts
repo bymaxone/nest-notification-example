@@ -103,12 +103,14 @@ describe('apiFetch', () => {
     expect(result).toEqual({ ok: true })
   })
 
-  /** A non-2xx response throws an ApiError with the status code. */
+  /** A non-2xx response throws an ApiError with the status code and a "<status> <statusText>" message. */
   it('throws ApiError on a non-2xx response', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       jsonResponse({}, { status: 404, statusText: 'Not Found' }),
     )
     await expect(apiFetch('/test', {})).rejects.toMatchObject({ status: 404 })
+    // The message joins status + statusText with a single space — pin that format.
+    await expect(apiFetch('/test', {})).rejects.toThrow('404 Not Found')
   })
 
   /** ApiError is an instance of Error and carries the status. */

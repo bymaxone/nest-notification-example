@@ -58,6 +58,18 @@ describe('explorerHref', () => {
     expect(href).not.toContain('range=')
   })
 
+  /** An empty-string `from` is treated as unset, falling back to the relative range. */
+  it('treats an empty from as unset and applies the relative range', () => {
+    /**
+     * Scenario: `from: ''` (a blank URL token).
+     * Contract: the absolute-window branch requires a non-empty `from`, so a blank value falls
+     * through to the default relative `range` rather than emitting `from=`.
+     */
+    const href = explorerHref({ from: '', verb: 'sent' })
+    expect(href).toContain('range=15m')
+    expect(href).not.toContain('from=')
+  })
+
   /** Empty-string fields are skipped (no dangling params). */
   it('skips empty-string fields', () => {
     const href = explorerHref({ id: '', verb: '', recipient: 'j***@acme.com' })

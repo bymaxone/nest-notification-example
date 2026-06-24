@@ -132,18 +132,24 @@ describe('RingBuffer', () => {
 // ── useAuditStream ──────────────────────────────────────────────────────────
 
 describe('useAuditStream', () => {
-  /** When disabled, no EventSource is constructed and connected stays false. */
+  /** When disabled, no EventSource is constructed and rows/connected/failed stay at their falsy base. */
   it('does not open a connection when disabled', () => {
-    renderHook(() => useAuditStream(filter, false))
+    const { result } = renderHook(() => useAuditStream(filter, false))
     expect(FakeEventSource.last).toBeNull()
+    // The disabled branch leaves an empty buffer and both flags false (never a seeded/true state).
+    expect(result.current.rows).toHaveLength(0)
+    expect(result.current.isConnected).toBe(false)
+    expect(result.current.isFailed).toBe(false)
   })
 
-  /** When enabled, an EventSource is constructed at the proxy URL. */
+  /** When enabled, an EventSource is constructed at the proxy URL and stays unconnected until open. */
   it('opens a connection to the audit stream proxy when enabled', () => {
-    renderHook(() => useAuditStream(filter, true))
+    const { result } = renderHook(() => useAuditStream(filter, true))
     expect(FakeEventSource.last).toBeTruthy()
     expect(source().url).toContain('/api/audit/stream')
     expect(source().url).toContain('role=admin')
+    // Constructing the source does not mark connected — that waits for `onopen`.
+    expect(result.current.isConnected).toBe(false)
   })
 
   /** When the filter omits `role`, the fallback default "viewer" is used in the URL. */
@@ -193,13 +199,16 @@ describe('useAuditStream', () => {
     expect(result.current.rows).toHaveLength(0)
   })
 
-  /** A malformed JSON frame is silently skipped. */
+  /** A malformed JSON frame is silently skipped (no undefined row is ever buffered). */
   it('skips malformed JSON frames', async () => {
     const { result } = renderHook(() => useAuditStream(filter, true))
     await act(() => {
       source().emit('{not-json')
     })
-    flushRaf()
+    // Flush inside act so any (erroneously) buffered row would surface in state — it must not.
+    await act(() => {
+      flushRaf()
+    })
     expect(result.current.rows).toHaveLength(0)
   })
 
@@ -265,15 +274,33 @@ describe('useAuditStream', () => {
     expect(es.closeCount).toBeGreaterThan(0)
   })
 
-  /** The idle timer closes the connection after IDLE_STOP_MS with no data. */
-  it('closes the connection after an idle period', async () => {
-    renderHook(() => useAuditStream(filter, true))
+  /** The idle timer leaves a fresh connection open, then closes it once the idle window elapses. */
+  it('closes the connection only after the idle window elapses', async () => {
+    /**
+     * Scenario: a connected stream with no data, the clock advancing in two steps.
+     * Contract: under the idle threshold the stream stays open (the elapsed-time guard is a real
+     * boundary, not an always-close); past it the source closes and `isConnected` flips false.
+     */
+    const { result } = renderHook(() => useAuditStream(filter, true))
     const es = source()
-    // Advance past the idle stop threshold (5min + check interval)
     await act(() => {
-      vi.advanceTimersByTime(6 * 60_000)
+      source().onopen?.()
+    })
+
+    // Advancing to EXACTLY the idle window must NOT close — the guard is strictly greater-than, so a
+    // `>=` mutant (which would close at the boundary) is caught here.
+    await act(() => {
+      vi.advanceTimersByTime(5 * 60_000)
+    })
+    expect(es.closeCount).toBe(0)
+    expect(result.current.isConnected).toBe(true)
+
+    // One check past the window the connection closes and reports disconnected.
+    await act(() => {
+      vi.advanceTimersByTime(30_000)
     })
     expect(es.closeCount).toBeGreaterThan(0)
+    expect(result.current.isConnected).toBe(false)
   })
 
   /** Cleanup on unmount closes the EventSource. */
@@ -341,6 +368,43 @@ describe('useAuditStream', () => {
     })
     // After cleanup + our stub cancelAnimationFrame, rafQueue is empty.
     expect(rafQueue.size).toBe(0)
+  })
+
+  /** clear() empties the pending queue so a later row is the only one buffered (no stale replay). */
+  it('clear() drops stale pending rows so a later row is not replayed alongside them', async () => {
+    /**
+     * Scenario: a row is queued (not yet flushed), the buffer is cleared, then a new row arrives.
+     * Contract: clear empties the pending queue to `[]`, so the next flush buffers ONLY the new
+     * row — a non-empty reset would replay the stale/sentinel entry.
+     */
+    const { result } = renderHook(() => useAuditStream(filter, true))
+    const makeRow = (id: string): string =>
+      JSON.stringify({
+        id,
+        tenantId: 'acme',
+        channel: 'email',
+        verb: 'send',
+        recipient: null,
+        status: 'success',
+        errorCode: null,
+        createdAt: '2026-06-23T00:00:00.000Z',
+      })
+
+    await act(() => {
+      source().emit(makeRow('stale'))
+    })
+    await act(() => {
+      result.current.clear()
+    })
+    await act(() => {
+      source().emit(makeRow('fresh'))
+    })
+    await act(() => {
+      flushRaf()
+    })
+
+    expect(result.current.rows).toHaveLength(1)
+    expect(result.current.rows[0]!.id).toBe('fresh')
   })
 
   /** Filter change resets the buffer and starts a new stream. */

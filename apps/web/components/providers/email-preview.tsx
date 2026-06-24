@@ -21,6 +21,8 @@ import {
   EMAIL_RENDERERS,
   getEmailPreviewTemplate,
   renderEmailPreview,
+  type EmailPreviewTemplate,
+  type RenderedEmailPreview,
 } from '@/lib/api/providers'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -43,6 +45,113 @@ function MetaRow({ label, value }: { label: string; value: string }) {
       <span className="text-white/55">{label}</span>
       <span className="font-mono text-white/80">{value}</span>
     </div>
+  )
+}
+
+/** Props for {@link PreviewControls}. */
+interface PreviewControlsProps {
+  /** The selected template. */
+  template: EmailPreviewTemplate
+  /** Select a template by id. */
+  onTemplateId: (id: string) => void
+  /** The selected renderer label. */
+  renderer: string
+  /** Select a renderer label. */
+  onRenderer: (value: string) => void
+  /** The editable markup variable. */
+  variable: string
+  /** Edit the markup variable. */
+  onVariable: (value: string) => void
+}
+
+/** The template / renderer / variable controls row. */
+function PreviewControls(props: PreviewControlsProps) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="preview-template">Template</Label>
+        <Select value={props.template.id} onValueChange={props.onTemplateId}>
+          <SelectTrigger id="preview-template" className="w-48" aria-label="Template">
+            <SelectValue placeholder="Template" />
+          </SelectTrigger>
+          <SelectContent>
+            {EMAIL_PREVIEW_TEMPLATES.map((entry) => (
+              <SelectItem key={entry.id} value={entry.id}>
+                {entry.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="preview-renderer">Renderer</Label>
+        <Select value={props.renderer} onValueChange={props.onRenderer}>
+          <SelectTrigger id="preview-renderer" className="w-44" aria-label="Renderer">
+            <SelectValue placeholder="Renderer" />
+          </SelectTrigger>
+          <SelectContent>
+            {EMAIL_RENDERERS.map((name) => (
+              <SelectItem key={name} value={name}>
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5">
+        <Label htmlFor="preview-variable">Variable (try HTML)</Label>
+        <Input
+          id="preview-variable"
+          value={props.variable}
+          onChange={(event) => props.onVariable(event.target.value)}
+          className="font-mono text-xs"
+        />
+      </div>
+    </div>
+  )
+}
+
+/** Shared class for the source `<pre>` panes. */
+const PRE_CLASS =
+  'overflow-auto rounded-lg border border-(--glass-border) bg-(--glass-bg) p-3 text-xs text-white/80'
+
+/** The Rendered / HTML / Text / Metadata tabs over a rendered preview. */
+function PreviewTabs({ rendered }: { rendered: RenderedEmailPreview }) {
+  return (
+    <Tabs defaultValue="rendered">
+      <TabsList>
+        <TabsTrigger value="rendered">Rendered</TabsTrigger>
+        <TabsTrigger value="html">HTML</TabsTrigger>
+        <TabsTrigger value="text">Text</TabsTrigger>
+        <TabsTrigger value="metadata">Metadata</TabsTrigger>
+      </TabsList>
+      <TabsContent value="rendered">
+        <iframe
+          title="Rendered email preview"
+          sandbox=""
+          srcDoc={rendered.html}
+          className="h-48 w-full rounded-lg border border-(--glass-border) bg-white"
+        />
+      </TabsContent>
+      <TabsContent value="html">
+        <pre data-testid="preview-html" className={PRE_CLASS}>
+          {rendered.html}
+        </pre>
+      </TabsContent>
+      <TabsContent value="text">
+        <pre data-testid="preview-text" className={PRE_CLASS}>
+          {rendered.text}
+        </pre>
+      </TabsContent>
+      <TabsContent value="metadata">
+        <div className="rounded-lg border border-(--glass-border) bg-(--glass-bg) p-3">
+          <MetaRow label="Subject" value={rendered.metadata.subject} />
+          <MetaRow label="Locale" value={rendered.metadata.locale} />
+          <MetaRow label="Template" value={rendered.metadata.templateId} />
+          <MetaRow label="Renderer" value={rendered.metadata.renderer} />
+        </div>
+      </TabsContent>
+    </Tabs>
   )
 }
 
@@ -69,91 +178,15 @@ export function EmailPreview() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="preview-template">Template</Label>
-          <Select
-            value={template.id}
-            onValueChange={(id) => setTemplate(getEmailPreviewTemplate(id))}
-          >
-            <SelectTrigger id="preview-template" className="w-48" aria-label="Template">
-              <SelectValue placeholder="Template" />
-            </SelectTrigger>
-            <SelectContent>
-              {EMAIL_PREVIEW_TEMPLATES.map((entry) => (
-                <SelectItem key={entry.id} value={entry.id}>
-                  {entry.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="preview-renderer">Renderer</Label>
-          <Select value={renderer} onValueChange={setRenderer}>
-            <SelectTrigger id="preview-renderer" className="w-44" aria-label="Renderer">
-              <SelectValue placeholder="Renderer" />
-            </SelectTrigger>
-            <SelectContent>
-              {EMAIL_RENDERERS.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex flex-1 flex-col gap-1.5">
-          <Label htmlFor="preview-variable">Variable (try HTML)</Label>
-          <Input
-            id="preview-variable"
-            value={variable}
-            onChange={(event) => setVariable(event.target.value)}
-            className="font-mono text-xs"
-          />
-        </div>
-      </div>
-
-      <Tabs defaultValue="rendered">
-        <TabsList>
-          <TabsTrigger value="rendered">Rendered</TabsTrigger>
-          <TabsTrigger value="html">HTML</TabsTrigger>
-          <TabsTrigger value="text">Text</TabsTrigger>
-          <TabsTrigger value="metadata">Metadata</TabsTrigger>
-        </TabsList>
-        <TabsContent value="rendered">
-          <iframe
-            title="Rendered email preview"
-            sandbox=""
-            srcDoc={rendered.html}
-            className="h-48 w-full rounded-lg border border-(--glass-border) bg-white"
-          />
-        </TabsContent>
-        <TabsContent value="html">
-          <pre
-            data-testid="preview-html"
-            className="overflow-auto rounded-lg border border-(--glass-border) bg-(--glass-bg) p-3 text-xs text-white/80"
-          >
-            {rendered.html}
-          </pre>
-        </TabsContent>
-        <TabsContent value="text">
-          <pre
-            data-testid="preview-text"
-            className="overflow-auto rounded-lg border border-(--glass-border) bg-(--glass-bg) p-3 text-xs text-white/80"
-          >
-            {rendered.text}
-          </pre>
-        </TabsContent>
-        <TabsContent value="metadata">
-          <div className="rounded-lg border border-(--glass-border) bg-(--glass-bg) p-3">
-            <MetaRow label="Subject" value={rendered.metadata.subject} />
-            <MetaRow label="Locale" value={rendered.metadata.locale} />
-            <MetaRow label="Template" value={rendered.metadata.templateId} />
-            <MetaRow label="Renderer" value={rendered.metadata.renderer} />
-          </div>
-        </TabsContent>
-      </Tabs>
+      <PreviewControls
+        template={template}
+        onTemplateId={(id) => setTemplate(getEmailPreviewTemplate(id))}
+        renderer={renderer}
+        onRenderer={setRenderer}
+        variable={variable}
+        onVariable={setVariable}
+      />
+      <PreviewTabs rendered={rendered} />
     </div>
   )
 }

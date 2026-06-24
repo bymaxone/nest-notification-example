@@ -25,6 +25,8 @@ import {
   resendOtp,
   verifyOtp,
   type OtpGenerateData,
+  type OtpReference,
+  type OtpVerifyInput,
   type OtpVerifyOutcome,
 } from '@/lib/api/otp'
 import type { ApiResult } from '@/lib/api/http'
@@ -48,6 +50,9 @@ import { OtpInputBox } from './otp-input-box'
 
 /** The demo recipient an OTP is issued to (a valid, non-PII address). */
 const DEMO_RECIPIENT = 'demo@example.com'
+
+/** The tenant + recipient + purpose shared by every OTP request. */
+type OtpReferenceInput = OtpReference & { tenantId: string }
 
 /** The active OTP's expiry + cooldown timestamps. */
 interface OtpSession {
@@ -107,8 +112,84 @@ interface OtpController {
   expire: () => void
 }
 
+/** The state mutators the action runners drive. */
+interface OtpStateActions {
+  /** Replace (or clear) the active session. */
+  setSession: (value: OtpSession | null) => void
+  /** Replace the feedback line. */
+  setFeedback: (value: Feedback) => void
+  /** Toggle the in-flight flag. */
+  setBusy: (value: boolean) => void
+  /** Increment the box reset token. */
+  bumpReset: () => void
+}
+
+/** Set a localized failure message + clear the box. */
+function failTo(
+  actions: OtpStateActions,
+  code: string,
+  remainingAttempts: number | null,
+  terminal: boolean,
+): void {
+  actions.setFeedback({
+    kind: 'message',
+    text: localizeNotificationError(code),
+    remainingAttempts,
+    terminal,
+  })
+  actions.bumpReset()
+}
+
+/** Run a generate/resend, mapping the outcome onto the session + feedback. */
+async function runIssue(
+  call: Promise<ApiResult<OtpGenerateData>>,
+  actions: OtpStateActions,
+): Promise<void> {
+  actions.setBusy(true)
+  const outcome = await issueOtp(call)
+  if (outcome.ok) {
+    actions.setSession({
+      expiresAt: outcome.data.expiresAt,
+      cooldownUntil: Date.now() + outcome.data.cooldownSeconds * 1000,
+    })
+    actions.setFeedback({ kind: 'idle' })
+    actions.bumpReset()
+  } else {
+    failTo(actions, outcome.code, null, false)
+  }
+  actions.setBusy(false)
+}
+
+/** Run a verify, mapping the discriminated outcome onto the feedback. */
+async function runVerify(input: OtpVerifyInput, actions: OtpStateActions): Promise<void> {
+  let outcome: OtpVerifyOutcome
+  try {
+    outcome = await verifyOtp(input)
+  } catch {
+    failTo(actions, '', null, false)
+    return
+  }
+  if (outcome.ok) {
+    actions.setFeedback({ kind: 'success' })
+    return
+  }
+  failTo(actions, outcome.code, outcome.remainingAttempts, isTerminalCode(outcome.code))
+}
+
+/** Run a consume, clearing the session on success. */
+async function runConsume(input: OtpReferenceInput, actions: OtpStateActions): Promise<void> {
+  try {
+    await consumeOtp(input)
+    actions.setSession(null)
+    actions.setFeedback({ kind: 'idle' })
+    actions.bumpReset()
+  } catch {
+    failTo(actions, '', null, false)
+  }
+}
+
 /**
- * Holds every piece of OTP-flow state and the action handlers.
+ * Holds every piece of OTP-flow state and wires the action runners.
  *
  * @param tenantId - The active tenant (trusted `x-tenant-id`).
  * @returns The reactive controller consumed by the panel.
@@ -122,87 +203,29 @@ function useOtpController(tenantId: string): OtpController {
   const [feedback, setFeedback] = useState<Feedback>({ kind: 'idle' })
   const purpose = getOtpPurposeConfig(purposeKey).purpose
   const cooldown = useOtpCountdown({ expiresAt: session?.cooldownUntil ?? null })
-
-  const clear = (next: Feedback): void => {
-    setSession(null)
-    setFeedback(next)
-    setResetToken((token) => token + 1)
-  }
-
-  const selectPurpose = (value: string): void => {
-    setPurposeKey(value)
-    clear({ kind: 'idle' })
-  }
-
-  const issue = async (call: Promise<ApiResult<OtpGenerateData>>): Promise<void> => {
-    setBusy(true)
-    const outcome = await issueOtp(call)
-    if (outcome.ok) {
-      setSession({
-        expiresAt: outcome.data.expiresAt,
-        cooldownUntil: Date.now() + outcome.data.cooldownSeconds * 1000,
-      })
-      setFeedback({ kind: 'idle' })
-      setResetToken((token) => token + 1)
-    } else {
-      setFeedback({
-        kind: 'message',
-        text: localizeNotificationError(outcome.code),
-        remainingAttempts: null,
-        terminal: false,
-      })
-    }
-    setBusy(false)
-  }
-
-  const failWith = (code: string, remainingAttempts: number | null, terminal: boolean): void => {
-    setFeedback({
-      kind: 'message',
-      text: localizeNotificationError(code),
-      remainingAttempts,
-      terminal,
-    })
-    setResetToken((token) => token + 1)
-  }
-
-  const verify = async (code: string): Promise<void> => {
-    let outcome: OtpVerifyOutcome
-    try {
-      outcome = await verifyOtp({ tenantId, recipient, purpose, code })
-    } catch {
-      failWith('', null, false)
-      return
-    }
-    if (outcome.ok) {
-      setFeedback({ kind: 'success' })
-      return
-    }
-    failWith(outcome.code, outcome.remainingAttempts, isTerminalCode(outcome.code))
-  }
-
-  const consume = async (): Promise<void> => {
-    try {
-      await consumeOtp({ tenantId, recipient, purpose })
-      clear({ kind: 'idle' })
-    } catch {
-      failWith('', null, false)
-    }
-  }
+  const bumpReset = (): void => setResetToken((token) => token + 1)
+  const actions: OtpStateActions = { setSession, setFeedback, setBusy, bumpReset }
+  const ref: OtpReferenceInput = { tenantId, recipient, purpose }
 
   return {
     recipient,
     setRecipient,
     purposeKey,
-    selectPurpose,
+    selectPurpose: (value) => {
+      setPurposeKey(value)
+      setSession(null)
+      setFeedback({ kind: 'idle' })
+      bumpReset()
+    },
     session,
     cooldownRemaining: cooldown.remainingSeconds,
     resetToken,
     busy,
     feedback,
-    generate: () => issue(generateOtp({ tenantId, recipient, purpose, deliverVia: 'email' })),
-    resend: () => issue(resendOtp({ tenantId, recipient, purpose, deliverVia: 'email' })),
-    verify,
-    consume,
+    generate: () => runIssue(generateOtp({ ...ref, deliverVia: 'email' }), actions),
+    resend: () => runIssue(resendOtp({ ...ref, deliverVia: 'email' }), actions),
+    verify: (code) => runVerify({ ...ref, code }, actions),
+    consume: () => runConsume(ref, actions),
     expire: () => setFeedback({ kind: 'expired' }),
   }
 }
@@ -275,6 +298,30 @@ function OtpFeedback({ feedback }: { feedback: Feedback }) {
   )
 }
 
+/** The success-consume / cooldown-gated-resend action for the challenge. */
+function ChallengeAction({ controller }: { controller: OtpController }) {
+  if (controller.feedback.kind === 'success') {
+    return (
+      <Button type="button" variant="secondary" size="sm" onClick={() => void controller.consume()}>
+        Consume
+      </Button>
+    )
+  }
+  const cooldown = controller.cooldownRemaining
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      size="sm"
+      onClick={() => void controller.resend()}
+      disabled={controller.busy || cooldown > 0}
+    >
+      <RefreshCw aria-hidden className="h-3.5 w-3.5" />
+      {cooldown > 0 ? `Resend in ${formatCooldown(cooldown)}` : 'Resend'}
+    </Button>
+  )
+}
+
 /** The challenge area shown once an OTP is active: pill + box + resend + feedback. */
 function OtpChallenge({ controller }: { controller: OtpController }) {
   const { session, feedback } = controller
@@ -286,7 +333,6 @@ function OtpChallenge({ controller }: { controller: OtpController }) {
     feedback.kind === 'success' ||
     feedback.kind === 'expired' ||
     (feedback.kind === 'message' && feedback.terminal)
-  const resendDisabled = controller.busy || controller.cooldownRemaining > 0
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-(--glass-border) bg-(--glass-bg) p-4">
       <div className="flex items-center justify-between">
@@ -302,29 +348,7 @@ function OtpChallenge({ controller }: { controller: OtpController }) {
       />
       <div className="flex items-center justify-between gap-3">
         <OtpFeedback feedback={feedback} />
-        {feedback.kind === 'success' ? (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => void controller.consume()}
-          >
-            Consume
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => void controller.resend()}
-            disabled={resendDisabled}
-          >
-            <RefreshCw aria-hidden className="h-3.5 w-3.5" />
-            {controller.cooldownRemaining > 0
-              ? `Resend in ${formatCooldown(controller.cooldownRemaining)}`
-              : 'Resend'}
-          </Button>
-        )}
+        <ChallengeAction controller={controller} />
       </div>
     </div>
   )

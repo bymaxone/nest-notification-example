@@ -75,7 +75,8 @@ export default defineConfig({
   reporter: [['list']],
   use: {
     baseURL: WEB_URL,
-    trace: 'on-first-retry',
+    // Keep a trace whenever a test fails. `on-first-retry` would never fire with retries: 0.
+    trace: 'retain-on-failure',
   },
   // Every service the journeys depend on, each gated on its readiness URL. The first entry
   // also brings up Docker + the database (see API_COMMAND); the bring-up is generous on time

@@ -1,6 +1,6 @@
 # Phase 11 — Optional Auth Seam (`@bymax-one/nest-auth`)
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 3 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 3 / 3 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P11
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -75,9 +75,9 @@ invent new ones.
 
 | ID   | Task                                                                                | Status  | Priority | Size | Depends on |
 | ---- | ----------------------------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 11.1 | `NotificationAuthEmailProvider` adapter (7 port methods → canonical templates)      | 📋 ToDo | P0       | M    | —          |
-| 11.2 | Journey 13 — auth password-reset OTP rendered + sent + audited through the pipeline | 📋 ToDo | P0       | M    | 11.1       |
-| 11.3 | `docs/AUTH_INTEGRATION.md` — boundary, namespace isolation, no-duplication          | 📋 ToDo | P1       | S    | 11.1, 11.2 |
+| 11.1 | `NotificationAuthEmailProvider` adapter (7 port methods → canonical templates)      | ✅ Done | P0       | M    | —          |
+| 11.2 | Journey 13 — auth password-reset OTP rendered + sent + audited through the pipeline | ✅ Done | P0       | M    | 11.1       |
+| 11.3 | `docs/AUTH_INTEGRATION.md` — boundary, namespace isolation, no-duplication          | ✅ Done | P1       | S    | 11.1, 11.2 |
 
 ---
 
@@ -85,7 +85,7 @@ invent new ones.
 
 ### Task 11.1 — `NotificationAuthEmailProvider` adapter (7 port methods → canonical templates)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -99,20 +99,20 @@ mirror of the port, never add the package as a runtime dependency.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/src/notification/auth-email.provider.ts` exports an `@Injectable()` `NotificationAuthEmailProvider`
+- [x] `apps/api/src/notification/auth-email.provider.ts` exports an `@Injectable()` `NotificationAuthEmailProvider`
       implementing the **shape** of nest-auth's `IEmailProvider` (all 7 methods), constructed with `EmailService` (+ the
       tenant-context source) — JSDoc on the class and every method.
-- [ ] All **7 methods** are mapped to canonical templates and call `EmailService.sendTemplate` (no stub / no `throw`):
+- [x] All **7 methods** are mapped to canonical templates and call `EmailService.sendTemplate` (no stub / no `throw`):
       `sendEmailVerificationOtp`→`otp_code`, `sendPasswordResetOtp`→`otp_password_reset`,
       `sendPasswordResetToken`→link/token email, `sendMfaEnabledNotification`→`mfa_enabled`,
       `sendMfaDisabledNotification`→`mfa_disabled`, `sendNewSessionAlert`→`new_login_alert`, `sendInvitation`→
       `welcome`/`invitation`.
-- [ ] The port shape (`IEmailProvider`, `SessionInfo`, `InviteData`) is provided as a **local type-only mirror** (or a
+- [x] The port shape (`IEmailProvider`, `SessionInfo`, `InviteData`) is provided as a **local type-only mirror** (or a
       `import type` guarded so the build never requires `@bymax-one/nest-auth` at runtime); `@bymax-one/nest-auth` is **not**
       added to `apps/api/package.json` dependencies.
-- [ ] The adapter never logs the OTP / token / invite token / unmasked recipient; auth emails flow through the same
+- [x] The adapter never logs the OTP / token / invite token / unmasked recipient; auth emails flow through the same
       masking + audit path as any other `sendTemplate` call.
-- [ ] Unit-tested at 100% (every method asserts the correct `template`, `tenantId`, `to`, `locale`, and merged `data`);
+- [x] Unit-tested at 100% (every method asserts the correct `template`, `tenantId`, `to`, `locale`, and merged `data`);
       `pnpm --filter @nest-notification-example/api typecheck` and `lint` pass.
 
 #### Files to create / modify
@@ -225,7 +225,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 11.2 — Journey 13: auth password-reset OTP rendered + sent + audited through the pipeline
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 11.1
@@ -239,16 +239,16 @@ controller and an e2e test that asserts the email lands and the audit row is wri
 
 #### Acceptance criteria
 
-- [ ] A demo controller `POST /auth-demo/password-reset` (dev-only seam) accepts `{ to, locale? }`, generates a stand-in
+- [x] A demo controller `POST /auth-demo/password-reset` (dev-only seam) accepts `{ to, locale? }`, generates a stand-in
       OTP **locally** (mirroring what nest-auth would emit — NOT via `nest-notification`'s `OtpService`), and calls
       `NotificationAuthEmailProvider.sendPasswordResetOtp(to, otp, locale)`. The response never returns the OTP.
-- [ ] The send produces the **same** delivery-audit row(s) as any `EmailService.sendTemplate` call (visible via the
+- [x] The send produces the **same** delivery-audit row(s) as any `EmailService.sendTemplate` call (visible via the
       existing `GET /audit/logs`); the recipient is masked in the audit.
-- [ ] An e2e test drives the journey against the in-memory/mocked transport: it asserts a `sent` audit row exists for
+- [x] An e2e test drives the journey against the in-memory/mocked transport: it asserts a `sent` audit row exists for
       `template: 'otp_password_reset'` and that the OTP never appears in the response body or any log.
-- [ ] No OTP duplication: the journey does **not** call `/otp/generate` — the adapter only renders+sends the supplied
+- [x] No OTP duplication: the journey does **not** call `/otp/generate` — the adapter only renders+sends the supplied
       code (OVERVIEW §14, reason 1).
-- [ ] 100% coverage on the new controller + journey; `pnpm --filter @nest-notification-example/api typecheck` and `lint`
+- [x] 100% coverage on the new controller + journey; `pnpm --filter @nest-notification-example/api typecheck` and `lint`
       pass.
 
 #### Files to create / modify
@@ -341,7 +341,7 @@ Completion Protocol (run after finishing):
 
 ### Task 11.3 — `docs/AUTH_INTEGRATION.md` — boundary, namespace isolation, no-duplication
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: S
 - **Depends on**: 11.1, 11.2
@@ -355,15 +355,15 @@ journey 13. It expands OVERVIEW §14 into a standalone consumer guide.
 
 #### Acceptance criteria
 
-- [ ] `docs/AUTH_INTEGRATION.md` exists with: a one-paragraph summary of the seam; the **ownership boundary table** (who
+- [x] `docs/AUTH_INTEGRATION.md` exists with: a one-paragraph summary of the seam; the **ownership boundary table** (who
       owns auth-OTP / MFA / email delivery / general OTP / transactional email) mirroring OVERVIEW §14; the **7-method →
       canonical-template** mapping table the adapter implements (Task 11.1); the **Redis-namespace isolation** section
       (`notification:` vs `auth:`, keys never overlap); the **no-OTP-duplication** rule (reason 1); and a "Try it" pointer to
       journey 13 (`POST /auth-demo/password-reset`).
-- [ ] Code references point at the real produced files (`apps/api/src/notification/auth-email.provider.ts`,
+- [x] Code references point at the real produced files (`apps/api/src/notification/auth-email.provider.ts`,
       `auth-demo.controller.ts`); the doc states `nest-auth` is an **illustrative peer, not a hard dependency**.
-- [ ] No phase/task references; English-only; `markdown-link-check` reports no dead links.
-- [ ] The doc is linked from the README Documentation table / the docs index (matching how the other `docs/*.md` are
+- [x] No phase/task references; English-only; `markdown-link-check` reports no dead links.
+- [x] The doc is linked from the README Documentation table / the docs index (matching how the other `docs/*.md` are
       linked) so it is discoverable.
 
 #### Files to create / modify
@@ -479,6 +479,8 @@ If any DoD bullet is unmet or CI is red, set P11 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
-</content>
-</invoke>
+- 11.3 ✅ 2026-06-23 — docs/AUTH_INTEGRATION.md (boundary, namespaces, no-duplication)
+- 11.2 ✅ 2026-06-23 — journey 13: auth password-reset OTP sent + audited via the adapter
+- 11.1 ✅ 2026-06-23 — NotificationAuthEmailProvider adapter (7 port methods → canonical templates)
+  </content>
+  </invoke>

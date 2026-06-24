@@ -24,6 +24,8 @@ import { NotificationExceptionFilter } from './common/notification-exception.fil
 import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
 import { applyNotificationServiceMetadata } from './notification/notification-metadata.js'
+import { AuthDemoController } from './notification/auth-demo.controller.js'
+import { NotificationAuthEmailProvider } from './notification/auth-email.provider.js'
 import { DebugModule } from './debug/debug.module.js'
 import { DispatchModule } from './dispatch/dispatch.module.js'
 import { EmailModule } from './email/email.module.js'
@@ -39,6 +41,10 @@ applyNotificationServiceMetadata()
 
 /** Composes the application's global configuration and feature modules. */
 @Module({
+  controllers: [
+    // Dev-only seam for the optional nest-auth password-reset journey.
+    AuthDemoController,
+  ],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -72,6 +78,9 @@ applyNotificationServiceMetadata()
     { provide: APP_FILTER, useClass: NotificationExceptionFilter },
     // Record a sent/failed audit row per intercepted NotificationService.dispatch call.
     { provide: APP_INTERCEPTOR, useClass: NotificationAuditInterceptor },
+    // Optional adapter: maps the nest-auth IEmailProvider port to EmailService templates.
+    // REQUEST-scoped so it can resolve the tenant from the active x-tenant-id header.
+    NotificationAuthEmailProvider,
   ],
 })
 export class AppModule {}

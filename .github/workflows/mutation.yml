@@ -39,36 +39,37 @@ jobs:
     outputs:
       api: ${{ steps.filter.outputs.api }}
       web: ${{ steps.filter.outputs.web }}
-      api_ready: ${{ steps.cfg.outputs.api }}
-      web_ready: ${{ steps.cfg.outputs.web }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
         id: filter
         with:
-          # Only real mutated source counts — not the lockfile or this workflow —
-          # so the gate stays a no-op until application code lands.
+          # A workspace runs only when its mutated source, Stryker/jest config, or
+          # mutation scripts change — the lockfile and this workflow trip both jobs.
           filters: |
             api:
               - 'apps/api/src/**'
               - 'apps/api/test/**'
               - 'apps/api/stryker.config.json'
+              - 'apps/api/jest.stryker.config.cjs'
+              - 'apps/api/package.json'
+              - 'apps/api/tsconfig*.json'
+              - 'apps/api/prisma/schema.prisma'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/mutation.yml'
             web:
               - 'apps/web/app/**'
               - 'apps/web/lib/**'
               - 'apps/web/components/**'
               - 'apps/web/stryker.config.json'
-      - id: cfg
-        # A workspace is mutation-ready only once its Stryker config exists. Until then
-        # the mutation job skips, so source changes before mutation is wired (and before
-        # the per-workspace mutation scripts exist) do not fail the gate.
-        run: |
-          [ -f apps/api/stryker.config.json ] && echo "api=true" >> "$GITHUB_OUTPUT" || echo "api=false" >> "$GITHUB_OUTPUT"
-          [ -f apps/web/stryker.config.json ] && echo "web=true" >> "$GITHUB_OUTPUT" || echo "web=false" >> "$GITHUB_OUTPUT"
+              - 'apps/web/package.json'
+              - 'apps/web/vitest.config.ts'
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/mutation.yml'
 
   mutation-api:
     needs: detect
-    if: needs.detect.outputs.api == 'true' && needs.detect.outputs.api_ready == 'true'
+    if: needs.detect.outputs.api == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -118,7 +119,7 @@ jobs:
 
   mutation-web:
     needs: detect
-    if: needs.detect.outputs.web == 'true' && needs.detect.outputs.web_ready == 'true'
+    if: needs.detect.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

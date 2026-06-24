@@ -23,7 +23,10 @@ import { defineConfig, devices } from '@playwright/test'
 const WEB_URL = 'http://localhost:3003'
 const API_URL = 'http://localhost:3001'
 
-/** Repo root — workspace filters and `docker compose` resolve from here. */
+/**
+ * Repo root — workspace filters and `docker compose` resolve from here. From this file at
+ * `apps/web/playwright.config.ts`, `../../` climbs out of `web/` then `apps/` to the repo root.
+ */
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 
 // Dedicated test-stack endpoints (match docker-compose.test.yml). The Postgres auth is kept

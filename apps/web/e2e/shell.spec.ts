@@ -24,21 +24,23 @@ test.describe('Shell smoke', () => {
       'Roadmap',
       'Settings',
     ]) {
-      await expect(page.getByRole('link', { name: label })).toBeVisible()
+      // exact: true so a sidebar label (e.g. "Trigger Center") never also matches a body CTA
+      // whose accessible name merely contains it ("Fire one from the Trigger Center →").
+      await expect(page.getByRole('link', { name: label, exact: true })).toBeVisible()
     }
   })
 
   test('marks Overview active on the root route', async ({ page }) => {
     await page.goto('/')
-    const overview = page.getByRole('link', { name: 'Overview' })
+    const overview = page.getByRole('link', { name: 'Overview', exact: true })
     await expect(overview).toHaveAttribute('aria-current', 'page')
   })
 
   test('navigates between destinations', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: 'Trigger Center' }).click()
+    await page.getByRole('link', { name: 'Trigger Center', exact: true }).click()
     await expect(page).toHaveURL('/trigger')
-    await expect(page.getByRole('link', { name: 'Trigger Center' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'Trigger Center', exact: true })).toHaveAttribute(
       'aria-current',
       'page',
     )

@@ -14,13 +14,17 @@ import type { NotificationAuthEmailProvider } from './auth-email.provider.js'
 
 /** Mocked surface of NotificationAuthEmailProvider the controller touches. */
 interface MockAuthEmail {
-  sendPasswordResetOtp: ReturnType<typeof jest.fn>
+  sendPasswordResetOtp: ReturnType<
+    typeof jest.fn<(to: string, otp: string, locale?: string) => Promise<void>>
+  >
 }
 
 /** Build an AuthDemoController backed by a mock provider. */
 function build(): { controller: AuthDemoController; authEmail: MockAuthEmail } {
   const authEmail: MockAuthEmail = {
-    sendPasswordResetOtp: jest.fn().mockResolvedValue(undefined),
+    sendPasswordResetOtp: jest
+      .fn<(to: string, otp: string, locale?: string) => Promise<void>>()
+      .mockResolvedValue(undefined),
   }
   const controller = new AuthDemoController(authEmail as unknown as NotificationAuthEmailProvider)
   return { controller, authEmail }

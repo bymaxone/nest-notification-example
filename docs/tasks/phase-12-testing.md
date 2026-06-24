@@ -1,6 +1,6 @@
 # Phase 12 — Testing & 100% Coverage
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-24
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P12
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -80,12 +80,12 @@ Note the siblings do **not** yet bake `maxWorkers: '50%'` into their configs —
 
 | ID   | Task                                                                | Status  | Priority | Size | Depends on       |
 | ---- | ------------------------------------------------------------------- | ------- | -------- | ---- | ---------------- |
-| 12.1 | API Jest harness + coverage shim + maxWorkers cap                   | 📋 ToDo | P0       | M    | —                |
-| 12.2 | API unit coverage → 100% (services, providers, filter, config)      | 📋 ToDo | P0       | L    | 12.1             |
-| 12.3 | API e2e coverage → 100% (supertest HTTP surface + isolated modules) | 📋 ToDo | P0       | L    | 12.1             |
-| 12.4 | Web Vitest harness + setup + maxWorkers cap                         | 📋 ToDo | P0       | M    | —                |
-| 12.5 | Web unit coverage → 100% (lib, hooks, components, error-codes)      | 📋 ToDo | P0       | L    | 12.4             |
-| 12.6 | Playwright live journeys + CI `e2e`/`coverage-report` green         | 📋 ToDo | P0       | L    | 12.2, 12.3, 12.5 |
+| 12.1 | API Jest harness + coverage shim + maxWorkers cap                   | ✅ Done | P0       | M    | —                |
+| 12.2 | API unit coverage → 100% (services, providers, filter, config)      | ✅ Done | P0       | L    | 12.1             |
+| 12.3 | API e2e coverage → 100% (supertest HTTP surface + isolated modules) | ✅ Done | P0       | L    | 12.1             |
+| 12.4 | Web Vitest harness + setup + maxWorkers cap                         | ✅ Done | P0       | M    | —                |
+| 12.5 | Web unit coverage → 100% (lib, hooks, components, error-codes)      | ✅ Done | P0       | L    | 12.4             |
+| 12.6 | Playwright live journeys + CI `e2e`/`coverage-report` green         | ✅ Done | P0       | L    | 12.2, 12.3, 12.5 |
 
 ---
 
@@ -93,7 +93,7 @@ Note the siblings do **not** yet bake `maxWorkers: '50%'` into their configs —
 
 ### Task 12.1 — API Jest harness + coverage shim + maxWorkers cap
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -106,18 +106,18 @@ the `maxWorkers: '50%'` cap), the e2e config, the spec/test tsconfigs, and the c
 
 #### Acceptance criteria
 
-- [ ] `apps/api/jest.config.cjs` — `rootDir: 'src'`, `testRegex: '.*\\.spec\\.ts$'`, native ESM (`useESM`,
+- [x] `apps/api/jest.config.cjs` — `rootDir: 'src'`, `testRegex: '.*\\.spec\\.ts$'`, native ESM (`useESM`,
       `extensionsToTreatAsEsm`, `--experimental-vm-modules` via the script), `ignoreCoverageForAllDecorators: true`,
       `tsconfig: '<rootDir>/../tsconfig.spec.json'`, `moduleNameMapper` stripping `.js`, `coverageThreshold.global` = 100 on
       all four metrics, `collectCoverageFrom` excluding `*.spec.ts` / `*.module.ts` / `main.ts` / `*.dto.ts` / `*.d.ts`, and
       **`maxWorkers: '50%'`**.
-- [ ] `apps/api/tsconfig.spec.json` extends the test tsconfig and sets `emitDecoratorMetadata: false` (the phantom-branch
+- [x] `apps/api/tsconfig.spec.json` extends the test tsconfig and sets `emitDecoratorMetadata: false` (the phantom-branch
       shim); `apps/api/tsconfig.test.json` + `apps/api/test/tsconfig.json` present (e2e compiles with decorator metadata on).
-- [ ] `apps/api/test/jest-e2e.config.cjs` — `rootDir: '../'`, `testRegex: '\\.e2e-spec\\.ts$'`,
+- [x] `apps/api/test/jest-e2e.config.cjs` — `rootDir: '../'`, `testRegex: '\\.e2e-spec\\.ts$'`,
       `testPathIgnorePatterns: ['/node_modules/', '/\\.stryker-tmp/']`, `testTimeout: 30000`, decorator metadata on.
-- [ ] `apps/api/package.json` test scripts: `test`, `test:cov` (`--coverage`), `test:e2e` — each prefixed
+- [x] `apps/api/package.json` test scripts: `test`, `test:cov` (`--coverage`), `test:e2e` — each prefixed
       `NODE_OPTIONS='--experimental-vm-modules'`; root `pnpm --filter @nest-notification-example/api test:cov` runs and reports a coverage table.
-- [ ] `pnpm --filter @nest-notification-example/api exec jest --listTests` resolves; the harness runs the **existing** specs green (the number may be
+- [x] `pnpm --filter @nest-notification-example/api exec jest --listTests` resolves; the harness runs the **existing** specs green (the number may be
       < 100% until 12.2/12.3 fill gaps — that is expected here).
 
 #### Files to create / modify
@@ -213,7 +213,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 12.2 — API unit coverage → 100% (services, providers, filter, config)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 12.1
@@ -226,16 +226,16 @@ interceptor, the `NotificationException` HTTP filter, the Zod env schema, and th
 
 #### Acceptance criteria
 
-- [ ] `pnpm --filter @nest-notification-example/api test:cov` (unit project) reports **100%** branches / functions / lines / statements; the run
+- [x] `pnpm --filter @nest-notification-example/api test:cov` (unit project) reports **100%** branches / functions / lines / statements; the run
       is green and the `coverageThreshold.global` of 100 passes (no threshold lowered).
-- [ ] Unit specs (constructed directly, no DI container) cover: `notification/notification.config.ts` (every env branch:
+- [x] Unit specs (constructed directly, no DI container) cover: `notification/notification.config.ts` (every env branch:
       SMTP vs Resend vs No-op, attachment-guard limit, default-envelope resolution), `providers/nodemailer-email.provider.ts`
       (`send` / `isConfigured` / `name`, transport error mapping), `providers/prisma-notification-log.repository.ts`
       (write-side), the `NotificationAuditInterceptor`, the `NotificationException → HTTP` filter (every error-code → status),
       `config/` Zod schema (valid + each fail-fast branch), and `library-probe.ts` (token/type resolution).
-- [ ] Every `it()` carries a one-line scenario comment naming the scenario **and** the rule it protects.
-- [ ] No `any`, no suppression comment, no `/* istanbul ignore */`; functions ≤ 50 lines; files ≤ 800.
-- [ ] Coverage gaps are closed with real tests or by deleting genuinely-dead code — never by editing the exclusion list.
+- [x] Every `it()` carries a one-line scenario comment naming the scenario **and** the rule it protects.
+- [x] No `any`, no suppression comment, no `/* istanbul ignore */`; functions ≤ 50 lines; files ≤ 800.
+- [x] Coverage gaps are closed with real tests or by deleting genuinely-dead code — never by editing the exclusion list.
 
 #### Files to create / modify
 
@@ -316,7 +316,7 @@ Completion Protocol:
 
 ### Task 12.3 — API e2e coverage → 100% (supertest HTTP surface + isolated modules)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 12.1
@@ -330,17 +330,17 @@ coverage to 100%.
 
 #### Acceptance criteria
 
-- [ ] `pnpm --filter @nest-notification-example/api test:e2e` is green and the **combined** (unit + e2e) coverage is 100% on all four metrics.
-- [ ] e2e specs cover the live HTTP surface: `/health`; `/otp/{generate,verify,resend,consume}` + `/otp/status`
+- [x] `pnpm --filter @nest-notification-example/api test:e2e` is green and the **combined** (unit + e2e) coverage is 100% on all four metrics.
+- [x] e2e specs cover the live HTTP surface: `/health`; `/otp/{generate,verify,resend,consume}` + `/otp/status`
       (happy + invalid_code + cooldown 429 + expiry); `/email/{send,send-template}` (raw + template + locale fallback +
       oversize-attachment 413); `/dispatch` + `/channels`; `/audit/{logs,stream,aggregate}` (keyset page + SSE event +
       aggregate); `/debug/key`; and the `/admin/try-configure-{sms,push,async-useclass}` rejection endpoints.
-- [ ] Isolated-module specs (`forroot-sync.e2e-spec.ts`, `options-validation.e2e-spec.ts`) prove `forRoot` /
+- [x] Isolated-module specs (`forroot-sync.e2e-spec.ts`, `options-validation.e2e-spec.ts`) prove `forRoot` /
       `forRootAsync` registration + the `useClass`/`useExisting` rejection + the fail-fast invalid-options branch — each
       compiles a throwaway module so the global module is re-registered per spec.
-- [ ] e2e boots against `InMemoryOtpStorage` + a mocked `IEmailProvider`/transport (no network, no Mailpit/Resend); the
+- [x] e2e boots against `InMemoryOtpStorage` + a mocked `IEmailProvider`/transport (no network, no Mailpit/Resend); the
       e2e project compiles with `emitDecoratorMetadata` ON (real DI container).
-- [ ] Every `it()` carries a scenario comment; no suppression comments; OTP codes / unmasked recipient PII never asserted
+- [x] Every `it()` carries a scenario comment; no suppression comments; OTP codes / unmasked recipient PII never asserted
       in plaintext beyond the intended fixtures.
 
 #### Files to create / modify
@@ -419,7 +419,7 @@ Completion Protocol:
 
 ### Task 12.4 — Web Vitest harness + setup + maxWorkers cap
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -433,16 +433,16 @@ web 100% gate is wired before the gap-filling task.
 
 #### Acceptance criteria
 
-- [ ] `apps/web/vitest.config.ts` — `environment: 'jsdom'`, `setupFiles: ['./vitest.setup.ts']`, the `@ → ./` alias
+- [x] `apps/web/vitest.config.ts` — `environment: 'jsdom'`, `setupFiles: ['./vitest.setup.ts']`, the `@ → ./` alias
       (mirroring tsconfig `paths`), `include` of `{app,components,lib,hooks}/**/*.{test,spec}.{ts,tsx}`, v8 coverage with
       `include: ['lib/**','components/**']`, `exclude: ['components/ui/**','**/*.{test,spec}.{ts,tsx}']`, `thresholds` = 100
       on all four metrics, and **`test.maxWorkers: '50%'`**.
-- [ ] `apps/web/vitest.setup.ts` — registers `@testing-library/jest-dom/vitest`; polyfills `ResizeObserver`,
+- [x] `apps/web/vitest.setup.ts` — registers `@testing-library/jest-dom/vitest`; polyfills `ResizeObserver`,
       `IntersectionObserver`, `matchMedia`, `scrollIntoView`, and a non-zero `getBoundingClientRect` / `offsetWidth/Height`
       so recharts' `ResponsiveContainer` + virtualized tables mount under test.
-- [ ] `apps/web/vitest-globals.d.ts` (or equivalent) present so the jest-dom matchers typecheck.
-- [ ] `apps/web/package.json` scripts: `test` (`vitest run`), `test:watch`, `test:cov` (`vitest run --coverage`).
-- [ ] `pnpm --filter web test:cov` runs and prints a coverage table (number may be < 100% until 12.5 — OK here).
+- [x] `apps/web/vitest-globals.d.ts` (or equivalent) present so the jest-dom matchers typecheck.
+- [x] `apps/web/package.json` scripts: `test` (`vitest run`), `test:watch`, `test:cov` (`vitest run --coverage`).
+- [x] `pnpm --filter web test:cov` runs and prints a coverage table (number may be < 100% until 12.5 — OK here).
 
 #### Files to create / modify
 
@@ -525,7 +525,7 @@ Completion Protocol:
 
 ### Task 12.5 — Web unit coverage → 100% (lib, hooks, components, error-codes)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 12.4
@@ -539,14 +539,14 @@ table.
 
 #### Acceptance criteria
 
-- [ ] `pnpm --filter web test:cov` reports **100%** branches / functions / lines / statements over `lib/**` +
+- [x] `pnpm --filter web test:cov` reports **100%** branches / functions / lines / statements over `lib/**` +
       `components/**` (excluding `components/ui/**`); the run is green and the `thresholds` of 100 pass.
-- [ ] Specs cover: `lib/api-client` (request/error mapping), `lib/sse` (event parse + reconnect), `lib/filters` (nuqs
+- [x] Specs cover: `lib/api-client` (request/error mapping), `lib/sse` (event parse + reconnect), `lib/filters` (nuqs
       serialize/parse round-trip), `lib/error-codes` (**every** `NOTIFICATION_ERROR_CODES` key → a localized message — this
       is also what `audit:error-codes` audits), `lib/severity`; the `useOtpInput` / `useOtpCountdown` hooks (boundary +
       expiry + paste); the OTP box, countdown pill, audit table components (render + interaction + empty/error states).
-- [ ] `pnpm --filter web run lint` passes; `pnpm audit:error-codes` passes (every error code localized).
-- [ ] Every `it()` carries a scenario comment; no fake/placeholder class names asserted; real branches exercised; no
+- [x] `pnpm --filter web run lint` passes; `pnpm audit:error-codes` passes (every error code localized).
+- [x] Every `it()` carries a scenario comment; no fake/placeholder class names asserted; real branches exercised; no
       suppression comments.
 
 #### Files to create / modify
@@ -620,7 +620,7 @@ Completion Protocol:
 
 ### Task 12.6 — Playwright live journeys + CI `e2e`/`coverage-report` green
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 12.2, 12.3, 12.5
@@ -633,19 +633,19 @@ audit live-tail) against the **dedicated test stack**, wire the pre-flight + tea
 
 #### Acceptance criteria
 
-- [ ] `apps/web/playwright.config.ts` — `testDir: './e2e'`, `fullyParallel: false`, `workers: 1`, a `webServer` chain
+- [x] `apps/web/playwright.config.ts` — `testDir: './e2e'`, `fullyParallel: false`, `workers: 1`, a `webServer` chain
       that brings up `docker-compose.test.yml` (high ports), runs `prisma migrate deploy` + the demo seed against the TEST
       database, then starts the API + web each gated on its `/health` (and the web origin); `reuseExistingServer: true`;
       generous timeouts; `globalTeardown` that only tears down on `E2E_TEARDOWN=1`.
-- [ ] `apps/web/e2e/*.spec.ts` live journeys: **generate OTP → poll Mailpit for the code → verify → success**;
+- [x] `apps/web/e2e/*.spec.ts` live journeys: **generate OTP → poll Mailpit for the code → verify → success**;
       **send raw + template email → assert it lands in Mailpit**; **Audit Explorer live-tail** shows a freshly-triggered
       delivery via SSE. Each journey runs against the live stack and passes.
-- [ ] `apps/web/e2e/{ensure-stack.mjs, global-teardown.ts}` (pre-flight + teardown) present; `apps/web` `test:e2e`
+- [x] `apps/web/e2e/{ensure-stack.mjs, global-teardown.ts}` (pre-flight + teardown) present; `apps/web` `test:e2e`
       script = `node e2e/ensure-stack.mjs && playwright test`.
-- [ ] `.github/workflows/ci.yml` `unit` (runs `apps/api` + `apps/web` coverage as **separate sequential steps**,
+- [x] `.github/workflows/ci.yml` `unit` (runs `apps/api` + `apps/web` coverage as **separate sequential steps**,
       uploads coverage), `e2e-api` (supertest), `e2e-web` (needs `e2e-api`; brings up the test stack, runs Playwright), and
       `coverage-report` jobs are present and **green on a PR**; job names match Appendix D.
-- [ ] `pnpm test:cov` (root, `pnpm -r --workspace-concurrency=1`) reports 100% in both apps; Playwright journeys pass
+- [x] `pnpm test:cov` (root, `pnpm -r --workspace-concurrency=1`) reports 100% in both apps; Playwright journeys pass
       against the live stack.
 
 #### Files to create / modify
@@ -760,4 +760,9 @@ If any DoD bullet is unmet or CI is red, set P12 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 12.1 ✅ 2026-06-24 — API Jest harness + coverage shim + maxWorkers cap (+ spec-typecheck gate)
+- 12.2 ✅ 2026-06-24 — API unit coverage → 100%
+- 12.3 ✅ 2026-06-24 — API e2e coverage → 100%
+- 12.4 ✅ 2026-06-24 — Web Vitest harness + setup + maxWorkers cap
+- 12.5 ✅ 2026-06-24 — Web unit coverage → 100%
+- 12.6 ✅ 2026-06-24 — Playwright live journeys + CI e2e/coverage-report green

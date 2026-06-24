@@ -27,7 +27,9 @@ const makeMockRequest = (tenantId: string): Request =>
 
 /** Mocked surface of EmailService the provider touches. */
 interface MockEmailService {
-  sendTemplate: ReturnType<typeof jest.fn>
+  sendTemplate: ReturnType<
+    typeof jest.fn<(input: Record<string, unknown>) => Promise<{ messageId: string }>>
+  >
 }
 
 /** Mocked surface of ConfigService the provider touches (resolves WEB_ORIGIN). */
@@ -41,7 +43,9 @@ function build(tenantId = TENANT): {
   email: MockEmailService
 } {
   const email: MockEmailService = {
-    sendTemplate: jest.fn().mockResolvedValue({ messageId: 'mock-id' }),
+    sendTemplate: jest
+      .fn<(input: Record<string, unknown>) => Promise<{ messageId: string }>>()
+      .mockResolvedValue({ messageId: 'mock-id' }),
   }
   const config: MockConfigService = {
     get: jest.fn().mockReturnValue(BASE_URL),

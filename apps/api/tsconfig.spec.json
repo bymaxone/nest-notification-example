@@ -1,8 +1,14 @@
 {
-  "extends": "./tsconfig.json",
+  // ts-jest transform config for the UNIT suite only. It extends the shared test
+  // type-check config but flips `emitDecoratorMetadata` OFF: unit specs construct
+  // classes directly (no Nest DI container), so the `__metadata("design:paramtypes", …)`
+  // emit is unnecessary, and its unreachable `: Object` fallback arms would otherwise
+  // count as missed branches under coverage. Paired with Jest
+  // `ignoreCoverageForAllDecorators`, this keeps the 100% branch gate meaningful.
+  // The type-check gate runs through tsconfig.test.json, not this transform config.
+  "extends": "./tsconfig.test.json",
   "compilerOptions": {
     "rootDir": "src",
-    "types": ["node", "jest"],
     "outDir": "./dist-test",
     "emitDecoratorMetadata": false
   },

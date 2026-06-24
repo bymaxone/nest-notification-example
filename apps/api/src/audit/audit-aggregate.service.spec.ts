@@ -10,7 +10,11 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 
 import type { PrismaService } from '../prisma/prisma.service.js'
 import { AuditAggregateService, type AuditAggregateRow } from './audit-aggregate.service.js'
-import { auditAggregateQuerySchema } from './dto/audit-aggregate-query.dto.js'
+import type { AuditRestriction } from './audit-read.service.js'
+import {
+  auditAggregateQuerySchema,
+  type AuditAggregateQueryDto,
+} from './dto/audit-aggregate-query.dto.js'
 
 /** Build the service over a `$queryRaw` mock; return both. */
 function build(rows: AuditAggregateRow[] = []) {
@@ -19,12 +23,23 @@ function build(rows: AuditAggregateRow[] = []) {
   return { service: new AuditAggregateService(prisma), queryRaw }
 }
 
+/** Strip the schema's optional `tenantId` so the trusted restriction is the only source. */
+function dropSchemaTenant(query: AuditAggregateQueryDto): Omit<AuditAggregateQueryDto, 'tenantId'> {
+  const next = { ...query }
+  delete next.tenantId
+  return next
+}
+
 /** Parse + merge a tenant restriction so the service receives a fully-typed query. */
-function aggQuery(raw: Record<string, unknown>, tenantId?: string) {
-  return {
-    ...auditAggregateQuerySchema.parse(raw),
-    ...(tenantId !== undefined ? { tenantId } : {}),
-  }
+function aggQuery(
+  raw: Record<string, unknown>,
+  tenantId?: string,
+): AuditAggregateQueryDto & AuditRestriction {
+  // The schema carries its own optional `tenantId`, but the trusted restriction is the single
+  // source of truth (as in the controller): drop the parsed one and re-add only a concrete
+  // string, so the value never widens to `string | undefined` under exactOptionalPropertyTypes.
+  const query = dropSchemaTenant(auditAggregateQuerySchema.parse(raw))
+  return tenantId === undefined ? query : { ...query, tenantId }
 }
 
 describe('AuditAggregateService.query', () => {

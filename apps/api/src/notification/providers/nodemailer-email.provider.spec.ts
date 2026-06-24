@@ -15,7 +15,9 @@ import type { EmailSendOptions } from '@bymax-one/nest-notification'
 const sendMail = jest.fn<(message: Record<string, unknown>) => Promise<{ messageId: string }>>()
 
 /** The mocked `createTransport`, capturing the URL it was built from. */
-const createTransport = jest.fn(() => ({ sendMail }))
+const createTransport = jest.fn<(url: string) => { sendMail: typeof sendMail }>(() => ({
+  sendMail,
+}))
 
 jest.unstable_mockModule('nodemailer', () => ({ createTransport }))
 

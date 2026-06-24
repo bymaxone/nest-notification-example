@@ -21,7 +21,7 @@
 | P9    | `phase-09-console-core.md`          | Overview · Trigger Center · Audit Explorer (+ live tail)                            | ✅     |
 | P10   | `phase-10-otp-providers-panels.md`  | OTP-verify · provider matrix · email preview · roadmap · settings                   | ✅     |
 | P11   | `phase-11-auth-seam.md`             | `NotificationAuthEmailProvider` + the nest-auth journey                             | ✅     |
-| P12   | `phase-12-testing.md`               | 100% coverage (Jest api + Vitest web) + Playwright                                  | 📋     |
+| P12   | `phase-12-testing.md`               | 100% coverage (Jest api + Vitest web) + Playwright                                  | ✅     |
 | P13   | `phase-13-mutation.md`              | Stryker ≥ 95 → 100; `docs/stryker/*`                                                | 📋     |
 | P14   | `phase-14-docs-release.md`          | all `docs/*.md`, public-readiness, `v0.1.0` release                                 | 📋     |
 

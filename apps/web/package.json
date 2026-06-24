@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "node e2e/ensure-stack.mjs && playwright test"
   },
   "dependencies": {
     "@bymax-one/nest-notification": "file:../../../nest-notification",

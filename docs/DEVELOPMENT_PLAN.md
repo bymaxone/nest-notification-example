@@ -49,8 +49,8 @@ structural template, reconciled with the current vault standard.
 
 ## Progress
 
-- **Overall progress:** 12 / 15 phases · 64 / 82 tasks done (78%)
-- **Active phase:** P12 — Testing & 100% Coverage
+- **Overall progress:** 13 / 15 phases · 70 / 82 tasks done (85%)
+- **Active phase:** P13 — Mutation Hardening
 - **Blocked:** none
 
 > All 15 Layer-3 task files are scaffolded under [`docs/tasks/`](./tasks/) (82 tasks total). Execute one phase at a time
@@ -74,7 +74,7 @@ structural template, reconciled with the current vault standard.
 | P9  | Console Core (Overview · Trigger · Explorer) | `phase-09-console-core.md`          | ✅     | 6 / 6    | L    | 2026-06-23   |
 | P10 | OTP & Providers Panels                       | `phase-10-otp-providers-panels.md`  | ✅     | 6 / 6    | L    | 2026-06-23   |
 | P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | ✅     | 3 / 3    | M    | 2026-06-23   |
-| P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | 📋     | 0 / 6    | L    | —            |
+| P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | ✅     | 6 / 6    | L    | 2026-06-24   |
 | P13 | Mutation Hardening                           | `phase-13-mutation.md`              | 📋     | 0 / 5    | L    | —            |
 | P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 📋     | 0 / 7    | L    | —            |
 

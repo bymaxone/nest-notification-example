@@ -123,10 +123,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Run each workspace's coverage as a SEPARATE sequential step with a bounded heap: the
       # `file:` library is reloaded into every worker, so the two apps must never run at once.
+      # The heap cap lives in the api `test:cov` script's own NODE_OPTIONS (alongside
+      # --experimental-vm-modules) so it is actually enforced — a step-level env here would be
+      # overwritten by the script's inline NODE_OPTIONS rather than merged.
       - name: API unit coverage
         run: pnpm --filter @nest-notification-example/api test:cov
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
       - name: Web unit coverage
         run: pnpm --filter web test:cov
         env:
@@ -174,10 +175,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Scope to the API workspace so the web Vitest suite does not also run here. The e2e suite
       # boots in-process against an in-memory OTP store + a mocked transport — no live stack.
+      # Heap cap is set inside the api `test:e2e` script's own NODE_OPTIONS (a step-level env
+      # would be overwritten by the script's inline NODE_OPTIONS, not merged).
       - name: API e2e
         run: pnpm --filter @nest-notification-example/api test:e2e
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
 
   build-web:
     needs: install

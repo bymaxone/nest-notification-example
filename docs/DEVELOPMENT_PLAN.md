@@ -49,8 +49,8 @@ structural template, reconciled with the current vault standard.
 
 ## Progress
 
-- **Overall progress:** 14 / 15 phases · 75 / 82 tasks done (91%)
-- **Active phase:** P14 — Docs, Public-Readiness & Release
+- **Overall progress:** 15 / 15 phases · 82 / 82 tasks done (100%)
+- **Active phase:** — (roadmap complete)
 - **Blocked:** none
 
 > All 15 Layer-3 task files are scaffolded under [`docs/tasks/`](./tasks/) (82 tasks total). Execute one phase at a time
@@ -76,7 +76,7 @@ structural template, reconciled with the current vault standard.
 | P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | ✅     | 3 / 3    | M    | 2026-06-23   |
 | P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | ✅     | 6 / 6    | L    | 2026-06-24   |
 | P13 | Mutation Hardening                           | `phase-13-mutation.md`              | ✅     | 5 / 5    | L    | 2026-06-24   |
-| P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 📋     | 0 / 7    | L    | —            |
+| P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | ✅     | 7 / 7    | L    | 2026-06-24   |
 
 ---
 

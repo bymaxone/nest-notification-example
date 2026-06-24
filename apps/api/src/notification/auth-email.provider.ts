@@ -18,18 +18,17 @@
  * @module
  */
 import { Inject, Injectable, Scope } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { REQUEST } from '@nestjs/core'
 import type { Request } from 'express'
 import { CANONICAL_EMAIL_TEMPLATES, EmailService } from '@bymax-one/nest-notification'
 
 import { resolveTenantId } from '../common/tenant-id.decorator.js'
-import type { AuthEmailPort, InviteData, SessionInfo } from './auth-email.types.js'
+import type { Env } from '../config/env.schema.js'
+import type { IEmailProvider, InviteData, SessionInfo } from './auth-email.types.js'
 
 /** Application display name used in auth email bodies. */
 const APP_NAME = 'Bymax'
-
-/** Base URL for action links embedded in auth emails (password-reset, invitation accept). */
-const APP_BASE_URL: string = process.env['WEB_ORIGIN'] ?? 'http://localhost:3003'
 
 /**
  * Adapts nest-notification's EmailService to the shape of @bymax-one/nest-auth's
@@ -50,15 +49,27 @@ const APP_BASE_URL: string = process.env['WEB_ORIGIN'] ?? 'http://localhost:3003
  * ```
  */
 @Injectable({ scope: Scope.REQUEST })
-export class NotificationAuthEmailProvider implements AuthEmailPort {
+export class NotificationAuthEmailProvider implements IEmailProvider {
   constructor(
     private readonly email: EmailService,
+    private readonly config: ConfigService<Env, true>,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
   /** Resolve the trusted tenant id from the current request's `x-tenant-id` header. */
   private tenantId(): string {
     return resolveTenantId(this.request.headers['x-tenant-id'])
+  }
+
+  /**
+   * Resolve the console base URL for action links from the Zod-validated config.
+   *
+   * Reads `WEB_ORIGIN` (defaulted to `http://localhost:3003` by the schema) through
+   * ConfigService so the single source of truth for configuration is honoured rather
+   * than reading `process.env` directly.
+   */
+  private baseUrl(): string {
+    return this.config.get('WEB_ORIGIN', { infer: true })
   }
 
   /**
@@ -110,7 +121,7 @@ export class NotificationAuthEmailProvider implements AuthEmailPort {
    * @param locale - BCP 47 locale tag; defaults to `'en'`.
    */
   async sendPasswordResetToken(to: string, token: string, locale = 'en'): Promise<void> {
-    const resetUrl = `${APP_BASE_URL}/reset-password?token=${token}`
+    const resetUrl = `${this.baseUrl()}/reset-password?token=${encodeURIComponent(token)}`
     await this.email.sendTemplate({
       tenantId: this.tenantId(),
       to,
@@ -184,7 +195,7 @@ export class NotificationAuthEmailProvider implements AuthEmailPort {
    * @param locale - BCP 47 locale tag; defaults to `'en'`.
    */
   async sendInvitation(to: string, inviteData: InviteData, locale = 'en'): Promise<void> {
-    const acceptUrl = `${APP_BASE_URL}/accept-invite?token=${inviteData.inviteToken}`
+    const acceptUrl = `${this.baseUrl()}/accept-invite?token=${encodeURIComponent(inviteData.inviteToken)}`
     await this.email.sendTemplate({
       tenantId: this.tenantId(),
       to,

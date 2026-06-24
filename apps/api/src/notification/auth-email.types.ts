@@ -50,12 +50,13 @@ export interface InviteData {
 }
 
 /**
- * Mirrors the shape of @bymax-one/nest-auth's `IEmailProvider` port.
+ * Local, type-only mirror of @bymax-one/nest-auth's `IEmailProvider` port.
  *
- * All 7 methods are mapped to canonical templates by {@link NotificationAuthEmailProvider}.
- * Kept type-only so no runtime import of @bymax-one/nest-auth is required.
+ * Named to match the real interface for faithful mirroring; all 7 methods are mapped to
+ * canonical templates by {@link NotificationAuthEmailProvider}. Kept type-only so no
+ * runtime import of @bymax-one/nest-auth is required — the package is an illustrative peer.
  */
-export interface AuthEmailPort {
+export interface IEmailProvider {
   /** Send a password-reset link containing a signed token. */
   sendPasswordResetToken(email: string, token: string, locale?: string): Promise<void>
   /** Send a one-time password for password reset. */

@@ -1,21 +1,25 @@
 /**
  * Unit tests for {@link NotificationAuthEmailProvider}.
  *
- * The EmailService and the Express Request are plain mocks; the provider is constructed
- * directly without NestJS DI. Covers all 7 port methods: each is asserted to call
+ * The EmailService, ConfigService, and Express Request are plain mocks; the provider is
+ * constructed directly without NestJS DI. Covers all 7 port methods: each is asserted to call
  * EmailService.sendTemplate with the correct template, tenantId, to, locale (including
  * the `'en'` default branch), and data payload. Proves no code, token, or raw recipient
  * is passed outside the sendTemplate data object.
  */
 import { describe, expect, it, jest, beforeEach } from '@jest/globals'
+import type { ConfigService } from '@nestjs/config'
 import type { Request } from 'express'
 import type { EmailService } from '@bymax-one/nest-notification'
 
 import { NotificationAuthEmailProvider } from './auth-email.provider.js'
+import type { Env } from '../config/env.schema.js'
 import type { InviteData, SessionInfo } from './auth-email.types.js'
 
 const TENANT = 'acme'
 const TO = 'user@acme.com'
+/** Test console origin returned by the mock ConfigService for action-link base URLs. */
+const BASE_URL = 'https://console.example.test'
 
 /** Minimal Express Request double providing the x-tenant-id header. */
 const makeMockRequest = (tenantId: string): Request =>
@@ -26,6 +30,11 @@ interface MockEmailService {
   sendTemplate: ReturnType<typeof jest.fn>
 }
 
+/** Mocked surface of ConfigService the provider touches (resolves WEB_ORIGIN). */
+interface MockConfigService {
+  get: ReturnType<typeof jest.fn>
+}
+
 /** Build a NotificationAuthEmailProvider backed by plain mocks. */
 function build(tenantId = TENANT): {
   provider: NotificationAuthEmailProvider
@@ -34,8 +43,12 @@ function build(tenantId = TENANT): {
   const email: MockEmailService = {
     sendTemplate: jest.fn().mockResolvedValue({ messageId: 'mock-id' }),
   }
+  const config: MockConfigService = {
+    get: jest.fn().mockReturnValue(BASE_URL),
+  }
   const provider = new NotificationAuthEmailProvider(
     email as unknown as EmailService,
+    config as unknown as ConfigService<Env, true>,
     makeMockRequest(tenantId),
   )
   return { provider, email }
@@ -130,6 +143,20 @@ describe('NotificationAuthEmailProvider.sendPasswordResetToken', () => {
      */
     await ctx.provider.sendPasswordResetToken(TO, 'secret-token')
     expect(ctx.email.sendTemplate).toHaveBeenCalledWith(expect.objectContaining({ locale: 'en' }))
+  })
+
+  it('percent-encodes reserved characters in the token and uses the configured base URL', async () => {
+    /**
+     * Reserved URL characters (+, /, =) in the token must be percent-encoded so the
+     * reset link survives query-string parsing intact, and the link base must come from
+     * the Zod-validated WEB_ORIGIN (via ConfigService), not a raw process.env read.
+     */
+    await ctx.provider.sendPasswordResetToken(TO, 'a+b/c=d', 'en')
+    const arg = ctx.email.sendTemplate.mock.calls[0]?.[0] as Record<string, unknown>
+    const resetUrl = String((arg['data'] as Record<string, unknown>)['resetUrl'])
+    expect(resetUrl).toBe(`${BASE_URL}/reset-password?token=a%2Bb%2Fc%3Dd`)
+    // The raw, unencoded reserved characters must not leak into the URL.
+    expect(resetUrl).not.toContain('a+b/c=d')
   })
 })
 
@@ -272,5 +299,17 @@ describe('NotificationAuthEmailProvider.sendInvitation', () => {
      */
     await ctx.provider.sendInvitation(TO, inviteData)
     expect(ctx.email.sendTemplate).toHaveBeenCalledWith(expect.objectContaining({ locale: 'en' }))
+  })
+
+  it('percent-encodes reserved characters in the invite token and uses the configured base URL', async () => {
+    /**
+     * Reserved characters in the invite token must be percent-encoded so the accept link
+     * survives query-string parsing, and the base must come from the validated WEB_ORIGIN.
+     */
+    await ctx.provider.sendInvitation(TO, { ...inviteData, inviteToken: 'x+y/z=1' }, 'en')
+    const arg = ctx.email.sendTemplate.mock.calls[0]?.[0] as Record<string, unknown>
+    const acceptUrl = String((arg['data'] as Record<string, unknown>)['acceptUrl'])
+    expect(acceptUrl).toBe(`${BASE_URL}/accept-invite?token=x%2By%2Fz%3D1`)
+    expect(acceptUrl).not.toContain('x+y/z=1')
   })
 })

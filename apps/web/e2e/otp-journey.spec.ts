@@ -30,11 +30,12 @@ test.describe('OTP live journey', () => {
     await expect(generateButton).toBeEnabled()
     // `next dev` compiles /otp on first hit, so the SSR Generate button can be in the DOM before
     // React wires its handler — a bare click would no-op and no code would be issued. Retry the
-    // click until the generate request actually reaches the API, then poll Mailpit for the code.
+    // click until the generate request actually succeeds, then poll Mailpit for the code.
+    // `POST /otp/generate` returns 201 Created, so accept any 2xx (`ok()`), not just 200.
     await expect(async () => {
       await generateButton.click()
       await page.waitForResponse(
-        (response) => response.url().includes('/otp/generate') && response.status() === 200,
+        (response) => response.url().includes('/otp/generate') && response.ok(),
         { timeout: 5_000 },
       )
     }).toPass({ timeout: 30_000 })

@@ -77,6 +77,8 @@ describe('RoadmapPanel', () => {
     const card = screen.getByTestId('probe-useclass')
     await waitFor(() => expect(within(card).getByText('useClass is rejected')).toBeInTheDocument())
     expect(within(card).queryByText(/is configured/)).toBeNull()
+    // A null code renders NO badge at all — not even the generic fallback message.
+    expect(within(card).queryByText(/An unexpected error occurred/)).toBeNull()
   })
 
   /** An empty message renders the explanatory fallback. */
@@ -100,6 +102,8 @@ describe('RoadmapPanel', () => {
     await tryProbe('sms')
     const card = screen.getByTestId('probe-sms')
     await waitFor(() => expect(within(card).getByRole('button')).toBeDisabled())
+    // The in-flight button shows the "Trying…" label.
+    expect(within(card).getByRole('button')).toHaveTextContent('Trying…')
   })
 
   /** A throwing probe still clears busy (button re-enabled) and shows the fallback. */

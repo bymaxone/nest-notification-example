@@ -22,6 +22,10 @@ import { cn } from '@/lib/utils'
 
 /** The currently-active positive value for a field (for highlighting). */
 function activeValue(query: AuditQuery, field: FacetField): string {
+  // Stryker disable next-line StringLiteral: the empty-string fallback is only the
+  // "no active value" sentinel — it is compared against real facet values (channel,
+  // verb, provider names) that are never empty, so any other non-matching sentinel
+  // highlights exactly the same (zero) rows. The `??` operator itself stays mutated-tested.
   return query[field] ?? ''
 }
 

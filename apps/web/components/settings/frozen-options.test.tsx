@@ -71,6 +71,13 @@ describe('FrozenOptions', () => {
     await waitFor(() => expect(screen.getByText('consumeOnVerify')).toBeInTheDocument())
     expect(screen.getByText('swallowErrors')).toBeInTheDocument()
     expect(screen.getByText(/Resolved once at boot/)).toBeInTheDocument()
+    // consumeOnVerify=true → an "on" badge in the brand (default) variant.
+    const on = screen.getByText('on')
+    expect(on).toHaveClass('bg-brand-500')
+    // swallowErrors=false → an "off" badge in the outline variant.
+    const off = screen.getByText('off')
+    expect(off).toHaveClass('text-foreground')
+    expect(off).not.toHaveClass('bg-brand-500')
     // The boot-frozen options are read-only: no interactive mutation control.
     expect(screen.queryByRole('switch')).toBeNull()
     expect(screen.queryByRole('checkbox')).toBeNull()

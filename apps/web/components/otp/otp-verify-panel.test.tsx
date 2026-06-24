@@ -47,6 +47,7 @@ vi.mock('./otp-input-box', () => ({
     length: number
     type: string
     disabled?: boolean
+    resetToken: number
     onComplete: (code: string) => void
   }) => (
     <button
@@ -55,6 +56,7 @@ vi.mock('./otp-input-box', () => ({
       data-length={props.length}
       data-type={props.type}
       data-disabled={String(props.disabled)}
+      data-reset={String(props.resetToken)}
       disabled={props.disabled}
       onClick={() => props.onComplete('123456')}
     >
@@ -199,7 +201,13 @@ describe('OtpVerifyPanel', () => {
     await generate()
     const resend = await screen.findByRole('button', { name: /^Resend$/ })
     await user.click(resend)
-    expect(api.resendOtp).toHaveBeenCalled()
+    // The resend carries the full reference (tenant/recipient/purpose) and email delivery.
+    expect(api.resendOtp).toHaveBeenCalledWith({
+      tenantId: 'acme',
+      recipient: 'demo@example.com',
+      purpose: 'email_verification',
+      deliverVia: 'email',
+    })
   })
 
   /** A cooldown rejection on generate surfaces the localized cooldown notice. */
@@ -236,6 +244,8 @@ describe('OtpVerifyPanel', () => {
     await user.click(await screen.findByRole('button', { name: 'Consume' }))
     await waitFor(() => expect(screen.queryByTestId('box')).toBeNull())
     expect(api.consumeOtp).toHaveBeenCalled()
+    // The post-consume feedback resets to idle — no stray status line remains.
+    expect(screen.queryByRole('status')).toBeNull()
   })
 
   /** Selecting password_reset drives the box to 8 alphanumeric slots. */
@@ -350,5 +360,124 @@ describe('OtpVerifyPanel', () => {
     pending.resolve({ ok: true, data: undefined })
     await waitFor(() => expect(screen.queryByTestId('box')).toBeNull())
     expect(screen.getByRole('button', { name: /Generate/ })).not.toBeDisabled()
+  })
+
+  /** On first render the idle feedback shows no status line (the `kind: 'idle'` seed + guard). */
+  it('shows no feedback status on the initial idle render', () => {
+    renderPanel()
+    expect(screen.queryByRole('status')).toBeNull()
+    expect(screen.queryByTestId('box')).toBeNull()
+  })
+
+  /** The header blurb keeps the explicit space before the "codes never leave the box" badge. */
+  it('renders the header blurb with the badge separated by a space', () => {
+    renderPanel()
+    const blurb = screen.getByText(/Generate a code/)
+    expect(blurb.textContent).toMatch(/backend\.\s+codes never leave the box/)
+  })
+
+  /** A successful generate clears feedback to idle (no stray status above the box). */
+  it('shows no status after a successful generate', async () => {
+    renderPanel()
+    await generate()
+    expect(screen.queryByRole('status')).toBeNull()
+  })
+
+  /** Generate bumps the box reset token from its initial zero (the `token + 1` increment). */
+  it('bumps the box reset token on generate', async () => {
+    renderPanel()
+    await generate()
+    // The token starts at 0; the single bump in the issue runner makes it exactly 1.
+    expect(screen.getByTestId('box')).toHaveAttribute('data-reset', '1')
+  })
+
+  /** A successful verify disables the box (the success arm of the terminal guard). */
+  it('disables the box on a successful verify', async () => {
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await waitFor(() => expect(screen.getByText(/Code verified/)).toBeInTheDocument())
+    expect(screen.getByTestId('box')).toBeDisabled()
+  })
+
+  /** OTP_NOT_FOUND is terminal: it locks the box (the second arm of `isTerminalCode`). */
+  it('locks the box when the code is not found', async () => {
+    api.verifyOtp.mockResolvedValue({
+      ok: false,
+      code: NOTIFICATION_ERROR_CODES.OTP_NOT_FOUND,
+      remainingAttempts: null,
+    })
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await waitFor(() => expect(screen.getByText(/expired or never existed/)).toBeInTheDocument())
+    expect(screen.getByTestId('box')).toBeDisabled()
+  })
+
+  /** A verify network error is non-terminal: the box stays enabled for a retry. */
+  it('keeps the box enabled after a verify network error', async () => {
+    api.verifyOtp.mockRejectedValue(new Error('offline'))
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await waitFor(() =>
+      expect(screen.getByText(/An unexpected error occurred/)).toBeInTheDocument(),
+    )
+    expect(screen.getByTestId('box')).not.toBeDisabled()
+  })
+
+  /** A consume network error is non-terminal: the box stays enabled. */
+  it('keeps the box enabled after a consume network error', async () => {
+    api.consumeOtp.mockRejectedValue(new Error('offline'))
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await user.click(await screen.findByRole('button', { name: 'Consume' }))
+    await waitFor(() =>
+      expect(screen.getByText(/An unexpected error occurred/)).toBeInTheDocument(),
+    )
+    expect(screen.getByTestId('box')).not.toBeDisabled()
+  })
+
+  /** A resend failure on an active session is non-terminal: the box stays enabled. */
+  it('keeps the box enabled after a resend failure', async () => {
+    api.generateOtp.mockResolvedValue({
+      ok: true,
+      data: { expiresAt: Date.now() + 60_000, cooldownSeconds: 0 },
+    })
+    api.resendOtp.mockResolvedValue({
+      ok: false,
+      code: NOTIFICATION_ERROR_CODES.OTP_COOLDOWN_ACTIVE,
+      message: 'wait',
+      retryAfterSeconds: 30,
+    })
+    renderPanel()
+    await generate()
+    await user.click(await screen.findByRole('button', { name: /^Resend$/ }))
+    await waitFor(() =>
+      expect(screen.getByText(/Please wait before requesting/)).toBeInTheDocument(),
+    )
+    // The session survives a failed resend, so the box is still shown and editable.
+    expect(screen.getByTestId('box')).not.toBeDisabled()
+  })
+
+  /** Selecting a different purpose clears any active feedback back to idle. */
+  it('clears feedback to idle when the purpose changes', async () => {
+    api.verifyOtp.mockResolvedValue({
+      ok: false,
+      code: NOTIFICATION_ERROR_CODES.OTP_INVALID_CODE,
+      remainingAttempts: 2,
+    })
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await waitFor(() => expect(screen.getByText(/Incorrect code/)).toBeInTheDocument())
+    await user.click(screen.getByRole('combobox', { name: 'Purpose' }))
+    const listbox = await screen.findByRole('listbox')
+    await user.click(within(listbox).getByRole('option', { name: 'Password reset' }))
+    // Changing purpose resets the session + feedback: the message and box both disappear.
+    expect(screen.queryByText(/Incorrect code/)).toBeNull()
+    expect(screen.queryByRole('status')).toBeNull()
+    expect(screen.queryByTestId('box')).toBeNull()
   })
 })

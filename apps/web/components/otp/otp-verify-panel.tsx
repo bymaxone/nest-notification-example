@@ -82,6 +82,10 @@ async function issueOtp(
       ? { ok: true, data: result.data }
       : { ok: false, code: result.code, retryAfterSeconds: result.retryAfterSeconds }
   } catch {
+    // A thrown call has no wire code; the empty string localizes to the generic
+    // fallback, and `retryAfterSeconds` is never read on the failure path — so an
+    // emptied object or a different sentinel code produces the identical UI.
+    // Stryker disable next-line ObjectLiteral,StringLiteral: see the note above.
     return { ok: false, code: '', retryAfterSeconds: null }
   }
 }
@@ -171,6 +175,8 @@ async function runVerify(input: OtpVerifyInput, actions: OtpStateActions): Promi
     }
     failTo(actions, outcome.code, outcome.remainingAttempts, isTerminalCode(outcome.code))
   } catch {
+    // Stryker disable next-line StringLiteral: a thrown verify has no code; the empty
+    // string and any other unknown sentinel both localize to the generic fallback message.
     failTo(actions, '', null, false)
   } finally {
     actions.setBusy(false)
@@ -186,6 +192,8 @@ async function runConsume(input: OtpReferenceInput, actions: OtpStateActions): P
     actions.setFeedback({ kind: 'idle' })
     actions.bumpReset()
   } catch {
+    // Stryker disable next-line StringLiteral: a thrown consume has no code; the empty
+    // string and any other unknown sentinel both localize to the generic fallback message.
     failTo(actions, '', null, false)
   } finally {
     actions.setBusy(false)

@@ -58,8 +58,13 @@ describe('notificationColumns', () => {
   /** A service email row renders the labels, masked recipient, purpose, and service badge. */
   it('renders a service email row with severity labels and the service source', () => {
     render(<CellRow row={makeRow({})} />)
-    expect(screen.getByText('Email')).toBeInTheDocument()
-    expect(screen.getByText('Sent')).toBeInTheDocument()
+    const channel = screen.getByText('Email')
+    expect(channel).toBeInTheDocument()
+    const verb = screen.getByText('Sent')
+    expect(verb).toBeInTheDocument()
+    // The channel and verb cells carry their severity colour inline.
+    expect(channel.style.color).not.toBe('')
+    expect(verb.style.color).not.toBe('')
     expect(screen.getByText('j***@acme.com')).toBeInTheDocument()
     expect(screen.getByText('login')).toBeInTheDocument()
     expect(screen.getByText('nodemailer')).toBeInTheDocument()

@@ -112,6 +112,10 @@ function JumpPill({ count, onJump }: { count: number; onJump: () => void }) {
 export function ExplorerContent() {
   const { query, live, isRelative } = useAuditQuery()
   const [selected, setSelected] = useState<NotificationLog | null>(null)
+  // The drawer renders only when BOTH open and a row are set; on mount the selection
+  // is null, so the initial open flag is never observable — opening always goes through
+  // `openRow`, which sets both. Seeding it `true` shows nothing different.
+  // Stryker disable next-line BooleanLiteral: see the note above — masked by the null selection.
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement | null>(null)

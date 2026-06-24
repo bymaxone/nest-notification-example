@@ -65,6 +65,9 @@ export function OtpInputBox({
     <div className="flex items-center gap-2" role="group" aria-label="One-time code">
       {otp.values.map((value, index) => (
         <Input
+          // The slot list is fixed-length and never reorders, so the key text is not
+          // observable — any unique-per-index key reconciles the same slots identically.
+          // Stryker disable next-line StringLiteral: see the note above.
           key={`otp-slot-${index}`}
           ref={otp.refs[index]}
           value={value}

@@ -34,11 +34,26 @@ describe('TopBar', () => {
     expect(screen.getByText('No data yet.')).toBeInTheDocument()
   })
 
-  /** Each row is a link built by hrefFor. */
+  /** Each row is a link built by hrefFor, with a title, a proportional bar, and a fill. */
   it('renders each row as a deep-link', () => {
     render(<TopBar title="Top purposes" rows={ROWS} hrefFor={(v) => `/explorer?purpose=${v}`} />)
     const link = screen.getByRole('link', { name: /login/ })
     expect(link).toHaveAttribute('href', '/explorer?purpose=login')
+    expect(link).toHaveAttribute('title', 'Filter the Explorer by login')
     expect(screen.getByText('5')).toBeInTheDocument()
+    // The top row (count = max) fills 100%, and the default fill colour is applied.
+    const bar = link.querySelector('span[aria-hidden="true"]')
+    expect((bar as HTMLElement).style.width).toBe('100%')
+    expect((bar as HTMLElement).style.background).not.toBe('')
+  })
+
+  /** Only the top MAX_ROWS rows render (the slice cap). */
+  it('caps the list at the top six rows', () => {
+    const many: FacetValue[] = Array.from({ length: 9 }, (_, i) => ({
+      value: `v${i}`,
+      count: 9 - i,
+    }))
+    render(<TopBar title="Top purposes" rows={many} hrefFor={(v) => `/explorer?purpose=${v}`} />)
+    expect(screen.getAllByRole('link')).toHaveLength(6)
   })
 })

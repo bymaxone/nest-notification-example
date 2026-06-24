@@ -8,22 +8,38 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
+import type { ReactElement, ReactNode } from 'react'
 
-import { ProviderMix } from './provider-mix'
-import * as useAggregateModule from '@/hooks/use-aggregate'
 import type { AggregateBucket, AuditQuery } from '@/lib/types'
 
-vi.mock('@/hooks/use-aggregate')
-const mockAgg = vi.mocked(useAggregateModule.useAggregate)
+/** Render a Recharts stand-in exposing its props as JSON for assertions. */
+function probe(name: string) {
+  return (props: Record<string, unknown>): ReactElement => {
+    const { children, ...rest } = props
+    return (
+      <div data-rc={name} data-props={JSON.stringify(rest)}>
+        {children as ReactNode}
+      </div>
+    )
+  }
+}
+
+vi.mock('recharts', () => ({
+  ResponsiveContainer: probe('ResponsiveContainer'),
+  PieChart: probe('PieChart'),
+  Pie: probe('Pie'),
+  Cell: probe('Cell'),
+  Tooltip: probe('Tooltip'),
+}))
+
+const mockAgg = vi.fn()
+vi.mock('@/hooks/use-aggregate', () => ({ useAggregate: (...a: unknown[]) => mockAgg(...a) }))
+
+const { ProviderMix } = await import('./provider-mix')
 
 /** Set the mocked hook return, defaulting the unset states. */
 function setAgg(over: { data?: AggregateBucket[]; isLoading?: boolean; isError?: boolean }): void {
-  mockAgg.mockReturnValue({
-    data: undefined,
-    isLoading: false,
-    isError: false,
-    ...over,
-  } as ReturnType<typeof useAggregateModule.useAggregate>)
+  mockAgg.mockReturnValue({ data: undefined, isLoading: false, isError: false, ...over })
 }
 
 const QUERY: AuditQuery = { role: 'viewer' }
@@ -55,7 +71,7 @@ describe('ProviderMix', () => {
     expect(screen.getByText(/No provider activity/)).toBeInTheDocument()
   })
 
-  /** A populated series renders the donut with a legend per provider. */
+  /** A populated series renders the donut with a legend + a coloured cell per provider. */
   it('renders the donut with a provider legend', () => {
     setAgg({
       data: [
@@ -64,8 +80,21 @@ describe('ProviderMix', () => {
       ],
     })
     render(<ProviderMix query={QUERY} />)
+    // The panel reads the provider-grouped aggregate for the active query.
+    expect(mockAgg).toHaveBeenCalledWith('provider', QUERY)
     expect(screen.getByText('Provider mix')).toBeInTheDocument()
     expect(screen.getByText('nodemailer')).toBeInTheDocument()
     expect(screen.getByText('__interceptor__')).toBeInTheDocument()
+    // The donut disables animation and renders one filled cell per slice.
+    const pie = JSON.parse(
+      document.querySelector('[data-rc="Pie"]')?.getAttribute('data-props') ?? '{}',
+    ) as Record<string, unknown>
+    expect(pie.isAnimationActive).toBe(false)
+    const cells = Array.from(document.querySelectorAll('[data-rc="Cell"]'))
+    expect(cells).toHaveLength(2)
+    for (const cell of cells) {
+      const props = JSON.parse(cell.getAttribute('data-props') ?? '{}') as Record<string, unknown>
+      expect(props.fill).toMatch(/^#/)
+    }
   })
 })

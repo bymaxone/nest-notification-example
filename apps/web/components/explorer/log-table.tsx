@@ -214,6 +214,10 @@ export function LogTable({
     useAuditLogs(query)
 
   const historical = (data?.pages ?? []).flatMap((page) => page.data)
+  // The guard is a micro-optimization that avoids a needless array copy: when
+  // `liveRows` is empty, `[...historical, ...liveRows]` is content-identical to
+  // `historical`, so forcing the condition true/>=0 produces the same rendered rows.
+  // Stryker disable next-line ConditionalExpression,EqualityOperator: see the note above.
   const rows: NotificationLog[] = liveRows.length > 0 ? [...historical, ...liveRows] : historical
 
   const table = useReactTable({

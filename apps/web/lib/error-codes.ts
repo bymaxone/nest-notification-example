@@ -4,7 +4,8 @@
  * Imports the `NOTIFICATION_ERROR_CODES` catalog from the isomorphic
  * `@bymax-one/nest-notification/shared` subpath and provides a human-readable
  * English message for every one of the 22 entries. The console renders these
- * messages when an API response carries a `notification.*` error code.
+ * messages when an API response carries a `notification.*` error code; matching
+ * is done on `error.code` (the stable wire value), never on the HTTP status.
  *
  * @module lib/error-codes
  */
@@ -15,13 +16,15 @@ import {
 } from '@bymax-one/nest-notification/shared'
 
 /**
- * Human-readable messages keyed by every notification error code.
+ * Human-readable messages keyed by every notification error code (wire value).
  *
- * Each entry maps the stable `notification.*` wire value to an English sentence
- * suitable for display in the console UI. Covering all 22 codes ensures the
- * `scripts/audit-error-codes.mjs` localization gate passes.
+ * Each entry maps the stable `notification.*` value to an English sentence
+ * suitable for display in the console UI. The `satisfies Record<
+ * NotificationErrorCode, string>` constraint is a compile-time exhaustiveness
+ * guard: if the library publishes a new code, `tsc` fails here until a message
+ * is added — which also keeps the `scripts/audit-error-codes.mjs` gate green.
  */
-export const ERROR_CODE_MESSAGES: Record<NotificationErrorCode, string> = {
+export const NOTIFICATION_ERROR_MESSAGES = {
   [NOTIFICATION_ERROR_CODES.EMAIL_PROVIDER_NOT_CONFIGURED]:
     'No email provider is configured. Set up an SMTP or Resend provider to send emails.',
   [NOTIFICATION_ERROR_CODES.EMAIL_SEND_FAILED]:
@@ -41,41 +44,44 @@ export const ERROR_CODE_MESSAGES: Record<NotificationErrorCode, string> = {
   [NOTIFICATION_ERROR_CODES.OTP_EMAIL_DELIVERY_NOT_CONFIGURED]:
     'OTP email delivery is not configured. Set up an email provider for OTP flows.',
   [NOTIFICATION_ERROR_CODES.OTP_COOLDOWN_ACTIVE]:
-    'A resend cooldown is active for this recipient. Wait before requesting another code.',
+    'Please wait before requesting another code. A resend cooldown is active for this recipient.',
   [NOTIFICATION_ERROR_CODES.OTP_NOT_FOUND]:
-    'No active OTP was found for this recipient. Request a new code.',
-  [NOTIFICATION_ERROR_CODES.OTP_EXPIRED]: 'The OTP has expired. Request a new code to continue.',
+    'This code has expired or never existed. Request a new one.',
+  [NOTIFICATION_ERROR_CODES.OTP_EXPIRED]: 'The code has expired. Request a new code to continue.',
   [NOTIFICATION_ERROR_CODES.OTP_MAX_ATTEMPTS_EXCEEDED]:
     'Too many failed attempts. Request a new code to try again.',
-  [NOTIFICATION_ERROR_CODES.OTP_INVALID_CODE]:
-    'The OTP entered is incorrect. Check the code and try again.',
+  [NOTIFICATION_ERROR_CODES.OTP_INVALID_CODE]: 'Incorrect code — check the digits and try again.',
   [NOTIFICATION_ERROR_CODES.OTP_INVALID_LENGTH]:
-    'The OTP length does not match the expected format. Check the input and retry.',
+    'The code length does not match the expected format. Check the input and retry.',
   [NOTIFICATION_ERROR_CODES.SMS_PROVIDER_NOT_CONFIGURED]:
-    'No SMS provider is configured. Connect a provider to send text messages.',
+    'No SMS provider is configured. SMS delivery is not enabled in this build.',
   [NOTIFICATION_ERROR_CODES.SMS_SEND_FAILED]:
     'The SMS provider failed to deliver the message. Check provider logs for details.',
   [NOTIFICATION_ERROR_CODES.SMS_INVALID_RECIPIENT]:
     'The recipient phone number is not valid. Correct it and retry.',
   [NOTIFICATION_ERROR_CODES.PUSH_PROVIDER_NOT_CONFIGURED]:
-    'No push notification provider is configured. Connect a provider to send push notifications.',
+    'No push provider is configured. Push delivery is not enabled in this build.',
   [NOTIFICATION_ERROR_CODES.PUSH_SEND_FAILED]:
-    'The push notification provider failed to deliver the message. Check provider logs.',
+    'The push provider failed to deliver the message. Check provider logs for details.',
   [NOTIFICATION_ERROR_CODES.AUDIT_LOG_FAILED]:
     'The notification could not be recorded in the audit log. Check database connectivity.',
   [NOTIFICATION_ERROR_CODES.CHANNEL_DISABLED]:
     'The requested notification channel is disabled. Enable it in the provider configuration.',
-}
+} satisfies Record<NotificationErrorCode, string>
+
+/** Fallback shown when an API returns a code that is not in the catalog. */
+const UNKNOWN_NOTIFICATION_ERROR_MESSAGE = 'An unexpected error occurred. Please try again.'
+
+/** The message map widened to a string lookup, so an arbitrary code can be probed. */
+const MESSAGES_BY_CODE: Record<string, string> = NOTIFICATION_ERROR_MESSAGES
 
 /**
- * Returns a human-readable message for a notification error code.
- *
- * Falls back gracefully to the raw code string if the code is not in the
- * localization map (which the CI gate guarantees does not happen).
+ * Resolve a notification error code (the wire value matched on `error.code`) to a
+ * human-readable message, falling back to a generic message for an unknown code.
  *
  * @param code - A `notification.*` error code from `NOTIFICATION_ERROR_CODES`.
- * @returns A localized English error message.
+ * @returns The localized English message, or a safe generic fallback.
  */
-export function localizeErrorCode(code: NotificationErrorCode): string {
-  return ERROR_CODE_MESSAGES[code] ?? code
+export function localizeNotificationError(code: string): string {
+  return MESSAGES_BY_CODE[code] ?? UNKNOWN_NOTIFICATION_ERROR_MESSAGE
 }

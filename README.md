@@ -182,7 +182,7 @@ switcher** in the console that sets a trusted `x-tenant-id` header. Full pipelin
   <img src="https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma 7" />
   <img src="https://img.shields.io/badge/PostgreSQL-18-336791?style=flat-square&logo=postgresql&logoColor=white" alt="Postgres 18" />
   <img src="https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis 7" />
-  <img src="https://img.shields.io/badge/Mailpit-SMTP-2496ED?style=flat-square&logo=maildotru&logoColor=white" alt="Mailpit" />
+  <img src="https://img.shields.io/badge/Mailpit-SMTP-2496ED?style=flat-square" alt="Mailpit" />
   <img src="https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind 4" />
   <img src="https://img.shields.io/badge/pnpm-11-F69220?style=flat-square&logo=pnpm&logoColor=white" alt="pnpm 11" />
   <img src="https://img.shields.io/badge/Docker-Compose%20v2-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker Compose v2" />

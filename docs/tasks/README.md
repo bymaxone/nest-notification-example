@@ -22,7 +22,7 @@
 | P10   | `phase-10-otp-providers-panels.md`  | OTP-verify · provider matrix · email preview · roadmap · settings                   | ✅     |
 | P11   | `phase-11-auth-seam.md`             | `NotificationAuthEmailProvider` + the nest-auth journey                             | ✅     |
 | P12   | `phase-12-testing.md`               | 100% coverage (Jest api + Vitest web) + Playwright                                  | ✅     |
-| P13   | `phase-13-mutation.md`              | Stryker ≥ 95 → 100; `docs/stryker/*`                                                | 📋     |
+| P13   | `phase-13-mutation.md`              | Stryker ≥ 95 → 100; `docs/stryker/*`                                                | ✅     |
 | P14   | `phase-14-docs-release.md`          | all `docs/*.md`, public-readiness, `v0.1.0` release                                 | 📋     |
 
 All 15 phase files are scaffolded. Execute them **one phase at a time** (per [`../DEVELOPMENT_PLAN.md` §3](../DEVELOPMENT_PLAN.md#3-autonomous-execution-model)) — a phase starts only after the previous one merges green.

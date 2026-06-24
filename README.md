@@ -28,34 +28,29 @@
   <a href="docs/OVERVIEW.md">📐 Overview</a>
 </p>
 
-<p align="center">
-  <em>🚧 <strong>Active build-out.</strong> The application code (<code>apps/api</code>, <code>apps/web</code>) and the
-  full documentation set land incrementally; the commands and features below describe the <strong>target</strong>
-  workflow, and the coverage/mutation badges track the gates the CI pipeline enforces as that code lands.</em>
-</p>
-
 ---
 
 ## ✨ Overview
 
-`@bymax-one/nest-notification` is the **what**; this repository is the **how**. Built out incrementally, it is a
-runnable, production-shaped demo that exercises **every public export** of the library across a NestJS API and a
+`@bymax-one/nest-notification` is the **what**; this repository is the **how**. It is a runnable,
+production-shaped demo that exercises **every public export** of the library across a NestJS API and a
 first-class Next.js notification console. It is three things at once:
 
 - **A runnable demo.** `pnpm infra:up` + `pnpm dev` brings up a NestJS service wired to the library and a
-  Next.js console that fires every notification feature on demand and shows the result in real time — the email
-  landing in a local inbox, the OTP entered in a segmented input, the delivery row appearing in the audit log.
+  Next.js console that fires every notification feature on demand and shows the result in real time — the
+  email landing in a local inbox, the OTP entered in a segmented input, the delivery row appearing in the
+  audit log.
 - **A knowledge base.** Every public symbol is referenced from real code, and the
-  [Feature Coverage Matrix](docs/OVERVIEW.md#6-feature-coverage-matrix) is enforced by a CI export-usage audit —
-  the canonical place to learn how to wire `forRoot` vs `forRootAsync`, pluggable providers, multi-tenant
-  resolution, the atomic OTP contract, and the audit interceptor.
+  [Feature Coverage Matrix](docs/OVERVIEW.md#6-feature-coverage-matrix) is enforced by a CI export-usage
+  audit — the canonical place to learn how to wire `forRoot` vs `forRootAsync`, pluggable providers,
+  multi-tenant resolution, the atomic OTP contract, and the audit interceptor.
 - **A migration guide.** It shows how to replace a hand-rolled email-verification service with the cohesive
-  `BymaxNotificationModule` — persistence behind `IOtpStorage`, transport behind `IEmailProvider`, audit behind
-  `INotificationLogRepository`.
+  `BymaxNotificationModule` — persistence behind `IOtpStorage`, transport behind `IEmailProvider`, audit
+  behind `INotificationLogRepository`.
 
-It is a sibling of [`nest-logger-example`](https://github.com/bymaxone/nest-logger-example) and follows the same
-blueprint, voice, and quality bar — **100% test coverage**, a **Stryker mutation gate (≥ 95)**, English-only, and
-Conventional Commits.
+It is a sibling of [`nest-logger-example`](https://github.com/bymaxone/nest-logger-example) and follows
+the same blueprint, voice, and quality bar — **100% test coverage**, a **Stryker mutation gate (≥ 95)**,
+English-only, and Conventional Commits.
 
 ---
 
@@ -66,84 +61,108 @@ git clone https://github.com/bymaxone/nest-notification-example.git
 cd nest-notification-example
 
 # 1) build the sibling library once (consumed pre-publish via a local file: link)
-pnpm --dir ../nest-notification install && pnpm --dir ../nest-notification build
+cd ../nest-notification && pnpm install && pnpm build --watch
+# keep that terminal running, then in a new terminal:
 
-# 2) install, bring up the local backends, run both apps
+# 2) install workspace deps (resolves the file: link)
+cd ../nest-notification-example
 pnpm install
-pnpm infra:up        # Postgres (audit) + Redis (OTP) + Mailpit (SMTP inbox) — available once the stack is added
-pnpm dev             # NestJS API + Next.js console — available once the apps are added
+
+# 3) bring up Postgres + Redis + Mailpit
+pnpm infra:up
+
+# 4) create the API env file, apply the schema migration, seed demo tenants
+cp .env.example apps/api/.env
+pnpm --filter @nest-notification-example/api db:migrate
+pnpm --filter @nest-notification-example/api db:seed
+
+# 5) start both apps
+pnpm dev
 ```
 
-> The library is **pre-publish** — it is consumed via a local `file:` link to the sibling `../nest-notification`
-> checkout until it ships to npm. The local happy path needs **zero external credentials**: emails land in a
-> browsable Mailpit inbox, OTP storage falls back to in-memory, and the audit log is local Postgres.
+| Surface               | URL                             |
+| --------------------- | ------------------------------- |
+| Console (`apps/web`)  | <http://localhost:3003>         |
+| API health            | <http://localhost:3001/health>  |
+| Mailpit inbox         | <http://localhost:8025>         |
 
-> **Memory safety.** `pnpm dev` runs two watchers at once and the test suites duplicate the locally linked library
-> across workers. Run suites **sequentially with bounded workers** and never fan out parallel test agents.
+The library is **pre-publish** — consumed via a local `file:` link to the sibling `../nest-notification`
+checkout until it ships to npm. The local happy path needs **zero external credentials**: emails land in a
+browsable Mailpit inbox, OTP storage falls back to in-memory, and the audit log is local Postgres.
 
----
-
-## Library consumption
-
-`@bymax-one/nest-notification` is consumed pre-publish via `file:../../../nest-notification` (from each app). Build the library before running `pnpm install` here:
-
-```bash
-# From the directory containing BOTH sibling checkouts:
-cd nest-notification && pnpm install && pnpm build   # produces dist/{server,shared,react}
-cd ../nest-notification-example && pnpm install      # resolves the file: link
-```
-
-Rebuild the library whenever its source changes (`pnpm -C ../nest-notification build`). We use `file:` (not `link:`) so the sibling source tree is not pulled into every test worker's module graph — a symlinked tree would duplicate across workers and exhaust memory.
+See **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** for the full walkthrough, including your first
+email and first verified OTP.
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-            apps/web (Next.js 16 + React 19) — the Notification Console
-   Trigger Center → fire every feature      Explorer → read the delivery audit log
-   OTP-verify (useOtpInput/useOtpCountdown) Provider matrix · Email preview · Roadmap
-        │ POST /otp/* /email/* /dispatch (+ x-tenant-id)   ▲ GET /audit/logs, /audit/stream (SSE)
-        ▼                                                  │
-   ┌────────────────────────────────────────────────────────┴──────────────┐
-   │ apps/api (NestJS 11 + Express 5)                                        │
-   │ BymaxNotificationModule.forRootAsync({ useFactory })                    │
-   │ EmailService · OtpService · NotificationService · NotificationAudit…   │
-   │ providers: Nodemailer→Mailpit (BYO) | Resend (opt-in) | NoOp           │
-   │ storage:   RedisOtpStorage (opt-in) | InMemoryOtpStorage               │
-   │ audit:     PrismaNotificationLogRepository                             │
-   └───────┬──────────────────────┬──────────────────────┬─────────────────┘
-   OTP entries (hashed keys)   audit rows (masked)    rendered emails (SMTP)
-           ▼                      ▼                        ▼
-   ┌───────────────┐      ┌────────────────────┐   ┌────────────────────┐
-   │     Redis     │      │     PostgreSQL     │   │      Mailpit       │
-   │  (OTP store)  │      │  NotificationLog   │   │ SMTP :1025 / :8025 │
-   └───────────────┘      └────────────────────┘   └────────────────────┘
+            apps/web (Next.js 16 + React 19)  —  the Notification Console
+   Trigger Center → fire every feature   Explorer → read the delivery audit log
+   OTP-verify panel (useOtpInput/useOtpCountdown)   Provider matrix · Email preview · Roadmap
+        │  POST /otp/* /email/* /dispatch (+ x-tenant-id)        ▲ GET /audit/logs, /audit/stream (SSE)
+        ▼                                                        │
+   ┌─────────────────────────────────────────────────────────────┴──────────────┐
+   │ apps/api (NestJS 11 + Express 5)                                            │
+   │ BymaxNotificationModule.forRootAsync({ useFactory })                        │
+   │ EmailService · OtpService · NotificationService · NotificationAuditInterceptor │
+   │ wired providers: Nodemailer→Mailpit (BYO) | Resend (opt-in) | NoOp          │
+   │ wired storage:  RedisOtpStorage (opt-in) | InMemoryOtpStorage               │
+   │ wired audit:    PrismaNotificationLogRepository                             │
+   └───────┬───────────────────────┬───────────────────────┬───────────────────┘
+   OTP entries (hashed keys)   audit rows (masked)      rendered emails (SMTP)
+           ▼                       ▼                         ▼
+   ┌───────────────┐       ┌────────────────────┐    ┌────────────────────┐
+   │     Redis     │       │    PostgreSQL      │    │      Mailpit       │
+   │  (OTP store)  │       │  NotificationLog   │    │  SMTP :1025 / :8025 │
+   └───────────────┘       └────────────────────┘    └────────────────────┘
 ```
 
-`apps/api` and `apps/web` are independently deployable. Multi-tenancy is demonstrated through a **tenant switcher**
-in the console that sets a trusted `x-tenant-id` header — resolved by the library's `tenantIdResolver`, not a
-second backend. Full diagram in
-[docs/OVERVIEW.md §3](docs/OVERVIEW.md#3-architecture-at-a-glance).
+`apps/api` and `apps/web` are independently deployable. Multi-tenancy is demonstrated through a **tenant
+switcher** in the console that sets a trusted `x-tenant-id` header. Full pipeline in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-> **Coverage rule.** Every public export of `@bymax-one/nest-notification` (the `.`, `./shared`, and `./react`
-> subpaths) is referenced from at least one file under `apps/` — the
-> [Feature Coverage Matrix](docs/OVERVIEW.md#6-feature-coverage-matrix) maps each one to where it is used.
+---
+
+## ✅ What's inside
+
+- **OTP lifecycle** — generate (email or manual delivery), verify (atomic + constant-time), resend
+  (cooldown-gated), consume, status. Per-purpose config (`password_reset`: 8-char alphanumeric, 900s TTL).
+- **Email delivery** — raw send, template send (10 canonical templates), locale fallback, XSS-safe renderer.
+- **Unified dispatch** — `NotificationService.dispatch` as a channel-agnostic façade, audited by the interceptor.
+- **Pluggable providers** — BYO `IEmailProvider` (Nodemailer→Mailpit as the worked example), `IEmailProvider`
+  with Resend (opt-in), `IOtpStorage` with Redis (opt-in) or in-memory.
+- **Pluggable renderers** — `DefaultTemplateRenderer`, Handlebars, MJML, React Email demos.
+- **Multi-tenant isolation** — `sha256(tenantId:recipient)` keys, `tenantIdResolver` anti-spoofing,
+  `maskRecipient`, and the never-log-codes regression test.
+- **Audit log + live tail** — `PrismaNotificationLogRepository`, keyset list, SSE stream, aggregate charts.
+- **React hooks** — `useOtpInput` (segmented 6-cell box) + `useOtpCountdown` (expiry pill), end-to-end in
+  the OTP panel.
+- **Roadmap honesty** — SMS/Push declared-but-rejected-at-startup; the Roadmap panel surfaces the real error.
+- **Optional auth seam** — `NotificationAuthEmailProvider` bridges `@bymax-one/nest-auth`'s port.
 
 ---
 
 ## 📖 Documentation
 
-| Doc                                          | What it covers                                                       |
-| -------------------------------------------- | -------------------------------------------------------------------- |
-| [OVERVIEW](docs/OVERVIEW.md)                 | Product blueprint & repository layout (master spec)                  |
-| [AUTH_INTEGRATION](docs/AUTH_INTEGRATION.md) | Composing with `@bymax-one/nest-auth`: boundary, namespace isolation |
-| [DEVELOPMENT_PLAN](docs/DEVELOPMENT_PLAN.md) | The phased build plan, quality gates & CI matrix                     |
-| [Task files](docs/tasks/README.md)           | Per-phase task breakdown & status conventions                        |
-| [Design system](docs/design_system.html)     | The shared Bymax UI design system (open in a browser)                |
-
-The full reference set (Getting Started, Features, Architecture, Environment, Providers, Multi-Tenancy, Database,
-Deployment, Troubleshooting, Releases) is authored alongside the application build.
+| Doc                                                  | What it covers                                                         |
+| ---------------------------------------------------- | ---------------------------------------------------------------------- |
+| [GETTING_STARTED](docs/GETTING_STARTED.md)           | Clone → first email in Mailpit + first verified OTP in ~5 minutes      |
+| [FEATURES](docs/FEATURES.md)                         | Guided feature tour + all 13 end-to-end journeys                       |
+| [ARCHITECTURE](docs/ARCHITECTURE.md)                 | Four-stage delivery pipeline, `forRootAsync` wiring, module boundaries |
+| [DATABASE](docs/DATABASE.md)                         | `NotificationLog` schema, keyset pagination, masked-recipient store    |
+| [DASHBOARD](docs/DASHBOARD.md)                       | Console information architecture, SSE live tail, design system         |
+| [ENVIRONMENT](docs/ENVIRONMENT.md)                   | Full env-var reference + production guards                             |
+| [PROVIDERS](docs/PROVIDERS.md)                       | BYO `IEmailProvider` / `IOtpStorage` guide + provider matrix           |
+| [TEMPLATING](docs/TEMPLATING.md)                     | `IEmailTemplateRenderer` contract, canonical templates, XSS guard      |
+| [MULTI_TENANCY](docs/MULTI_TENANCY.md)               | `sha256` keys, `tenantIdResolver`, `maskRecipient`, never-log-codes    |
+| [AUTH_INTEGRATION](docs/AUTH_INTEGRATION.md)         | Composing with `@bymax-one/nest-auth`: boundary, namespace isolation   |
+| [DEPLOYMENT](docs/DEPLOYMENT.md)                     | Production checklist, GHCR images, version pins                        |
+| [TROUBLESHOOTING](docs/TROUBLESHOOTING.md)           | Symptom → cause → fix (incl. the memory-safe run recipe)               |
+| [RELEASES](docs/RELEASES.md)                         | Which library version each branch tracks                               |
+| [OVERVIEW](docs/OVERVIEW.md)                         | Master product blueprint (21 sections, 61-row Feature Coverage Matrix) |
+| [DEVELOPMENT_PLAN](docs/DEVELOPMENT_PLAN.md)         | Phased build plan, quality gates, CI matrix, Appendix E go-public      |
 
 ---
 

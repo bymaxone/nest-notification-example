@@ -15,7 +15,7 @@
 import { useFacets } from '@/hooks/use-facets'
 import { FACET_FIELDS, FACET_LABELS } from '@/lib/audit-facets'
 import { useAuditQuery } from '@/lib/filters'
-import type { AuditQuery, FacetField } from '@/lib/types'
+import type { AuditQuery, FacetField, FacetValue } from '@/lib/types'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
@@ -23,6 +23,66 @@ import { cn } from '@/lib/utils'
 /** The currently-active positive value for a field (for highlighting). */
 function activeValue(query: AuditQuery, field: FacetField): string {
   return query[field] ?? ''
+}
+
+interface FacetSectionProps {
+  /** The faceted field this section renders. */
+  field: FacetField
+  /** The field's value-counts. */
+  values: FacetValue[]
+  /** The currently-active value (highlighted). */
+  active: string
+  /** Whether the facets are still loading. */
+  isLoading: boolean
+  /** Apply (or, when `clear`, remove) a positive filter for this field. */
+  onApply: (field: FacetField, value: string, clear: boolean) => void
+}
+
+/** One field's facet section: a heading + the clickable value list. */
+function FacetSection({ field, values, active, isLoading, onApply }: FacetSectionProps) {
+  return (
+    <div>
+      <h3 className="mb-1.5 font-mono text-[11px] font-semibold text-white/55">
+        {FACET_LABELS[field]}
+      </h3>
+      {isLoading ? (
+        <div className="space-y-1">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-2/3" />
+        </div>
+      ) : values.length === 0 ? (
+        <p className="text-[11px] text-white/30">No values</p>
+      ) : (
+        <ul className="space-y-0.5">
+          {values.map((facet) => {
+            const isActive = active === facet.value
+            return (
+              <li key={facet.value}>
+                <button
+                  type="button"
+                  title={
+                    isActive
+                      ? 'Alt-click to clear this filter'
+                      : `Filter ${FACET_LABELS[field]} = ${facet.value}`
+                  }
+                  onClick={(e) => onApply(field, facet.value, e.altKey && isActive)}
+                  className={cn(
+                    'flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-xs transition-colors',
+                    isActive
+                      ? 'bg-brand-500/15 text-brand-500'
+                      : 'text-white/65 hover:bg-white/5 hover:text-white/90',
+                  )}
+                >
+                  <span className="truncate font-mono">{facet.value}</span>
+                  <span className="shrink-0 tabular-nums text-white/40">{facet.count}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 /**
@@ -39,20 +99,15 @@ export function FacetRail() {
     const next = clear ? '' : value
     switch (field) {
       case 'channel':
-        void setQuery({ channel: next })
-        return
+        return void setQuery({ channel: next })
       case 'verb':
-        void setQuery({ verb: next })
-        return
+        return void setQuery({ verb: next })
       case 'provider':
-        void setQuery({ provider: next })
-        return
+        return void setQuery({ provider: next })
       case 'purpose':
-        void setQuery({ purpose: next })
-        return
+        return void setQuery({ purpose: next })
       case 'source':
-        void setQuery({ source: next })
-        return
+        return void setQuery({ source: next })
     }
   }
 
@@ -62,55 +117,16 @@ export function FacetRail() {
       {isError && <p className="mb-2 text-[11px] text-destructive">Failed to load facet counts.</p>}
       <ScrollArea className="h-[calc(100vh-12rem)] pr-2">
         <div className="space-y-5">
-          {FACET_FIELDS.map((field) => {
-            const values = facets[field]
-            const active = activeValue(query, field)
-            return (
-              <div key={field}>
-                <h3 className="mb-1.5 font-mono text-[11px] font-semibold text-white/55">
-                  {FACET_LABELS[field]}
-                </h3>
-                {isLoading ? (
-                  <div className="space-y-1">
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-5 w-2/3" />
-                  </div>
-                ) : values.length === 0 ? (
-                  <p className="text-[11px] text-white/30">No values</p>
-                ) : (
-                  <ul className="space-y-0.5">
-                    {values.map((facet) => {
-                      const isActive = active === facet.value
-                      return (
-                        <li key={facet.value}>
-                          <button
-                            type="button"
-                            title={
-                              isActive
-                                ? 'Alt-click to clear this filter'
-                                : `Filter ${FACET_LABELS[field]} = ${facet.value}`
-                            }
-                            onClick={(e) => apply(field, facet.value, e.altKey && isActive)}
-                            className={cn(
-                              'flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-xs transition-colors',
-                              isActive
-                                ? 'bg-brand-500/15 text-brand-500'
-                                : 'text-white/65 hover:bg-white/5 hover:text-white/90',
-                            )}
-                          >
-                            <span className="truncate font-mono">{facet.value}</span>
-                            <span className="shrink-0 tabular-nums text-white/40">
-                              {facet.count}
-                            </span>
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                )}
-              </div>
-            )
-          })}
+          {FACET_FIELDS.map((field) => (
+            <FacetSection
+              key={field}
+              field={field}
+              values={facets[field]}
+              active={activeValue(query, field)}
+              isLoading={isLoading}
+              onApply={apply}
+            />
+          ))}
         </div>
       </ScrollArea>
     </aside>

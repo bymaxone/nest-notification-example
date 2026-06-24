@@ -91,6 +91,80 @@ function SeverityValue({
   )
 }
 
+interface TabProps {
+  /** The selected audit row. */
+  row: NotificationLog
+  /** Apply a partial-query pivot (and close the drawer). */
+  onPivot: (partial: Partial<AuditQuery>) => void
+}
+
+/** The Overview tab: each scalar field with a "filter for" pivot. */
+function OverviewTab({ row, onPivot }: TabProps) {
+  const verb = VERB_SERIES[row.verb]
+  const channel = CHANNEL_SEVERITY[row.channel]
+  const errorLabel = localizedError(row.errorMessage)
+  return (
+    <TabsContent value="overview" className="mt-3">
+      <PivotRow label="Channel" pivot={{ channel: row.channel }} onPivot={onPivot}>
+        <SeverityValue color={channel.color} icon={channel.icon} label={channel.label} />
+      </PivotRow>
+      <PivotRow label="Verb" pivot={{ verb: row.verb }} onPivot={onPivot}>
+        <SeverityValue color={verb.color} icon={verb.icon} label={verb.label} />
+      </PivotRow>
+      <PivotRow label="Recipient" pivot={{ recipient: row.recipient }} onPivot={onPivot}>
+        {row.recipient}
+      </PivotRow>
+      {row.purpose !== null && (
+        <PivotRow label="Purpose" pivot={{ purpose: row.purpose }} onPivot={onPivot}>
+          {row.purpose}
+        </PivotRow>
+      )}
+      <PivotRow label="Provider" pivot={{ provider: row.providerName }} onPivot={onPivot}>
+        {row.providerName}
+      </PivotRow>
+      <PivotRow label="Source" pivot={{ source: sourceOf(row.providerName) }} onPivot={onPivot}>
+        {sourceOf(row.providerName)}
+      </PivotRow>
+      {errorLabel !== null && (
+        <PivotRow label="Error" onPivot={onPivot}>
+          <span className="text-destructive">{errorLabel}</span>
+        </PivotRow>
+      )}
+    </TabsContent>
+  )
+}
+
+/** The Proof tab: the never-contains-code green check (or the unexpected warning). */
+function ProofTab({ row }: { row: NotificationLog }) {
+  return (
+    <TabsContent value="proof" className="mt-3">
+      {rowHasNoCode(row) ? (
+        <div className="flex items-start gap-3 rounded-lg border border-(--color-success)/30 bg-(--color-success)/5 p-4">
+          <CheckCircle2
+            className="mt-0.5 h-5 w-5 shrink-0 text-(--color-success)"
+            aria-hidden="true"
+          />
+          <div className="space-y-1 text-xs">
+            <p className="font-semibold text-(--color-success)">No OTP code present</p>
+            <p className="text-white/55">
+              The serialized audit row carries no <code className="font-mono">code</code> field — a
+              generated code lives only in the TTL-bound store, never in the audit log.
+            </p>
+            <p className="text-white/40">
+              Recipient is shown masked: <span className="font-mono">{row.recipient}</span>
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="rounded-lg border border-destructive/40 p-4 text-xs text-destructive">
+          Unexpected: the serialized row appears to contain a code field. This must never happen —
+          the write seam strips it.
+        </p>
+      )}
+    </TabsContent>
+  )
+}
+
 interface DetailDrawerProps {
   /** The selected row, or `null` when nothing is selected. */
   row: NotificationLog | null
@@ -110,10 +184,6 @@ export function DetailDrawer({ row, open, onOpenChange }: DetailDrawerProps) {
   const { setQuery } = useAuditQuery()
   if (row === null) return null
 
-  const verb = VERB_SERIES[row.verb]
-  const channel = CHANNEL_SEVERITY[row.channel]
-  const errorLabel = localizedError(row.errorMessage)
-
   const pivot = (partial: Partial<AuditQuery>): void => {
     void setQuery(partial)
     onOpenChange(false)
@@ -132,33 +202,7 @@ export function DetailDrawer({ row, open, onOpenChange }: DetailDrawerProps) {
             <TabsTrigger value="proof">Proof</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-3">
-            <PivotRow label="Channel" pivot={{ channel: row.channel }} onPivot={pivot}>
-              <SeverityValue color={channel.color} icon={channel.icon} label={channel.label} />
-            </PivotRow>
-            <PivotRow label="Verb" pivot={{ verb: row.verb }} onPivot={pivot}>
-              <SeverityValue color={verb.color} icon={verb.icon} label={verb.label} />
-            </PivotRow>
-            <PivotRow label="Recipient" pivot={{ recipient: row.recipient }} onPivot={pivot}>
-              {row.recipient}
-            </PivotRow>
-            {row.purpose !== null && (
-              <PivotRow label="Purpose" pivot={{ purpose: row.purpose }} onPivot={pivot}>
-                {row.purpose}
-              </PivotRow>
-            )}
-            <PivotRow label="Provider" pivot={{ provider: row.providerName }} onPivot={pivot}>
-              {row.providerName}
-            </PivotRow>
-            <PivotRow label="Source" pivot={{ source: sourceOf(row.providerName) }} onPivot={pivot}>
-              {sourceOf(row.providerName)}
-            </PivotRow>
-            {errorLabel !== null && (
-              <PivotRow label="Error" onPivot={pivot}>
-                <span className="text-destructive">{errorLabel}</span>
-              </PivotRow>
-            )}
-          </TabsContent>
+          <OverviewTab row={row} onPivot={pivot} />
 
           <TabsContent value="raw" className="mt-3">
             <pre className="max-h-80 overflow-auto rounded-lg border border-(--glass-border) bg-black/40 p-3 font-mono text-[11px] text-white/70">
@@ -170,32 +214,7 @@ export function DetailDrawer({ row, open, onOpenChange }: DetailDrawerProps) {
             </p>
           </TabsContent>
 
-          <TabsContent value="proof" className="mt-3">
-            {rowHasNoCode(row) ? (
-              <div className="flex items-start gap-3 rounded-lg border border-(--color-success)/30 bg-(--color-success)/5 p-4">
-                <CheckCircle2
-                  className="mt-0.5 h-5 w-5 shrink-0 text-(--color-success)"
-                  aria-hidden="true"
-                />
-                <div className="space-y-1 text-xs">
-                  <p className="font-semibold text-(--color-success)">No OTP code present</p>
-                  <p className="text-white/55">
-                    The serialized audit row carries no <code className="font-mono">code</code>{' '}
-                    field — a generated code lives only in the TTL-bound store, never in the audit
-                    log.
-                  </p>
-                  <p className="text-white/40">
-                    Recipient is shown masked: <span className="font-mono">{row.recipient}</span>
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p className="rounded-lg border border-destructive/40 p-4 text-xs text-destructive">
-                Unexpected: the serialized row appears to contain a code field. This must never
-                happen — the write seam strips it.
-              </p>
-            )}
-          </TabsContent>
+          <ProofTab row={row} />
         </Tabs>
       </DialogContent>
     </Dialog>

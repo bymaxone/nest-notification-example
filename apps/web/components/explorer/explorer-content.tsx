@@ -43,6 +43,67 @@ function statusLabel(failed: boolean, connected: boolean, enabled: boolean): str
   return 'Paused (absolute range)'
 }
 
+/** Stream + follow-mode surface the live control bar consumes. */
+interface LiveBarProps {
+  /** The SSE stream state. */
+  stream: ReturnType<typeof useAuditStream>
+  /** The follow-mode state. */
+  follow: ReturnType<typeof useFollowMode>
+  /** Whether the stream is enabled (live + relative range). */
+  streamEnabled: boolean
+}
+
+/** The live-tail control bar (status + N-live count + Pause/Resume/Clear). */
+function LiveControlBar({ stream, follow, streamEnabled }: LiveBarProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-(--glass-border) bg-(--glass-bg) px-3 py-2 text-xs">
+      <span
+        className={cn(
+          'flex items-center gap-1.5 font-mono',
+          stream.isFailed
+            ? 'text-destructive'
+            : stream.isConnected
+              ? 'text-(--color-success)'
+              : 'text-white/40',
+        )}
+      >
+        <Radio className={cn('h-3.5 w-3.5', stream.isConnected && 'animate-pulse')} />
+        {statusLabel(stream.isFailed, stream.isConnected, streamEnabled)}
+      </span>
+      <span className="text-white/30">·</span>
+      <span className="font-mono text-white/45">{stream.rows.length} live</span>
+      <div className="ml-auto flex items-center gap-1.5">
+        {follow.paused ? (
+          <Button type="button" size="sm" variant="outline" onClick={follow.resume}>
+            <Play className="h-3.5 w-3.5" /> Resume
+          </Button>
+        ) : (
+          <Button type="button" size="sm" variant="outline" onClick={follow.pause}>
+            <Pause className="h-3.5 w-3.5" /> Pause
+          </Button>
+        )}
+        <Button type="button" size="sm" variant="outline" onClick={stream.clear}>
+          <Eraser className="h-3.5 w-3.5" /> Clear
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/** The "N new — Jump to latest" pill shown when paused with pending live rows. */
+function JumpPill({ count, onJump }: { count: number; onJump: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onJump}
+      className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-4 py-1.5 font-mono text-xs font-semibold text-white shadow-(--shadow-primary)"
+    >
+      <ArrowDownToLine className="mr-1 inline h-3.5 w-3.5" />
+      {count} new — Jump to latest
+    </button>
+  )
+}
+
 /**
  * The Audit Explorer page body.
  *
@@ -74,39 +135,7 @@ export function ExplorerContent() {
       <div className="min-w-0 space-y-4">
         <QueryBar />
 
-        {live && (
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-(--glass-border) bg-(--glass-bg) px-3 py-2 text-xs">
-            <span
-              className={cn(
-                'flex items-center gap-1.5 font-mono',
-                stream.isFailed
-                  ? 'text-destructive'
-                  : stream.isConnected
-                    ? 'text-(--color-success)'
-                    : 'text-white/40',
-              )}
-            >
-              <Radio className={cn('h-3.5 w-3.5', stream.isConnected && 'animate-pulse')} />
-              {statusLabel(stream.isFailed, stream.isConnected, streamEnabled)}
-            </span>
-            <span className="text-white/30">·</span>
-            <span className="font-mono text-white/45">{stream.rows.length} live</span>
-            <div className="ml-auto flex items-center gap-1.5">
-              {follow.paused ? (
-                <Button type="button" size="sm" variant="outline" onClick={follow.resume}>
-                  <Play className="h-3.5 w-3.5" /> Resume
-                </Button>
-              ) : (
-                <Button type="button" size="sm" variant="outline" onClick={follow.pause}>
-                  <Pause className="h-3.5 w-3.5" /> Pause
-                </Button>
-              )}
-              <Button type="button" size="sm" variant="outline" onClick={stream.clear}>
-                <Eraser className="h-3.5 w-3.5" /> Clear
-              </Button>
-            </div>
-          </div>
-        )}
+        {live && <LiveControlBar stream={stream} follow={follow} streamEnabled={streamEnabled} />}
 
         <div className="relative">
           <LogTable
@@ -116,14 +145,7 @@ export function ExplorerContent() {
             scrollRef={scrollRef}
           />
           {live && follow.newCount > 0 && (
-            <button
-              type="button"
-              onClick={follow.jumpToLatest}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-4 py-1.5 font-mono text-xs font-semibold text-white shadow-(--shadow-primary)"
-            >
-              <ArrowDownToLine className="mr-1 inline h-3.5 w-3.5" />
-              {follow.newCount} new — Jump to latest
-            </button>
+            <JumpPill count={follow.newCount} onJump={follow.jumpToLatest} />
           )}
         </div>
 

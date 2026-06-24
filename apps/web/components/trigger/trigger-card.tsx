@@ -33,6 +33,41 @@ interface TriggerCardProps {
   hrefFor: (result: TriggerResult) => string
 }
 
+/** The card header: title + "Demonstrates" line + the endpoint badge. */
+function CardHeader({ descriptor }: { descriptor: TriggerDescriptor }) {
+  return (
+    <div className="flex items-start justify-between gap-2">
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold text-foreground">{descriptor.title}</h3>
+        <p className="mt-0.5 text-xs text-white/55">{descriptor.demonstrates}</p>
+      </div>
+      <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
+        {descriptor.endpoint}
+      </Badge>
+    </div>
+  )
+}
+
+/** The post-fire correlation summary + "View in Explorer →" deep-link. */
+function FireResultSummary({ result, href }: { result: TriggerResult; href: string }) {
+  return (
+    <div
+      aria-live="polite"
+      className="flex flex-col gap-1 border-t border-(--glass-border) pt-2 text-[11px]"
+    >
+      <span className={cn('font-mono', result.ok ? 'text-white/55' : 'text-amber-400')}>
+        HTTP {result.status} · {result.channel} · {result.verb}
+      </span>
+      <Link
+        href={href}
+        className="inline-flex items-center gap-1 font-medium text-brand-500 hover:underline"
+      >
+        View in Explorer <ArrowRight aria-hidden className="h-3 w-3" />
+      </Link>
+    </div>
+  )
+}
+
 /**
  * A single Trigger Center card.
  *
@@ -69,15 +104,7 @@ export function TriggerCard({ descriptor, tenantId, hrefFor }: TriggerCardProps)
       data-testid={`trigger-${descriptor.id}`}
       className="flex flex-col gap-3 rounded-xl border border-(--glass-border) bg-(--glass-bg) p-4"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-foreground">{descriptor.title}</h3>
-          <p className="mt-0.5 text-xs text-white/55">{descriptor.demonstrates}</p>
-        </div>
-        <Badge variant="outline" className="shrink-0 font-mono text-[10px]">
-          {descriptor.endpoint}
-        </Badge>
-      </div>
+      <CardHeader descriptor={descriptor} />
 
       <Button
         type="button"
@@ -94,22 +121,7 @@ export function TriggerCard({ descriptor, tenantId, hrefFor }: TriggerCardProps)
         {isFiring ? 'Firing…' : 'Fire'}
       </Button>
 
-      {result !== null && (
-        <div
-          aria-live="polite"
-          className="flex flex-col gap-1 border-t border-(--glass-border) pt-2 text-[11px]"
-        >
-          <span className={cn('font-mono', result.ok ? 'text-white/55' : 'text-amber-400')}>
-            HTTP {result.status} · {result.channel} · {result.verb}
-          </span>
-          <Link
-            href={hrefFor(result)}
-            className="inline-flex items-center gap-1 font-medium text-brand-500 hover:underline"
-          >
-            View in Explorer <ArrowRight aria-hidden className="h-3 w-3" />
-          </Link>
-        </div>
-      )}
+      {result !== null && <FireResultSummary result={result} href={hrefFor(result)} />}
     </div>
   )
 }

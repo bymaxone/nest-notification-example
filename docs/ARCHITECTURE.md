@@ -117,24 +117,24 @@ The `useClass`/`useExisting` forms are rejected at startup by `assertUseFactory`
 
 The library's public surface is what `apps/api` and `apps/web` may import. Everything else is internal.
 
-| Public (the contract this example depends on)                              | Internal (never imported directly)                          |
-| -------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `BymaxNotificationModule` (`.` subpath)                                    | Config resolution internals (`resolveForPurpose` impl)      |
-| `EmailService`, `OtpService`, `NotificationService`                        | Redis Lua source                                            |
-| `NotificationAuditInterceptor`                                             | Internal validators / crypto implementation details         |
-| `IEmailProvider`, `IOtpStorage`, `IEmailTemplateRenderer`                  |                                                             |
-| `INotificationLogRepository`                                               |                                                             |
-| `ResendEmailProvider`, `NoOpEmailProvider`                                 |                                                             |
-| `InMemoryOtpStorage`, `RedisOtpStorage`                                    |                                                             |
-| `DefaultTemplateRenderer`                                                   |                                                             |
-| `NoOpNotificationLogRepository`                                             |                                                             |
-| `NotificationException`, `NOTIFICATION_ERROR_CODES` (22 keys)              |                                                             |
-| `NotificationErrorResponse`, `NOTIFICATION_PURPOSES`, `CANONICAL_EMAIL_TEMPLATES` (`./shared`) | |
-| `useOtpInput`, `useOtpCountdown` (`./react`)                               |                                                             |
-| DI tokens: `BYMAX_NOTIFICATION_OPTIONS`, `_EMAIL_PROVIDER`, `_OTP_STORAGE`, `_TEMPLATE_RENDERER`, `_LOG_REPOSITORY` | |
-| Resolved-options types: `ResolvedNotificationOptions` and sub-types         |                                                             |
-| Crypto utilities: `hashTenantRecipient`, `generateOtpCode`, `safeCompare`  |                                                             |
-| `CANONICAL_EMAIL_TEMPLATES`, `DEFAULT_TTLS`, `OtpPurpose`, `NotificationChannel` |                                              |
+| Public (the contract this example depends on)                                                                       | Internal (never imported directly)                     |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `BymaxNotificationModule` (`.` subpath)                                                                             | Config resolution internals (`resolveForPurpose` impl) |
+| `EmailService`, `OtpService`, `NotificationService`                                                                 | Redis Lua source                                       |
+| `NotificationAuditInterceptor`                                                                                      | Internal validators / crypto implementation details    |
+| `IEmailProvider`, `IOtpStorage`, `IEmailTemplateRenderer`                                                           |                                                        |
+| `INotificationLogRepository`                                                                                        |                                                        |
+| `ResendEmailProvider`, `NoOpEmailProvider`                                                                          |                                                        |
+| `InMemoryOtpStorage`, `RedisOtpStorage`                                                                             |                                                        |
+| `DefaultTemplateRenderer`                                                                                           |                                                        |
+| `NoOpNotificationLogRepository`                                                                                     |                                                        |
+| `NotificationException`, `NOTIFICATION_ERROR_CODES` (22 keys)                                                       |                                                        |
+| `NotificationErrorResponse`, `NOTIFICATION_PURPOSES`, `CANONICAL_EMAIL_TEMPLATES` (`./shared`)                      |                                                        |
+| `useOtpInput`, `useOtpCountdown` (`./react`)                                                                        |                                                        |
+| DI tokens: `BYMAX_NOTIFICATION_OPTIONS`, `_EMAIL_PROVIDER`, `_OTP_STORAGE`, `_TEMPLATE_RENDERER`, `_LOG_REPOSITORY` |                                                        |
+| Resolved-options types: `ResolvedNotificationOptions` and sub-types                                                 |                                                        |
+| Crypto utilities: `hashTenantRecipient`, `generateOtpCode`, `safeCompare`                                           |                                                        |
+| `CANONICAL_EMAIL_TEMPLATES`, `DEFAULT_TTLS`, `OtpPurpose`, `NotificationChannel`                                    |                                                        |
 
 `apps/api/src/library-probe.ts` references the otherwise-hard-to-exercise symbols (resolved-options types,
 SMS/Push v0.2 tokens, zero-arg class form) to satisfy the export-usage audit. See
@@ -170,10 +170,10 @@ AppModule
 
 Rows arrive in `NotificationLog` from **two** independent places; the Explorer's **source facet** separates them:
 
-| Source                                   | `providerName`             | Verbs emitted                                                       | Route(s)          |
-| ---------------------------------------- | -------------------------- | ------------------------------------------------------------------- | ----------------- |
-| Services (`OtpService`, `EmailService`)  | real provider name         | `generated` / `sent` / `verified` / `failed` / `cooldown_blocked` / `max_attempts_exceeded` | all routes |
-| `NotificationAuditInterceptor`           | `'__interceptor__'`        | `sent` / `failed`                                                   | `/dispatch` only  |
+| Source                                  | `providerName`      | Verbs emitted                                                                               | Route(s)         |
+| --------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------- | ---------------- |
+| Services (`OtpService`, `EmailService`) | real provider name  | `generated` / `sent` / `verified` / `failed` / `cooldown_blocked` / `max_attempts_exceeded` | all routes       |
+| `NotificationAuditInterceptor`          | `'__interceptor__'` | `sent` / `failed`                                                                           | `/dispatch` only |
 
 A dispatched OTP-generate therefore writes **both** a service `generated` row and an interceptor `sent` row.
 

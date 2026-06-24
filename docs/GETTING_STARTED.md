@@ -10,12 +10,12 @@ read this one.
 
 ## Prerequisites
 
-| Tool              | Version     | Check                        |
-| ----------------- | ----------- | ---------------------------- |
-| Node.js           | `>= 24`     | `node -v` (`nvm use`)        |
-| pnpm              | `11.x`      | `pnpm -v`                    |
-| Docker Compose    | v2          | `docker compose version`     |
-| Sibling lib repo  | at `../nest-notification` | `ls ../nest-notification/` |
+| Tool             | Version                   | Check                      |
+| ---------------- | ------------------------- | -------------------------- |
+| Node.js          | `>= 24`                   | `node -v` (`nvm use`)      |
+| pnpm             | `11.x`                    | `pnpm -v`                  |
+| Docker Compose   | v2                        | `docker compose version`   |
+| Sibling lib repo | at `../nest-notification` | `ls ../nest-notification/` |
 
 The repo pins Node 24 in `.nvmrc`, so `nvm use` selects the right runtime.
 
@@ -70,11 +70,11 @@ pnpm dev
 
 ## What you should see
 
-| Surface               | URL                             | Notes                                                                |
-| --------------------- | ------------------------------- | -------------------------------------------------------------------- |
-| **Console** (`apps/web`) | <http://localhost:3003>      | Overview, Trigger Center, Audit Explorer, OTP, Providers, Roadmap   |
-| **API health** (`apps/api`) | <http://localhost:3001/health> | Liveness probe                                                   |
-| **Mailpit inbox**     | <http://localhost:8025>         | Every email the demo sends lands here — no real SMTP needed          |
+| Surface                     | URL                            | Notes                                                             |
+| --------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| **Console** (`apps/web`)    | <http://localhost:3003>        | Overview, Trigger Center, Audit Explorer, OTP, Providers, Roadmap |
+| **API health** (`apps/api`) | <http://localhost:3001/health> | Liveness probe                                                    |
+| **Mailpit inbox**           | <http://localhost:8025>        | Every email the demo sends lands here — no real SMTP needed       |
 
 ---
 
@@ -147,12 +147,12 @@ to the resulting row. The full guided tour is in **[FEATURES.md](./FEATURES.md)*
 
 ## Common snags
 
-| Symptom                                                        | Most likely cause                                              | Fix                                                                                                             |
-| -------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Email never arrives in Mailpit                                  | Mailpit container is not running or `SMTP_URL` is wrong        | [TROUBLESHOOTING → "Email never arrives in Mailpit"](./TROUBLESHOOTING.md#email-never-arrives-in-mailpit)       |
-| `Cannot find module '@bymax-one/nest-notification'`            | The sibling `file:` link was never built — `dist/` is missing  | [TROUBLESHOOTING → "Cannot find module …"](./TROUBLESHOOTING.md#cannot-find-module-bymax-onenest-notification)  |
-| OTP verify always fails with `OTP_NOT_FOUND`                   | The code expired or the wrong purpose/recipient was sent       | [TROUBLESHOOTING → "OTP verify always fails"](./TROUBLESHOOTING.md#otp-verify-always-fails)                     |
-| `pnpm dev` freezes the machine                                 | Uncapped heaps + file: dependency reloaded in every watcher    | [TROUBLESHOOTING → "`pnpm dev` freezes the machine"](./TROUBLESHOOTING.md#pnpm-dev-freezes-the-machine)         |
+| Symptom                                             | Most likely cause                                             | Fix                                                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Email never arrives in Mailpit                      | Mailpit container is not running or `SMTP_URL` is wrong       | [TROUBLESHOOTING → "Email never arrives in Mailpit"](./TROUBLESHOOTING.md#email-never-arrives-in-mailpit)      |
+| `Cannot find module '@bymax-one/nest-notification'` | The sibling `file:` link was never built — `dist/` is missing | [TROUBLESHOOTING → "Cannot find module …"](./TROUBLESHOOTING.md#cannot-find-module-bymax-onenest-notification) |
+| OTP verify always fails with `OTP_NOT_FOUND`        | The code expired or the wrong purpose/recipient was sent      | [TROUBLESHOOTING → "OTP verify always fails"](./TROUBLESHOOTING.md#otp-verify-always-fails)                    |
+| `pnpm dev` freezes the machine                      | Uncapped heaps + file: dependency reloaded in every watcher   | [TROUBLESHOOTING → "`pnpm dev` freezes the machine"](./TROUBLESHOOTING.md#pnpm-dev-freezes-the-machine)        |
 
 ---
 

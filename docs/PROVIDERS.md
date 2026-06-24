@@ -11,12 +11,12 @@ For the renderer contract, see **[TEMPLATING.md](./TEMPLATING.md)**.
 
 ## The provider/channel matrix
 
-| Boundary            | Contract                                    | Bundled reference                            | This example wires                                                               |
-| ------------------- | ------------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------- |
-| Email transport     | `IEmailProvider`                            | `ResendEmailProvider`, `NoOpEmailProvider`   | Custom `NodemailerEmailProvider` → Mailpit (zero-cred default) + Resend (opt-in) |
-| OTP storage         | `IOtpStorage` (atomic; 9 methods + `name`)  | `RedisOtpStorage`, `InMemoryOtpStorage`      | Redis (opt-in via `REDIS_URL`) or in-memory fallback                             |
-| Template rendering  | `IEmailTemplateRenderer`                    | `DefaultTemplateRenderer`                    | Default + Handlebars / MJML / React Email demos                                  |
-| Audit sink          | `INotificationLogRepository`                | `NoOpNotificationLogRepository`              | `PrismaNotificationLogRepository` over Postgres                                  |
+| Boundary           | Contract                                   | Bundled reference                          | This example wires                                                               |
+| ------------------ | ------------------------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------- |
+| Email transport    | `IEmailProvider`                           | `ResendEmailProvider`, `NoOpEmailProvider` | Custom `NodemailerEmailProvider` → Mailpit (zero-cred default) + Resend (opt-in) |
+| OTP storage        | `IOtpStorage` (atomic; 9 methods + `name`) | `RedisOtpStorage`, `InMemoryOtpStorage`    | Redis (opt-in via `REDIS_URL`) or in-memory fallback                             |
+| Template rendering | `IEmailTemplateRenderer`                   | `DefaultTemplateRenderer`                  | Default + Handlebars / MJML / React Email demos                                  |
+| Audit sink         | `INotificationLogRepository`               | `NoOpNotificationLogRepository`            | `PrismaNotificationLogRepository` over Postgres                                  |
 
 ---
 
@@ -171,10 +171,10 @@ calling the storage methods. Your implementation never sees the plaintext recipi
 
 In `forRootAsync` mode, the library resolves providers through a mini-container:
 
-| Form                    | Works when                             | Example                                      |
-| ----------------------- | -------------------------------------- | -------------------------------------------- |
-| Instance (`new Foo(…)`) | Always — the instance is used directly | `new NodemailerEmailProvider(smtpUrl)`       |
-| Class (`Foo`)           | Only when the constructor is zero-arg  | `NoOpEmailProvider`, `InMemoryOtpStorage`    |
+| Form                    | Works when                             | Example                                   |
+| ----------------------- | -------------------------------------- | ----------------------------------------- |
+| Instance (`new Foo(…)`) | Always — the instance is used directly | `new NodemailerEmailProvider(smtpUrl)`    |
+| Class (`Foo`)           | Only when the constructor is zero-arg  | `NoOpEmailProvider`, `InMemoryOtpStorage` |
 
 Passing a class with constructor parameters (e.g. `NodemailerEmailProvider` which takes `smtpUrl`) causes
 `instantiate()` to throw. Always pass DI-dependent adapters as instances wired in the factory.

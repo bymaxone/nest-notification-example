@@ -80,11 +80,11 @@ pnpm --filter @nest-notification-example/api db:seed
 pnpm dev
 ```
 
-| Surface               | URL                             |
-| --------------------- | ------------------------------- |
-| Console (`apps/web`)  | <http://localhost:3003>         |
-| API health            | <http://localhost:3001/health>  |
-| Mailpit inbox         | <http://localhost:8025>         |
+| Surface              | URL                            |
+| -------------------- | ------------------------------ |
+| Console (`apps/web`) | <http://localhost:3003>        |
+| API health           | <http://localhost:3001/health> |
+| Mailpit inbox        | <http://localhost:8025>        |
 
 The library is **pre-publish** — consumed via a local `file:` link to the sibling `../nest-notification`
 checkout until it ships to npm. The local happy path needs **zero external credentials**: emails land in a
@@ -146,23 +146,23 @@ switcher** in the console that sets a trusted `x-tenant-id` header. Full pipelin
 
 ## 📖 Documentation
 
-| Doc                                                  | What it covers                                                         |
-| ---------------------------------------------------- | ---------------------------------------------------------------------- |
-| [GETTING_STARTED](docs/GETTING_STARTED.md)           | Clone → first email in Mailpit + first verified OTP in ~5 minutes      |
-| [FEATURES](docs/FEATURES.md)                         | Guided feature tour + all 13 end-to-end journeys                       |
-| [ARCHITECTURE](docs/ARCHITECTURE.md)                 | Four-stage delivery pipeline, `forRootAsync` wiring, module boundaries |
-| [DATABASE](docs/DATABASE.md)                         | `NotificationLog` schema, keyset pagination, masked-recipient store    |
-| [DASHBOARD](docs/DASHBOARD.md)                       | Console information architecture, SSE live tail, design system         |
-| [ENVIRONMENT](docs/ENVIRONMENT.md)                   | Full env-var reference + production guards                             |
-| [PROVIDERS](docs/PROVIDERS.md)                       | BYO `IEmailProvider` / `IOtpStorage` guide + provider matrix           |
-| [TEMPLATING](docs/TEMPLATING.md)                     | `IEmailTemplateRenderer` contract, canonical templates, XSS guard      |
-| [MULTI_TENANCY](docs/MULTI_TENANCY.md)               | `sha256` keys, `tenantIdResolver`, `maskRecipient`, never-log-codes    |
-| [AUTH_INTEGRATION](docs/AUTH_INTEGRATION.md)         | Composing with `@bymax-one/nest-auth`: boundary, namespace isolation   |
-| [DEPLOYMENT](docs/DEPLOYMENT.md)                     | Production checklist, GHCR images, version pins                        |
-| [TROUBLESHOOTING](docs/TROUBLESHOOTING.md)           | Symptom → cause → fix (incl. the memory-safe run recipe)               |
-| [RELEASES](docs/RELEASES.md)                         | Which library version each branch tracks                               |
-| [OVERVIEW](docs/OVERVIEW.md)                         | Master product blueprint (21 sections, 61-row Feature Coverage Matrix) |
-| [DEVELOPMENT_PLAN](docs/DEVELOPMENT_PLAN.md)         | Phased build plan, quality gates, CI matrix, Appendix E go-public      |
+| Doc                                          | What it covers                                                         |
+| -------------------------------------------- | ---------------------------------------------------------------------- |
+| [GETTING_STARTED](docs/GETTING_STARTED.md)   | Clone → first email in Mailpit + first verified OTP in ~5 minutes      |
+| [FEATURES](docs/FEATURES.md)                 | Guided feature tour + all 13 end-to-end journeys                       |
+| [ARCHITECTURE](docs/ARCHITECTURE.md)         | Four-stage delivery pipeline, `forRootAsync` wiring, module boundaries |
+| [DATABASE](docs/DATABASE.md)                 | `NotificationLog` schema, keyset pagination, masked-recipient store    |
+| [DASHBOARD](docs/DASHBOARD.md)               | Console information architecture, SSE live tail, design system         |
+| [ENVIRONMENT](docs/ENVIRONMENT.md)           | Full env-var reference + production guards                             |
+| [PROVIDERS](docs/PROVIDERS.md)               | BYO `IEmailProvider` / `IOtpStorage` guide + provider matrix           |
+| [TEMPLATING](docs/TEMPLATING.md)             | `IEmailTemplateRenderer` contract, canonical templates, XSS guard      |
+| [MULTI_TENANCY](docs/MULTI_TENANCY.md)       | `sha256` keys, `tenantIdResolver`, `maskRecipient`, never-log-codes    |
+| [AUTH_INTEGRATION](docs/AUTH_INTEGRATION.md) | Composing with `@bymax-one/nest-auth`: boundary, namespace isolation   |
+| [DEPLOYMENT](docs/DEPLOYMENT.md)             | Production checklist, GHCR images, version pins                        |
+| [TROUBLESHOOTING](docs/TROUBLESHOOTING.md)   | Symptom → cause → fix (incl. the memory-safe run recipe)               |
+| [RELEASES](docs/RELEASES.md)                 | Which library version each branch tracks                               |
+| [OVERVIEW](docs/OVERVIEW.md)                 | Master product blueprint (21 sections, 61-row Feature Coverage Matrix) |
+| [DEVELOPMENT_PLAN](docs/DEVELOPMENT_PLAN.md) | Phased build plan, quality gates, CI matrix, Appendix E go-public      |
 
 ---
 

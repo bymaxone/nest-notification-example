@@ -10,22 +10,22 @@ The root `.env.example` documents every variable; `apps/api` reads its own `.env
 
 ## Reference
 
-| Variable                        | Service | Default (dev)                                                        | Required in prod | Used for                                                                   |
-| ------------------------------- | ------- | -------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------- |
-| `NODE_ENV`                      | api     | `development`                                                        | ✅               | Drives production guards in the Zod schema                                 |
-| `PORT`                          | api     | `3001`                                                               | —                | HTTP listen port                                                           |
-| `DATABASE_URL`                  | api     | `postgresql://postgres:postgres@localhost:5432/notification_example` | ✅               | Prisma audit store (`@prisma/adapter-pg`)                                  |
-| `REDIS_URL`                     | api     | _(unset ⇒ `InMemoryOtpStorage`)_                                     | recommended      | `RedisOtpStorage` (atomic, durable); absent → in-memory fallback           |
-| `SMTP_URL`                      | api     | `smtp://localhost:1025`                                              | —                | Custom Nodemailer→Mailpit `IEmailProvider` (zero-credential dev default)   |
-| `RESEND_API_KEY`                 | api     | _(unset ⇒ Nodemailer/NoOp)_                                          | —                | Switches the email provider to the bundled `ResendEmailProvider`           |
-| `MAIL_FROM`                     | api     | `no-reply@notification.local`                                        | ✅               | `defaultFrom` address for every outbound email                             |
-| `MAIL_FROM_NAME`                 | api     | _(unset)_                                                            | —                | `defaultFromName` display label (e.g. `Bymax Notification Example`)       |
-| `DEFAULT_LOCALE`                | api     | `en`                                                                 | —                | Template locale fallback when the requested locale is not registered       |
-| `OTP_DEFAULT_TTL_SECONDS`       | api     | `600`                                                                | —                | Default OTP time-to-live in seconds (overridable per-purpose)              |
-| `OTP_RESEND_COOLDOWN_SECONDS`   | api     | `60`                                                                 | —                | Resend cooldown window in seconds (atomic `SET NX EX` in Redis)           |
-| `AUDIT_MASK_RECIPIENT`          | api     | `true`                                                               | ✅               | Toggles `maskRecipient` — minimizes the recipient before persistence       |
-| `WEB_ORIGIN`                    | api     | `http://localhost:3003`                                              | ✅               | CORS allow-origin for the console (must be `https://` in production)       |
-| `NEXT_PUBLIC_API_URL`           | web     | `http://localhost:3001`                                              | ✅               | The console's API base URL (browser fetch target)                          |
+| Variable                      | Service | Default (dev)                                                        | Required in prod | Used for                                                                 |
+| ----------------------------- | ------- | -------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------ |
+| `NODE_ENV`                    | api     | `development`                                                        | ✅               | Drives production guards in the Zod schema                               |
+| `PORT`                        | api     | `3001`                                                               | —                | HTTP listen port                                                         |
+| `DATABASE_URL`                | api     | `postgresql://postgres:postgres@localhost:5432/notification_example` | ✅               | Prisma audit store (`@prisma/adapter-pg`)                                |
+| `REDIS_URL`                   | api     | _(unset ⇒ `InMemoryOtpStorage`)_                                     | recommended      | `RedisOtpStorage` (atomic, durable); absent → in-memory fallback         |
+| `SMTP_URL`                    | api     | `smtp://localhost:1025`                                              | —                | Custom Nodemailer→Mailpit `IEmailProvider` (zero-credential dev default) |
+| `RESEND_API_KEY`              | api     | _(unset ⇒ Nodemailer/NoOp)_                                          | —                | Switches the email provider to the bundled `ResendEmailProvider`         |
+| `MAIL_FROM`                   | api     | `no-reply@notification.local`                                        | ✅               | `defaultFrom` address for every outbound email                           |
+| `MAIL_FROM_NAME`              | api     | _(unset)_                                                            | —                | `defaultFromName` display label (e.g. `Bymax Notification Example`)      |
+| `DEFAULT_LOCALE`              | api     | `en`                                                                 | —                | Template locale fallback when the requested locale is not registered     |
+| `OTP_DEFAULT_TTL_SECONDS`     | api     | `600`                                                                | —                | Default OTP time-to-live in seconds (overridable per-purpose)            |
+| `OTP_RESEND_COOLDOWN_SECONDS` | api     | `60`                                                                 | —                | Resend cooldown window in seconds (atomic `SET NX EX` in Redis)          |
+| `AUDIT_MASK_RECIPIENT`        | api     | `true`                                                               | ✅               | Toggles `maskRecipient` — minimizes the recipient before persistence     |
+| `WEB_ORIGIN`                  | api     | `http://localhost:3003`                                              | ✅               | CORS allow-origin for the console (must be `https://` in production)     |
+| `NEXT_PUBLIC_API_URL`         | web     | `http://localhost:3001`                                              | ✅               | The console's API base URL (browser fetch target)                        |
 
 ---
 
@@ -62,11 +62,11 @@ the container startup logs rather than at the first affected request.
 
 The email provider is resolved in `notification/notification.config.ts` based on which variables are set:
 
-| Variables present             | Active `IEmailProvider`     | Emails land in…         |
-| ----------------------------- | --------------------------- | ----------------------- |
-| `RESEND_API_KEY` set          | `ResendEmailProvider`       | Resend dashboard        |
-| `SMTP_URL` set, no Resend key | `NodemailerEmailProvider`   | Mailpit (`:8025`)       |
-| Neither set                   | `NoOpEmailProvider`         | discarded silently      |
+| Variables present             | Active `IEmailProvider`   | Emails land in…    |
+| ----------------------------- | ------------------------- | ------------------ |
+| `RESEND_API_KEY` set          | `ResendEmailProvider`     | Resend dashboard   |
+| `SMTP_URL` set, no Resend key | `NodemailerEmailProvider` | Mailpit (`:8025`)  |
+| Neither set                   | `NoOpEmailProvider`       | discarded silently |
 
 See [PROVIDERS.md](./PROVIDERS.md) for the bring-your-own-provider guide.
 
@@ -74,10 +74,10 @@ See [PROVIDERS.md](./PROVIDERS.md) for the bring-your-own-provider guide.
 
 ## OTP storage selection
 
-| `REDIS_URL` present | Active `IOtpStorage`     | Durability                    |
-| ------------------- | ------------------------ | ----------------------------- |
-| Yes                 | `RedisOtpStorage`        | Durable, atomic (Redis Lua)   |
-| No (default)        | `InMemoryOtpStorage`     | In-process only; lost on restart |
+| `REDIS_URL` present | Active `IOtpStorage` | Durability                       |
+| ------------------- | -------------------- | -------------------------------- |
+| Yes                 | `RedisOtpStorage`    | Durable, atomic (Redis Lua)      |
+| No (default)        | `InMemoryOtpStorage` | In-process only; lost on restart |
 
 For production, always set `REDIS_URL` — in-memory storage loses all pending codes on a restart or on
 more than one API instance.

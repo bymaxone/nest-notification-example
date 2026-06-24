@@ -160,12 +160,12 @@ rate and provider-mix charts.
 
 ## Schema indexes rationale
 
-| Index                                   | Query it serves                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------ |
-| `[tenantId, timestamp DESC]`            | Tenant-scoped recent-activity feed (Explorer default sort)               |
-| `[tenantId, channel, verb]`             | Faceted filter bar (e.g. all failed OTP sends for tenant)                |
-| `[userId, timestamp DESC]`              | Per-user activity timeline (future consumer feature)                     |
-| `[timestamp DESC, id DESC]`             | Global keyset cursor — the stable, monotonic page boundary               |
+| Index                        | Query it serves                                            |
+| ---------------------------- | ---------------------------------------------------------- |
+| `[tenantId, timestamp DESC]` | Tenant-scoped recent-activity feed (Explorer default sort) |
+| `[tenantId, channel, verb]`  | Faceted filter bar (e.g. all failed OTP sends for tenant)  |
+| `[userId, timestamp DESC]`   | Per-user activity timeline (future consumer feature)       |
+| `[timestamp DESC, id DESC]`  | Global keyset cursor — the stable, monotonic page boundary |
 
 ---
 

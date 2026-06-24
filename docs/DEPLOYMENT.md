@@ -35,10 +35,10 @@ security settings, and shutdown. Anything that goes wrong at runtime is in
 
 `release.yml` (on a `v*` tag) builds and pushes two multi-stage images via OIDC to GHCR:
 
-| Image                                            | Dockerfile                   | Exposes |
-| ------------------------------------------------ | ---------------------------- | ------- |
-| `ghcr.io/bymaxone/nest-notification-example-api` | `apps/api/Dockerfile`        | `3001`  |
-| `ghcr.io/bymaxone/nest-notification-example-web` | `apps/web/Dockerfile`        | `3003`  |
+| Image                                            | Dockerfile            | Exposes |
+| ------------------------------------------------ | --------------------- | ------- |
+| `ghcr.io/bymaxone/nest-notification-example-api` | `apps/api/Dockerfile` | `3001`  |
+| `ghcr.io/bymaxone/nest-notification-example-web` | `apps/web/Dockerfile` | `3003`  |
 
 Both images are built from the repo root so the workspace `pnpm-lock.yaml` is available during the build.
 The web image accepts the build argument `NEXT_PUBLIC_API_URL` (default: `https://example.com/api`).
@@ -53,17 +53,17 @@ docker pull ghcr.io/bymaxone/nest-notification-example-web:0.1.0
 
 ## Env vars — production values
 
-| Variable               | Dev default                     | Production value                                               |
-| ---------------------- | ------------------------------- | -------------------------------------------------------------- |
-| `NODE_ENV`             | `development`                   | `production`                                                   |
-| `DATABASE_URL`         | `postgresql://…@localhost:5432` | managed Postgres URL (no loopback)                             |
-| `REDIS_URL`            | _(unset)_                       | managed Redis URL (no loopback)                                |
-| `SMTP_URL`             | `smtp://localhost:1025`         | _(unset — use `RESEND_API_KEY` instead)_                       |
-| `RESEND_API_KEY`       | _(unset)_                       | your Resend API key (or your custom provider)                  |
-| `MAIL_FROM`            | `no-reply@notification.local`   | a verified domain address (`noreply@yourapp.com`)              |
-| `WEB_ORIGIN`           | `http://localhost:3003`         | `https://app.yourapp.com`                                      |
-| `AUDIT_MASK_RECIPIENT` | `true`                          | `true`                                                         |
-| `NEXT_PUBLIC_API_URL`  | `http://localhost:3001`         | `https://api.yourapp.com`                                      |
+| Variable               | Dev default                     | Production value                                  |
+| ---------------------- | ------------------------------- | ------------------------------------------------- |
+| `NODE_ENV`             | `development`                   | `production`                                      |
+| `DATABASE_URL`         | `postgresql://…@localhost:5432` | managed Postgres URL (no loopback)                |
+| `REDIS_URL`            | _(unset)_                       | managed Redis URL (no loopback)                   |
+| `SMTP_URL`             | `smtp://localhost:1025`         | _(unset — use `RESEND_API_KEY` instead)_          |
+| `RESEND_API_KEY`       | _(unset)_                       | your Resend API key (or your custom provider)     |
+| `MAIL_FROM`            | `no-reply@notification.local`   | a verified domain address (`noreply@yourapp.com`) |
+| `WEB_ORIGIN`           | `http://localhost:3003`         | `https://app.yourapp.com`                         |
+| `AUDIT_MASK_RECIPIENT` | `true`                          | `true`                                            |
+| `NEXT_PUBLIC_API_URL`  | `http://localhost:3001`         | `https://api.yourapp.com`                         |
 
 Full reference: **[ENVIRONMENT.md](./ENVIRONMENT.md)**.
 

@@ -36,25 +36,25 @@ construction — `render` may be called concurrently.
 `CANONICAL_EMAIL_TEMPLATES` exports 10 well-known template names that map to standard auth / notification
 events. `apps/api/src/notification/templates.ts` registers all 10 for the `en` locale:
 
-| Constant key              | Wire name (string value)      | Event                                           |
-| ------------------------- | ----------------------------- | ----------------------------------------------- |
-| `OTP_CODE`                | `otp_code`                    | Email-verification / transactional OTP delivery |
-| `OTP_PASSWORD_RESET`      | `otp_password_reset`          | Password-reset OTP delivery                     |
-| `WELCOME`                 | `welcome`                     | New-user welcome email                          |
-| `MFA_ENABLED`             | `mfa_enabled`                 | MFA enabled notification                        |
-| `MFA_DISABLED`            | `mfa_disabled`                | MFA disabled notification                       |
-| `NEW_LOGIN_ALERT`         | `new_login_alert`             | New-device sign-in alert                        |
-| `PASSWORD_RESET_SUCCESS`  | `password_reset_success`      | Password reset confirmed                        |
-| `EMAIL_CHANGED`           | `email_changed`               | Email address changed                           |
-| `ACCOUNT_LOCKED`          | `account_locked`              | Account locked (brute-force)                    |
-| `INVITATION`              | `invitation`                  | Team / tenant invitation                        |
+| Constant key             | Wire name (string value) | Event                                           |
+| ------------------------ | ------------------------ | ----------------------------------------------- |
+| `OTP_CODE`               | `otp_code`               | Email-verification / transactional OTP delivery |
+| `OTP_PASSWORD_RESET`     | `otp_password_reset`     | Password-reset OTP delivery                     |
+| `WELCOME`                | `welcome`                | New-user welcome email                          |
+| `MFA_ENABLED`            | `mfa_enabled`            | MFA enabled notification                        |
+| `MFA_DISABLED`           | `mfa_disabled`           | MFA disabled notification                       |
+| `NEW_LOGIN_ALERT`        | `new_login_alert`        | New-device sign-in alert                        |
+| `PASSWORD_RESET_SUCCESS` | `password_reset_success` | Password reset confirmed                        |
+| `EMAIL_CHANGED`          | `email_changed`          | Email address changed                           |
+| `ACCOUNT_LOCKED`         | `account_locked`         | Account locked (brute-force)                    |
+| `INVITATION`             | `invitation`             | Team / tenant invitation                        |
 
 Two additional app-registered templates are added in `templates.ts`:
 
-| Wire name              | Event                                   |
-| ---------------------- | --------------------------------------- |
-| `password_reset_link`  | Link-based (token) password reset email |
-| (further app names…)   | Any other template the app needs        |
+| Wire name             | Event                                   |
+| --------------------- | --------------------------------------- |
+| `password_reset_link` | Link-based (token) password reset email |
+| (further app names…)  | Any other template the app needs        |
 
 ---
 
@@ -115,10 +115,10 @@ the raw string. The Email preview panel (`/providers`) has an "XSS inject" toggl
 
 ### Renderer options
 
-| Option               | Values                     | Default    | Effect                                                                           |
-| -------------------- | -------------------------- | ---------- | -------------------------------------------------------------------------------- |
-| `onMissingVar`       | `'empty'` \| `'throw'`     | `'empty'`  | `'empty'` replaces an undefined placeholder with `''`; `'throw'` raises an error |
-| `enableNestedPaths`  | `boolean`                  | `false`    | Allows `{{user.name}}` dot-path syntax                                           |
+| Option              | Values                 | Default   | Effect                                                                           |
+| ------------------- | ---------------------- | --------- | -------------------------------------------------------------------------------- |
+| `onMissingVar`      | `'empty'` \| `'throw'` | `'empty'` | `'empty'` replaces an undefined placeholder with `''`; `'throw'` raises an error |
+| `enableNestedPaths` | `boolean`              | `false`   | Allows `{{user.name}}` dot-path syntax                                           |
 
 ---
 

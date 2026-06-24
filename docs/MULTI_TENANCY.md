@@ -115,7 +115,7 @@ An OTP code **must never appear** in:
 ```typescript
 // apps/api/test/never-log-codes.e2e-spec.ts (shape)
 it('audit entry never contains the OTP code', async () => {
-  const { code } = await forceGenerateWithKnownCode()  // internal test helper
+  const { code } = await forceGenerateWithKnownCode() // internal test helper
   const entries = await prisma.notificationLog.findMany()
   for (const entry of entries) {
     expect(JSON.stringify(entry).includes(code)).toBe(false)
@@ -139,7 +139,9 @@ The `redisNamespace` option (default `notification`) prefixes every key the libr
 `@bymax-one/nest-auth`, set distinct namespaces:
 
 ```typescript
-global: { redisNamespace: 'notification' }  // this library
+global: {
+  redisNamespace: 'notification'
+} // this library
 // nest-auth uses: auth: (its own config)
 ```
 

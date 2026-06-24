@@ -18,7 +18,9 @@ import type { INestApplication } from '@nestjs/common'
 import { afterAll, afterEach, beforeAll, describe, expect, it, jest } from '@jest/globals'
 
 const mockRedisInstance = { quit: jest.fn<() => Promise<'OK'>>().mockResolvedValue('OK') }
-const mockRedisConstructor = jest.fn(() => mockRedisInstance)
+const mockRedisConstructor = jest.fn<
+  (url: string, options: Record<string, unknown>) => typeof mockRedisInstance
+>(() => mockRedisInstance)
 
 jest.unstable_mockModule('ioredis', () => ({
   Redis: mockRedisConstructor,

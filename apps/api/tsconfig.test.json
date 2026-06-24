@@ -1,0 +1,18 @@
+{
+  // Type-checking config for the test sources (unit specs + e2e specs + helpers).
+  // It re-includes `src/**/*.spec.ts` (the build `tsconfig.json` excludes them) and
+  // adds `test/**/*.ts`, so a real `tsc --noEmit` proves the specs are type-correct
+  // — wrong argument counts, signature drift, and `any` are caught here, not silently
+  // transpiled away by ts-jest. Decorator metadata stays ON so the e2e specs that boot
+  // the real DI container type-check exactly as they run. This config emits nothing.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    "types": ["node", "jest"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist-test"]
+}

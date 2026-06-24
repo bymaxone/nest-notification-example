@@ -57,6 +57,28 @@ vi.mock('./log-table', () => ({
 }))
 vi.mock('@/lib/sse', () => ({ useAuditStream: () => streamReturn }))
 vi.mock('@/hooks/use-follow-mode', () => ({ useFollowMode: () => followReturn }))
+vi.mock('./detail-drawer', () => ({
+  DetailDrawer: ({
+    row,
+    open,
+    onOpenChange,
+  }: {
+    row: NotificationLog | null
+    open: boolean
+    onOpenChange: (open: boolean) => void
+  }) =>
+    open && row !== null ? (
+      <div>
+        drawer-{row.id}
+        <button type="button" onClick={() => onOpenChange(false)}>
+          close-drawer
+        </button>
+        <button type="button" onClick={() => onOpenChange(true)}>
+          keep-drawer
+        </button>
+      </div>
+    ) : null,
+}))
 
 const { ExplorerContent } = await import('./explorer-content')
 
@@ -96,12 +118,22 @@ describe('ExplorerContent', () => {
     expect(screen.queryByText('Streaming')).toBeNull()
   })
 
-  /** A row click surfaces the selection caption. */
-  it('selects a row on click', () => {
+  /** A row click opens the detail drawer; closing it clears the selection. */
+  it('opens the detail drawer on row click and clears on close', () => {
     renderExplorer()
-    expect(screen.queryByText(/Selected sent/)).toBeNull()
+    expect(screen.queryByText('drawer-r1')).toBeNull()
     fireEvent.click(screen.getByText('stub-row'))
-    expect(screen.getByText(/Selected sent · j\*\*\*@acme.com/)).toBeInTheDocument()
+    expect(screen.getByText('drawer-r1')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('close-drawer'))
+    expect(screen.queryByText('drawer-r1')).toBeNull()
+  })
+
+  /** An open-state change to `true` keeps the selection (the non-close branch). */
+  it('keeps the selection when the drawer reports it stays open', () => {
+    renderExplorer()
+    fireEvent.click(screen.getByText('stub-row'))
+    fireEvent.click(screen.getByText('keep-drawer'))
+    expect(screen.getByText('drawer-r1')).toBeInTheDocument()
   })
 
   /** Live + relative + connected shows the streaming bar with Pause/Clear. */

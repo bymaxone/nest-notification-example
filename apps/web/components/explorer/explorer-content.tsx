@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils'
 import { FacetRail } from './facet-rail'
 import { QueryBar } from './query-bar'
 import { LogTable } from './log-table'
+import { DetailDrawer } from './detail-drawer'
 
 /**
  * Resolve the live-tail status label from the stream + enabled state.
@@ -50,6 +51,7 @@ function statusLabel(failed: boolean, connected: boolean, enabled: boolean): str
 export function ExplorerContent() {
   const { query, live, isRelative } = useAuditQuery()
   const [selected, setSelected] = useState<NotificationLog | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const streamEnabled = live && isRelative
@@ -58,6 +60,12 @@ export function ExplorerContent() {
 
   const openRow = (row: NotificationLog): void => {
     setSelected(row)
+    setDrawerOpen(true)
+  }
+
+  const onDrawerChange = (open: boolean): void => {
+    setDrawerOpen(open)
+    if (!open) setSelected(null)
   }
 
   return (
@@ -100,12 +108,6 @@ export function ExplorerContent() {
           </div>
         )}
 
-        {selected !== null && (
-          <p aria-live="polite" className="font-mono text-[11px] text-white/40">
-            Selected {selected.verb} · {selected.recipient}
-          </p>
-        )}
-
         <div className="relative">
           <LogTable
             query={query}
@@ -124,6 +126,8 @@ export function ExplorerContent() {
             </button>
           )}
         </div>
+
+        <DetailDrawer row={selected} open={drawerOpen} onOpenChange={onDrawerChange} />
       </div>
     </div>
   )

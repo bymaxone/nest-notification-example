@@ -1,33 +1,60 @@
 /**
  * @fileoverview ExplorerContent — the client body of the Audit Explorer.
  *
- * Two-pane layout: the faceted rail (left) + the query bar and virtualized table
- * (right). All filter state is the `nuqs` URL state, so a brushed range from the
- * Overview / a Trigger auto-pivot lands here pre-filtered. Row click selects a row
- * (the detail drawer is wired in a later iteration); the SSE live tail is wired in
- * a later iteration too.
+ * Two-pane layout: the faceted rail (left) + the query bar, live-tail control bar,
+ * and virtualized table (right). All filter state is the `nuqs` URL state, so a
+ * brushed range / a Trigger auto-pivot lands here pre-filtered. When the global
+ * Live toggle is on and the range is relative, the SSE tail (over the same-origin
+ * proxy) appends new rows at the bottom with follow-mode (pinned auto-scroll;
+ * scroll-up pauses with an "N new — jump to latest" pill). Row click selects a
+ * row (the detail drawer is wired in a later iteration).
  *
  * @module components/explorer/explorer-content
  */
 
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { ArrowDownToLine, Eraser, Pause, Play, Radio } from 'lucide-react'
 
 import { useAuditQuery } from '@/lib/filters'
+import { useAuditStream } from '@/lib/sse'
+import { useFollowMode } from '@/hooks/use-follow-mode'
 import type { NotificationLog } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { FacetRail } from './facet-rail'
 import { QueryBar } from './query-bar'
 import { LogTable } from './log-table'
 
 /**
+ * Resolve the live-tail status label from the stream + enabled state.
+ *
+ * @param failed - Whether the stream hit a terminal failure.
+ * @param connected - Whether the EventSource is open.
+ * @param enabled - Whether the stream is enabled (live + relative range).
+ * @returns The human status label.
+ */
+function statusLabel(failed: boolean, connected: boolean, enabled: boolean): string {
+  if (failed) return 'Live tail failed — retry'
+  if (connected) return 'Streaming'
+  if (enabled) return 'Connecting…'
+  return 'Paused (absolute range)'
+}
+
+/**
  * The Audit Explorer page body.
  *
- * @returns The composed Explorer (rail + query bar + virtualized table).
+ * @returns The composed Explorer (rail + query bar + live tail + table).
  */
 export function ExplorerContent() {
-  const { query } = useAuditQuery()
+  const { query, live, isRelative } = useAuditQuery()
   const [selected, setSelected] = useState<NotificationLog | null>(null)
+
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const streamEnabled = live && isRelative
+  const stream = useAuditStream(query, streamEnabled)
+  const follow = useFollowMode(scrollRef, stream.rows.length)
 
   const openRow = (row: NotificationLog): void => {
     setSelected(row)
@@ -38,12 +65,65 @@ export function ExplorerContent() {
       <FacetRail />
       <div className="min-w-0 space-y-4">
         <QueryBar />
+
+        {live && (
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-(--glass-border) bg-(--glass-bg) px-3 py-2 text-xs">
+            <span
+              className={cn(
+                'flex items-center gap-1.5 font-mono',
+                stream.isFailed
+                  ? 'text-destructive'
+                  : stream.isConnected
+                    ? 'text-(--color-success)'
+                    : 'text-white/40',
+              )}
+            >
+              <Radio className={cn('h-3.5 w-3.5', stream.isConnected && 'animate-pulse')} />
+              {statusLabel(stream.isFailed, stream.isConnected, streamEnabled)}
+            </span>
+            <span className="text-white/30">·</span>
+            <span className="font-mono text-white/45">{stream.rows.length} live</span>
+            <div className="ml-auto flex items-center gap-1.5">
+              {follow.paused ? (
+                <Button type="button" size="sm" variant="outline" onClick={follow.resume}>
+                  <Play className="h-3.5 w-3.5" /> Resume
+                </Button>
+              ) : (
+                <Button type="button" size="sm" variant="outline" onClick={follow.pause}>
+                  <Pause className="h-3.5 w-3.5" /> Pause
+                </Button>
+              )}
+              <Button type="button" size="sm" variant="outline" onClick={stream.clear}>
+                <Eraser className="h-3.5 w-3.5" /> Clear
+              </Button>
+            </div>
+          </div>
+        )}
+
         {selected !== null && (
           <p aria-live="polite" className="font-mono text-[11px] text-white/40">
             Selected {selected.verb} · {selected.recipient}
           </p>
         )}
-        <LogTable query={query} onRowClick={openRow} />
+
+        <div className="relative">
+          <LogTable
+            query={query}
+            onRowClick={openRow}
+            liveRows={live ? stream.rows : []}
+            scrollRef={scrollRef}
+          />
+          {live && follow.newCount > 0 && (
+            <button
+              type="button"
+              onClick={follow.jumpToLatest}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-brand-500 px-4 py-1.5 font-mono text-xs font-semibold text-white shadow-(--shadow-primary)"
+            >
+              <ArrowDownToLine className="mr-1 inline h-3.5 w-3.5" />
+              {follow.newCount} new — Jump to latest
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

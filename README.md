@@ -95,6 +95,25 @@ email and first verified OTP.
 
 ---
 
+## 🔥 What's inside
+
+- **OTP lifecycle** — generate (email or manual delivery), verify (atomic + constant-time), resend
+  (cooldown-gated), consume, status. Per-purpose config (`password_reset`: 8-char alphanumeric, 900s TTL).
+- **Email delivery** — raw send, template send (10 canonical templates), locale fallback, XSS-safe renderer.
+- **Unified dispatch** — `NotificationService.dispatch` as a channel-agnostic façade, audited by the interceptor.
+- **Pluggable providers** — BYO `IEmailProvider` (Nodemailer→Mailpit as the worked example), `IEmailProvider`
+  with Resend (opt-in), `IOtpStorage` with Redis (opt-in) or in-memory.
+- **Pluggable renderers** — `DefaultTemplateRenderer`, Handlebars, MJML, React Email demos.
+- **Multi-tenant isolation** — `sha256(tenantId:recipient)` keys, `tenantIdResolver` anti-spoofing,
+  `maskRecipient`, and the never-log-codes regression test.
+- **Audit log + live tail** — `PrismaNotificationLogRepository`, keyset list, SSE stream, aggregate charts.
+- **React hooks** — `useOtpInput` (segmented 6-cell box) + `useOtpCountdown` (expiry pill), end-to-end in
+  the OTP panel.
+- **Roadmap honesty** — SMS/Push declared-but-rejected-at-startup; the Roadmap panel surfaces the real error.
+- **Optional auth seam** — `NotificationAuthEmailProvider` bridges `@bymax-one/nest-auth`'s port.
+
+---
+
 ## 🏗️ Architecture
 
 ```
@@ -122,25 +141,6 @@ email and first verified OTP.
 `apps/api` and `apps/web` are independently deployable. Multi-tenancy is demonstrated through a **tenant
 switcher** in the console that sets a trusted `x-tenant-id` header. Full pipeline in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
----
-
-## ✅ What's inside
-
-- **OTP lifecycle** — generate (email or manual delivery), verify (atomic + constant-time), resend
-  (cooldown-gated), consume, status. Per-purpose config (`password_reset`: 8-char alphanumeric, 900s TTL).
-- **Email delivery** — raw send, template send (10 canonical templates), locale fallback, XSS-safe renderer.
-- **Unified dispatch** — `NotificationService.dispatch` as a channel-agnostic façade, audited by the interceptor.
-- **Pluggable providers** — BYO `IEmailProvider` (Nodemailer→Mailpit as the worked example), `IEmailProvider`
-  with Resend (opt-in), `IOtpStorage` with Redis (opt-in) or in-memory.
-- **Pluggable renderers** — `DefaultTemplateRenderer`, Handlebars, MJML, React Email demos.
-- **Multi-tenant isolation** — `sha256(tenantId:recipient)` keys, `tenantIdResolver` anti-spoofing,
-  `maskRecipient`, and the never-log-codes regression test.
-- **Audit log + live tail** — `PrismaNotificationLogRepository`, keyset list, SSE stream, aggregate charts.
-- **React hooks** — `useOtpInput` (segmented 6-cell box) + `useOtpCountdown` (expiry pill), end-to-end in
-  the OTP panel.
-- **Roadmap honesty** — SMS/Push declared-but-rejected-at-startup; the Roadmap panel surfaces the real error.
-- **Optional auth seam** — `NotificationAuthEmailProvider` bridges `@bymax-one/nest-auth`'s port.
 
 ---
 

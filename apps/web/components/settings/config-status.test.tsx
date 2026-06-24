@@ -19,6 +19,7 @@ vi.mock('@/lib/api/settings', () => ({
 }))
 
 const { ConfigStatus } = await import('./config-status')
+const { FrozenOptions } = await import('./frozen-options')
 
 const STATUS = {
   channels: ['email', 'otp'],
@@ -71,8 +72,14 @@ describe('ConfigStatus', () => {
     renderStatus()
     await waitFor(() => expect(screen.getByText('Nodemailer')).toBeInTheDocument())
     expect(screen.getByText('InMemoryOtpStorage')).toBeInTheDocument()
-    expect(screen.getByText('Viewer')).toBeInTheDocument()
-    expect(screen.getByText('Operator')).toBeInTheDocument()
+    // Each enabled channel renders as a badge (the `channels.map`).
+    expect(screen.getByText('email')).toBeInTheDocument()
+    expect(screen.getByText('otp')).toBeInTheDocument()
+    // The active role (operator) badge uses the brand (default) variant; the others are outline.
+    expect(screen.getByText('Operator')).toHaveClass('bg-brand-500')
+    const viewer = screen.getByText('Viewer')
+    expect(viewer).toHaveClass('text-foreground')
+    expect(viewer).not.toHaveClass('bg-brand-500')
     expect(screen.getByText('Admin')).toBeInTheDocument()
     expect(screen.getByText('j***@acme.com')).toBeInTheDocument()
   })
@@ -82,5 +89,31 @@ describe('ConfigStatus', () => {
     mock.getSettingsStatus.mockResolvedValue({ ...STATUS, maskRecipientMode: 'raw' })
     renderStatus()
     await waitFor(() => expect(screen.getAllByText('jane@acme.com')).toHaveLength(2))
+  })
+
+  /**
+   * Both Settings panels key the snapshot query identically (`['settings-status', tenantId]`)
+   * so they share one cache entry: rendering them together fetches the status exactly once.
+   */
+  it('shares the settings-status query key across both panels', async () => {
+    mock.getSettingsStatus.mockResolvedValue(STATUS)
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const wrapper = ({ children }: { children: ReactNode }): ReactElement => (
+      <NuqsTestingAdapter searchParams="?tenantId=acme" hasMemory onUrlUpdate={vi.fn()}>
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      </NuqsTestingAdapter>
+    )
+    render(
+      <>
+        <ConfigStatus />
+        <FrozenOptions />
+      </>,
+      { wrapper },
+    )
+    await waitFor(() => expect(screen.getByText('Nodemailer')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('consumeOnVerify')).toBeInTheDocument())
+    // A single shared cache entry → exactly one network read for the same tenant.
+    expect(mock.getSettingsStatus).toHaveBeenCalledTimes(1)
+    expect(mock.getSettingsStatus).toHaveBeenCalledWith('acme')
   })
 })

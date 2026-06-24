@@ -131,6 +131,28 @@ describe('AuditController.list', () => {
     expect(passed.where.AND).toHaveLength(1)
   })
 
+  it('scopes the where to the trusted tenant and builds the exact keyset OR clause', async () => {
+    /**
+     * Scenario: a decodable cursor with no source facet.
+     * Contract: the `where` carries the trusted `tenantId`, and the appended keyset clause is the
+     * strictly-older tuple `(timestamp < t) OR (timestamp = t AND id < id)` — pinning the tenant
+     * restriction object and every nested predicate of the cursor clause.
+     */
+    const { controller, audit, findMany } = buildController([row])
+    const ts = new Date('2026-06-23T13:00:00.000Z')
+    const cursor = audit.encodeCursor({ timestamp: ts, id: 'row-9' })
+
+    await controller.list(TENANT, parse({ limit: '5', cursor }))
+
+    const passed = findMany.mock.calls[0]?.[0] as {
+      where: { tenantId: string; AND: Array<{ OR: unknown[] }> }
+    }
+    expect(passed.where.tenantId).toBe(TENANT)
+    const keyset = passed.where.AND[0] as { OR: unknown[] }
+    expect(keyset.OR[0]).toEqual({ timestamp: { lt: ts } })
+    expect(keyset.OR[1]).toEqual({ timestamp: ts, id: { lt: 'row-9' } })
+  })
+
   it('returns the last page with hasMore=false and nextCursor=null', async () => {
     /**
      * Scenario: fewer rows than `limit` come back ⇒ the last page.
@@ -143,15 +165,18 @@ describe('AuditController.list', () => {
     expect(result.nextCursor).toBeNull()
   })
 
-  it('maps a stale cursor to HTTP 410 Gone', async () => {
+  it('maps a stale cursor to HTTP 410 Gone with a restart-pagination message', async () => {
     /**
      * Scenario: a malformed/foreign cursor.
      * Contract: `decodeCursor` throws `StaleCursorError`, which the handler maps to a
-     * `GoneException` (HTTP 410) instructing the client to restart pagination.
+     * `GoneException` (HTTP 410) whose message tells the client to restart pagination.
      */
     const { controller } = buildController([row])
     await expect(controller.list(TENANT, parse({ cursor: 'garbage!!!' }))).rejects.toBeInstanceOf(
       GoneException,
+    )
+    await expect(controller.list(TENANT, parse({ cursor: 'garbage!!!' }))).rejects.toThrow(
+      /stale.*restart/,
     )
   })
 

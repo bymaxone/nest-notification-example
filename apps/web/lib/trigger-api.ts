@@ -54,6 +54,9 @@ export interface TriggerResult {
  * @returns The masked recipient.
  */
 export function maskRecipient(recipient: string): string {
+  // Stryker disable next-line Regex: the `^`/`$` anchors are redundant — `String.replace` evaluates
+  // from the start and the greedy `.*` always reaches the end, so dropping either anchor yields the
+  // identical masked output for every address.
   return recipient.replace(/^(.).*(@.*)$/, '$1***$2')
 }
 

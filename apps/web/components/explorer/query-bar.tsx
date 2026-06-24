@@ -36,7 +36,14 @@ const CLEARED = {
  */
 export function QueryBar() {
   const { query, setQuery } = useAuditQuery()
+  // The initial state is immediately re-synced from the URL by the effect below on
+  // every mount (focus is always false at that point), so the seed expression here
+  // is never the observed value — the URL is. The sync effect's `urlRecipient` /
+  // `urlPurpose` reads (and their fallbacks) are the behaviour under test instead.
+  // Stryker disable next-line StringLiteral,LogicalOperator: see the note above — the
+  // mounted value comes from the effect, so the seed fallback is unobservable.
   const [recipient, setRecipient] = useState(query.recipient ?? '')
+  // Stryker disable next-line StringLiteral,LogicalOperator: same seed/effect masking as recipient.
   const [purpose, setPurpose] = useState(query.purpose ?? '')
   const focused = useRef(false)
 

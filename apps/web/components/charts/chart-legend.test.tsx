@@ -20,11 +20,18 @@ describe('ChartLegend', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  /** Each series renders its label. */
+  /** Each series renders its label, a coloured swatch, and a matching coloured icon. */
   it('renders a labelled row per series', () => {
     render(<ChartLegend items={DELIVERY_SERIES} />)
-    expect(screen.getByRole('list', { name: 'Chart legend' })).toBeInTheDocument()
+    const list = screen.getByRole('list', { name: 'Chart legend' })
+    expect(list).toBeInTheDocument()
+    expect(list).toHaveClass('flex-wrap')
     expect(screen.getByText('Sent')).toBeInTheDocument()
     expect(screen.getByText('Failed')).toBeInTheDocument()
+    const sentRow = screen.getByText('Sent').closest('li')
+    // The swatch background + the icon colour both carry the series colour inline.
+    const swatch = sentRow?.querySelector('span[aria-hidden="true"]')
+    expect((swatch as HTMLElement).style.background).not.toBe('')
+    expect(sentRow?.querySelector('svg')?.style.color).not.toBe('')
   })
 })

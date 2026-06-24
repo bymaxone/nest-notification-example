@@ -122,6 +122,21 @@ describe('resolveWindow', () => {
   it('returns null for an unknown token', () => {
     expect(resolveWindow('')).toBeNull()
   })
+
+  /** The bounds quantize "now" to the 30s grid, and `from` is exactly the range before `to`. */
+  it('quantizes the window to the 30s grid with from = to - range', () => {
+    /**
+     * Scenario: a fixed "now" at 12:00:47.5.
+     * Contract: `to` floors to the 30s grid (12:00:30) and `from` is exactly the 15-minute span
+     * earlier — pinning the `floor(now / quantum) * quantum` math so a flipped operator is caught.
+     */
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-23T12:00:47.500Z'))
+    const window = resolveWindow('15m')
+    expect(window).not.toBeNull()
+    expect(window!.to).toBe('2026-06-23T12:00:30.000Z')
+    expect(window!.from).toBe('2026-06-23T11:45:30.000Z')
+  })
 })
 
 describe('useNotificationQuery', () => {
@@ -172,7 +187,8 @@ describe('useAuditQuery', () => {
   /** A default URL omits every absent arm and is relative (no window pinned). */
   it('omits absent fields and reports relative on an empty URL', () => {
     const { result } = renderWith(useAuditQuery, '')
-    expect(result.current.query).toEqual({ role: 'viewer' })
+    // `toStrictEqual` so a spread that leaks an `undefined`-valued key (channel/verb/source) is caught.
+    expect(result.current.query).toStrictEqual({ role: 'viewer' })
     expect(result.current.isRelative).toBe(true)
     expect(result.current.selectedId).toBe('')
   })
@@ -197,15 +213,93 @@ describe('useAuditQuery', () => {
     expect(result.current.query.source).toBeUndefined()
   })
 
-  /** The relative-range ticker advances the window over time (covers the interval). */
-  it('ticks the relative window on the quantum interval', () => {
+  /** The relative-range ticker advances the window each time the quantum interval fires. */
+  it('advances the relative window when the quantum interval fires', () => {
+    /**
+     * Scenario: a relative `range=15m` with the clock advancing past two quantum ticks.
+     * Contract: each interval fire bumps the tick counter, recomputing the memo so `to` advances to
+     * the new quantized "now" — proving the interval, the `t + 1` updater, and the memo deps all fire.
+     */
     vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-23T12:00:00.000Z'))
     const { result } = renderWith(useAuditQuery, '?range=15m')
-    const firstTo = result.current.query.to
+    const first = result.current.query.to
+
+    vi.setSystemTime(new Date('2026-06-23T12:00:30.000Z'))
     act(() => {
-      vi.advanceTimersByTime(60_000)
+      vi.advanceTimersByTime(30_000)
     })
-    expect(typeof result.current.query.to).toBe('string')
-    expect(firstTo).toBeDefined()
+    const second = result.current.query.to
+
+    vi.setSystemTime(new Date('2026-06-23T12:01:00.000Z'))
+    act(() => {
+      vi.advanceTimersByTime(30_000)
+    })
+    const third = result.current.query.to
+
+    expect(second).not.toBe(first)
+    expect(third).not.toBe(second)
+  })
+
+  /** An absolute window never starts the ticker, so its `to` is frozen as time passes. */
+  it('does not tick (or change `to`) for an absolute window', () => {
+    /**
+     * Scenario: an absolute `from`/`to` (no relative preset) with the clock advancing.
+     * Contract: the ticker `useEffect` early-returns for a non-relative range, so firing the timer
+     * leaves the pinned `to` unchanged — proving the relative-only guard.
+     */
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-23T12:00:00.000Z'))
+    const { result } = renderWith(
+      useAuditQuery,
+      '?from=2026-06-23T00:00:00.000Z&to=2026-06-23T01:00:00.000Z',
+    )
+    const before = result.current.query.to
+
+    vi.setSystemTime(new Date('2026-06-23T12:05:00.000Z'))
+    act(() => {
+      vi.advanceTimersByTime(5 * 60_000)
+    })
+
+    expect(result.current.query.to).toBe(before)
+    expect(result.current.query.to).toBe('2026-06-23T01:00:00.000Z')
+  })
+
+  /** `isRelative` is true whenever a relative `range` is set, even alongside from/to. */
+  it('reports relative when a range is set even with from/to present', () => {
+    const { result } = renderWith(
+      useAuditQuery,
+      '?range=15m&from=2026-06-23T00:00:00.000Z&to=2026-06-23T01:00:00.000Z',
+    )
+    expect(result.current.isRelative).toBe(true)
+  })
+
+  /** A half-open absolute window (only `from`, or only `to`) is non-relative. */
+  it.each([['?from=2026-06-23T00:00:00.000Z'], ['?to=2026-06-23T01:00:00.000Z']])(
+    'reports non-relative for the half-open absolute window %s',
+    (search) => {
+      const { result } = renderWith(useAuditQuery, search)
+      expect(result.current.isRelative).toBe(false)
+    },
+  )
+
+  /** The ticker interval runs only for a relative range and is torn down on unmount. */
+  it('schedules the ticker only for a relative range and clears it on unmount', () => {
+    /**
+     * Scenario: an absolute window vs a relative preset, comparing scheduled timer counts.
+     * Contract: only a relative preset schedules the quantum interval (the effect early-returns for
+     * a non-relative range), and unmount clears it — proving the relative-only guard and the cleanup.
+     */
+    vi.useFakeTimers()
+    const absolute = renderWith(useAuditQuery, '?from=2026-06-23T00:00:00.000Z')
+    const absoluteTimers = vi.getTimerCount()
+    absolute.unmount()
+
+    const relative = renderWith(useAuditQuery, '?range=15m')
+    const relativeTimers = vi.getTimerCount()
+    expect(relativeTimers).toBeGreaterThan(absoluteTimers)
+
+    relative.unmount()
+    expect(vi.getTimerCount()).toBeLessThan(relativeTimers)
   })
 })

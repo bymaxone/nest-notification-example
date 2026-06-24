@@ -82,14 +82,40 @@ describe('ProviderMatrix', () => {
     expect(screen.getByText('Audit sink')).toBeInTheDocument()
     expect(screen.getByText('Nodemailer (Mailpit)')).toBeInTheDocument()
     expect(screen.getByText('InMemoryOtpStorage')).toBeInTheDocument()
+    // The audit-sink row wires a fixed adapter string (independent of the config).
+    expect(screen.getByText('Prisma / Postgres')).toBeInTheDocument()
     expect(screen.getAllByText('Active').length).toBeGreaterThanOrEqual(4)
   })
 
-  /** A disabled channel renders a Disabled badge for its boundary. */
+  /** A disabled channel renders a Disabled badge (outline variant) for its boundary. */
   it('marks a disabled channel', async () => {
     mock.getChannels.mockResolvedValue(['email'])
     mock.getConfigStatus.mockResolvedValue(CONFIG)
     renderMatrix()
-    await waitFor(() => expect(screen.getByText('Disabled')).toBeInTheDocument())
+    const disabled = await screen.findByText('Disabled')
+    // A disabled boundary uses the outline (not the brand-default) badge variant.
+    expect(disabled).toHaveClass('text-foreground')
+    expect(disabled).not.toHaveClass('bg-brand-500')
+  })
+
+  /** The query key carries the tenant, so a second tenant refetches (no cross-tenant reuse). */
+  it('keys the matrix query by tenant', async () => {
+    mock.getChannels.mockResolvedValue(['email', 'otp'])
+    mock.getConfigStatus.mockResolvedValue(CONFIG)
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        <NuqsTestingAdapter searchParams="?tenantId=acme" hasMemory onUrlUpdate={vi.fn()}>
+          <ProviderMatrix />
+        </NuqsTestingAdapter>
+        <NuqsTestingAdapter searchParams="?tenantId=globex" hasMemory onUrlUpdate={vi.fn()}>
+          <ProviderMatrix />
+        </NuqsTestingAdapter>
+      </QueryClientProvider>,
+    )
+    // Distinct tenant keys → each tenant fetches independently (dropping the tenant from the
+    // key would let the second instance reuse the first's cache and never fetch for globex).
+    await waitFor(() => expect(mock.getChannels).toHaveBeenCalledWith('globex'))
+    expect(mock.getChannels).toHaveBeenCalledWith('acme')
   })
 })

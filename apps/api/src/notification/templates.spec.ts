@@ -21,6 +21,54 @@ describe('TEMPLATES registry', () => {
     expect(TEMPLATES).toHaveProperty(`${CANONICAL_EMAIL_TEMPLATES.WELCOME}::en`)
   })
 
+  it.each([
+    [
+      `${CANONICAL_EMAIL_TEMPLATES.OTP_CODE}::en`,
+      'verification code',
+      'verification code is',
+      'verification code is',
+    ],
+    [
+      `${CANONICAL_EMAIL_TEMPLATES.OTP_PASSWORD_RESET}::en`,
+      'Reset your',
+      'reset your password',
+      'reset your password',
+    ],
+    [`${CANONICAL_EMAIL_TEMPLATES.WELCOME}::en`, 'Welcome to', 'welcome to', 'welcome to'],
+    [
+      `${CANONICAL_EMAIL_TEMPLATES.MFA_ENABLED}::en`,
+      'enabled',
+      'has been enabled',
+      'has been enabled',
+    ],
+    [
+      `${CANONICAL_EMAIL_TEMPLATES.MFA_DISABLED}::en`,
+      'disabled',
+      'has been disabled',
+      'has been disabled',
+    ],
+    [
+      `${CANONICAL_EMAIL_TEMPLATES.NEW_LOGIN_ALERT}::en`,
+      'New sign-in',
+      'new sign-in was detected',
+      'new sign-in was detected',
+    ],
+    ['password_reset_link::en', 'Reset your', 'Click the link', 'by visiting'],
+    ['invitation::en', 'invited to join', 'has invited you to join', 'has invited you to join'],
+  ])('carries the expected subject/html/text copy for %s', (key, subject, html, text) => {
+    /**
+     * Scenario: every registered template's three bodies.
+     * Contract: each `subject`/`html`/`text` carries its distinctive, non-empty copy — pinning the
+     * literal content so a silently-blanked field (e.g. a missing subject or escaped-away body) is
+     * caught rather than shipped as an empty email.
+     */
+    const entry = TEMPLATES[key]
+    expect(entry).toBeDefined()
+    expect(entry?.subject).toContain(subject)
+    expect(entry?.html).toContain(html)
+    expect(entry?.text).toContain(text)
+  })
+
   it('escapes interpolated values in the html body only', async () => {
     /**
      * The html body is an HTML context (escape), the subject and text are not (raw):

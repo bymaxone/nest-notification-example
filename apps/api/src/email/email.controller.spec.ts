@@ -92,6 +92,10 @@ describe('EmailController.send', () => {
       subject: 'Hi',
       html: '<p>Hi</p>',
     })
+    // Only the four required keys may be present — no absent optional (e.g. attachments) may leak
+    // in as an `undefined`-valued key, which the recursive-equality matcher would silently accept.
+    const input = ctx.service.send.mock.calls[0]?.[0] as Record<string, unknown>
+    expect(Object.keys(input).sort()).toEqual(['html', 'subject', 'tenantId', 'to'])
   })
 
   it('propagates EMAIL_ATTACHMENTS_TOO_LARGE so the filter maps it to 413', async () => {

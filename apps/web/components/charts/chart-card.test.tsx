@@ -14,15 +14,22 @@ import { ChartCard } from './chart-card'
 afterEach(cleanup)
 
 describe('ChartCard', () => {
-  /** A decorative chart is one labelled image with the title as its name. */
+  /** A decorative chart is one labelled image; no action/legend slots when omitted. */
   it('exposes a decorative body as a labelled image by default', () => {
-    render(
+    const { container } = render(
       <ChartCard title="Delivery rate">
         <div>body</div>
       </ChartCard>,
     )
     expect(screen.getByText('Delivery rate')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Delivery rate chart' })).toBeInTheDocument()
+    const content = screen.getByRole('img', { name: 'Delivery rate chart' })
+    // The wrapper card flexes vertically and the body grows; with no legend it has no bottom pad.
+    expect(container.firstElementChild).toHaveClass('flex-col')
+    expect(content).toHaveClass('flex-1')
+    expect(content).not.toHaveClass('pb-3')
+    // No action node → the header holds only the title; no legend → no footer row.
+    expect(screen.getByText('Delivery rate').parentElement?.childElementCount).toBe(1)
+    expect(container.firstElementChild?.childElementCount).toBe(2)
   })
 
   /** An interactive body keeps its tree (no decorative img role). */
@@ -36,14 +43,17 @@ describe('ChartCard', () => {
     expect(screen.getByRole('button', { name: 'pick' })).toBeInTheDocument()
   })
 
-  /** The optional action + legend nodes render. */
+  /** The optional action + legend nodes render, and the legend adds the footer padding. */
   it('renders the action and legend slots', () => {
-    render(
+    const { container } = render(
       <ChartCard title="Mix" action={<span>act</span>} legend={<span>leg</span>}>
         <div>body</div>
       </ChartCard>,
     )
     expect(screen.getByText('act')).toBeInTheDocument()
     expect(screen.getByText('leg')).toBeInTheDocument()
+    // A legend present → the body gains `pb-3` and the card gains the footer row (3 children).
+    expect(screen.getByRole('img', { name: 'Mix chart' })).toHaveClass('pb-3')
+    expect(container.firstElementChild?.childElementCount).toBe(3)
   })
 })

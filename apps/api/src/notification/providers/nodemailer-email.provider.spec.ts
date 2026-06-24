@@ -108,6 +108,10 @@ describe('NodemailerEmailProvider', () => {
       subject: 'Hi',
       html: '<p>x</p>',
     })
+    // The message must carry ONLY the three required keys — no absent optional may be spread in as
+    // an `undefined`-valued key (which `toHaveBeenCalledWith` would otherwise treat as absent).
+    const message = sendMail.mock.calls[0]?.[0] ?? {}
+    expect(Object.keys(message).sort()).toEqual(['html', 'subject', 'to'])
   })
 
   it('rethrows a transport failure so EmailService maps it to EMAIL_SEND_FAILED', async () => {

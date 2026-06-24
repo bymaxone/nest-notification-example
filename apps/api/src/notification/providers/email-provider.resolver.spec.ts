@@ -18,13 +18,18 @@ function fakeConfig(env: Record<string, string | undefined>): ConfigService {
 }
 
 describe('resolveEmailProvider', () => {
-  it('selects Resend when RESEND_API_KEY is set', () => {
-    /** A Resend key takes priority over any SMTP configuration. */
+  it('selects Resend when RESEND_API_KEY is set and forwards the key', () => {
+    /**
+     * A Resend key takes priority over any SMTP configuration; the key must be forwarded to the
+     * provider so it reports itself configured (`isConfigured()` is true only when an apiKey is
+     * present) — an empty options object would select Resend but leave it unable to send.
+     */
     const provider = resolveEmailProvider(
       fakeConfig({ RESEND_API_KEY: 're_test', SMTP_URL: 'smtp://x' }),
     )
 
     expect(provider.name).toBe('resend')
+    expect(provider.isConfigured()).toBe(true)
   })
 
   it('selects Nodemailer when only SMTP_URL is set', () => {

@@ -9,6 +9,7 @@
 import { describe, expect, it } from '@jest/globals'
 import { BadRequestException, type ExecutionContext } from '@nestjs/common'
 
+import { MAX_REPORTED_ISSUES } from '../common/zod-validation.pipe.js'
 import {
   buildDispatchInput,
   dispatchInputFactory,
@@ -16,6 +17,22 @@ import {
 } from './dispatch-input.decorator.js'
 
 const TENANT = 'acme'
+
+/** Extract the `{ message, errors }` body a `BadRequestException` carries, or fail. */
+function badRequestBody(run: () => unknown): {
+  message: string
+  errors: Array<{ path: string; message: string }>
+} {
+  try {
+    run()
+  } catch (error) {
+    return (error as BadRequestException).getResponse() as {
+      message: string
+      errors: Array<{ path: string; message: string }>
+    }
+  }
+  throw new Error('expected a BadRequestException')
+}
 
 describe('buildDispatchInput', () => {
   it('builds an email input with every supplied optional + the trusted header tenant', () => {
@@ -149,6 +166,46 @@ describe('buildDispatchInput', () => {
     expect(() => buildDispatchInput({ channel: 'sms', payload: {} }, TENANT)).toThrow(
       BadRequestException,
     )
+  })
+
+  it('reports the validation failure as a dot-joined path + message, never the value', () => {
+    /**
+     * Scenario: an email body missing the required `to`.
+     * Contract: the 400 body is `{ message: 'Validation failed', errors: [{ path, message }] }`
+     * with the nested path dot-joined (`payload.to`) and no echo of the rejected value — pinning
+     * the error envelope's shape, the literal message, and the path-join separator.
+     */
+    const body = badRequestBody(() => buildDispatchInput({ channel: 'email', payload: {} }, TENANT))
+
+    expect(body.message).toBe('Validation failed')
+    expect(body.errors[0]).toEqual({ path: 'payload.to', message: expect.any(String) })
+  })
+
+  it('caps the reported issues at the documented maximum', () => {
+    /**
+     * Scenario: an email payload whose every field carries the wrong type (more than the cap).
+     * Contract: the issue list is sliced to {@link MAX_REPORTED_ISSUES} so a hostile body cannot
+     * bloat the 400 — proving the `.slice(0, MAX_REPORTED_ISSUES)` bound is applied.
+     */
+    const hostile = {
+      channel: 'email',
+      payload: {
+        to: 1,
+        template: 1,
+        data: 1,
+        locale: 1,
+        subject: 1,
+        html: 1,
+        text: 1,
+        from: 1,
+        fromName: 1,
+        replyTo: 1,
+        tags: 1,
+      },
+    }
+    const body = badRequestBody(() => buildDispatchInput(hostile, TENANT))
+
+    expect(body.errors).toHaveLength(MAX_REPORTED_ISSUES)
   })
 })
 

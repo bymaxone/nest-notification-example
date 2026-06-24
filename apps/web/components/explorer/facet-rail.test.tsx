@@ -3,7 +3,9 @@
  *
  * Mocks `useFacets` to drive the loading, error, empty, and populated states, and
  * renders inside a nuqs adapter so a facet click writes the matching URL filter
- * (covering every field arm) and an ⌥/Alt-click on an active value clears it.
+ * (asserting the exact key/value for every field arm), an ⌥/Alt-click on an active
+ * value clears it, a plain click on an active value re-applies it, and the active
+ * row carries its highlight class + title while inactive rows carry theirs.
  *
  * @module components/explorer/facet-rail.test
  */
@@ -28,6 +30,15 @@ const FACETS: FacetsResult = {
   source: [{ value: 'interceptor', count: 1 }],
 }
 
+/** Each facet value paired with the URL key its click must write. */
+const FIELD_WRITES: ReadonlyArray<[value: string, key: string]> = [
+  ['email', 'channel'],
+  ['sent', 'verb'],
+  ['nodemailer', 'provider'],
+  ['login', 'purpose'],
+  ['interceptor', 'source'],
+]
+
 /** Set the mocked facets state. */
 function setFacets(over: { facets?: FacetsResult; isLoading?: boolean; isError?: boolean }): void {
   useFacetsMock.mockReturnValue({
@@ -49,6 +60,19 @@ function renderRail(
     </NuqsTestingAdapter>
   )
   return Object.assign(render(<FacetRail />, { wrapper }), { onUrlUpdate })
+}
+
+/** The `<button>` wrapping a facet value's label. */
+function facetButton(value: string): HTMLButtonElement {
+  const button = screen.getByText(value).closest('button')
+  if (!button) throw new Error(`no facet button for ${value}`)
+  return button as HTMLButtonElement
+}
+
+/** The single `searchParams` written by the most recent URL update. */
+function lastWrite(onUrlUpdate: ReturnType<typeof vi.fn>): URLSearchParams {
+  const calls = onUrlUpdate.mock.calls
+  return calls[calls.length - 1]![0].searchParams as URLSearchParams
 }
 
 afterEach(() => {
@@ -78,22 +102,84 @@ describe('FacetRail', () => {
     expect(screen.getAllByText('No values').length).toBe(5)
   })
 
-  /** Clicking a value in each field writes the matching URL filter. */
-  it('applies a positive filter for every facet field on click', async () => {
+  /** Every section heading renders its human label. */
+  it('renders each facet section heading', () => {
     setFacets({ facets: FACETS })
-    const { onUrlUpdate } = renderRail()
-    for (const value of ['email', 'sent', 'nodemailer', 'login', 'interceptor']) {
-      fireEvent.click(screen.getByText(value))
+    renderRail()
+    for (const label of ['Channel', 'Verb', 'Provider', 'Purpose', 'Source']) {
+      expect(screen.getByText(label)).toBeInTheDocument()
     }
-    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled())
   })
 
-  /** Alt-clicking an active value clears that field. */
+  /** Each facet row renders its value and count. */
+  it('renders the value and count for a facet row', () => {
+    setFacets({ facets: FACETS })
+    renderRail()
+    expect(screen.getByText('email')).toBeInTheDocument()
+    expect(screen.getByText('nodemailer')).toBeInTheDocument()
+    // The interceptor source row carries its count badge.
+    expect(screen.getByText('1')).toBeInTheDocument()
+  })
+
+  /** Clicking a value in each field writes exactly that field's key/value to the URL. */
+  it('applies the matching positive filter for every facet field', async () => {
+    for (const [value, key] of FIELD_WRITES) {
+      const { onUrlUpdate } = renderRail()
+      fireEvent.click(facetButton(value))
+      await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled())
+      expect(lastWrite(onUrlUpdate).get(key)).toBe(value)
+      cleanup()
+      vi.clearAllMocks()
+    }
+  })
+
+  /** Alt-clicking an active value clears that field (writes the empty value). */
   it('clears a field on Alt-click of the active value', async () => {
     setFacets({ facets: FACETS })
     const { onUrlUpdate } = renderRail('?channel=email')
-    const active = screen.getByText('email')
-    fireEvent.click(active, { altKey: true })
+    fireEvent.click(facetButton('email'), { altKey: true })
     await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled())
+    // Clearing a default-empty param removes it from the URL entirely.
+    expect(lastWrite(onUrlUpdate).get('channel')).toBeNull()
+  })
+
+  /** A plain click on the active value re-applies it (the `&&` guard, not `||`). */
+  it('re-applies the active value on a plain (non-alt) click', async () => {
+    setFacets({ facets: FACETS })
+    const { onUrlUpdate } = renderRail('?channel=email')
+    fireEvent.click(facetButton('email'))
+    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled())
+    expect(lastWrite(onUrlUpdate).get('channel')).toBe('email')
+  })
+
+  /** Alt-clicking an INACTIVE value still applies it (clears only when active). */
+  it('applies (does not clear) an Alt-click on an inactive value', async () => {
+    setFacets({ facets: FACETS })
+    const { onUrlUpdate } = renderRail('?channel=email')
+    fireEvent.click(facetButton('sent'), { altKey: true })
+    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled())
+    expect(lastWrite(onUrlUpdate).get('verb')).toBe('sent')
+  })
+
+  /** The active row carries the highlight class + clear title; inactive rows carry theirs. */
+  it('highlights the active value and labels both states', () => {
+    setFacets({ facets: FACETS })
+    renderRail('?channel=email')
+    const active = facetButton('email')
+    expect(active).toHaveClass('text-brand-500')
+    expect(active).toHaveClass('rounded')
+    expect(active).toHaveAttribute('title', 'Alt-click to clear this filter')
+    const inactive = facetButton('sent')
+    expect(inactive).toHaveClass('text-white/65')
+    expect(inactive).not.toHaveClass('text-brand-500')
+    expect(inactive).toHaveAttribute('title', 'Filter Verb = sent')
+  })
+
+  /** With no active filter, no row is highlighted (the `?? ''` fallback never matches). */
+  it('highlights nothing when no filter is active', () => {
+    setFacets({ facets: FACETS })
+    renderRail()
+    expect(facetButton('email')).not.toHaveClass('text-brand-500')
+    expect(facetButton('email')).toHaveAttribute('title', 'Filter Channel = email')
   })
 })

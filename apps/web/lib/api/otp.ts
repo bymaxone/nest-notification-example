@@ -83,6 +83,9 @@ const REASON_TO_CODE = {
 function readReason(body: unknown): string | null {
   if (typeof body !== 'object' || body === null || !('reason' in body)) return null
   const { reason } = body
+  // Stryker disable next-line ConditionalExpression: returning the raw `reason` instead of null for a
+  // non-string value is equivalent — `codeForReason` only matches the exact strings `'not_found'` /
+  // `'max_attempts'`, so any non-string value falls through to the same invalid-code default.
   return typeof reason === 'string' ? reason : null
 }
 
@@ -144,6 +147,9 @@ export async function verifyOtp(input: OtpVerifyInput): Promise<OtpVerifyOutcome
     body: JSON.stringify({ recipient, purpose, code }),
   })
   if (res.ok) return { ok: true }
+  // Stryker disable next-line ArrowFunction: a parse failure must yield a non-object value; `null` and
+  // the mutant's `undefined` are both rejected by `readReason` (→ null → invalid-code), so the fallback
+  // value is not observable.
   const body: unknown = await res.json().catch(() => null)
   const reason = readReason(body)
   return {

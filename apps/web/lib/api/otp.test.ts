@@ -54,8 +54,10 @@ describe('generateOtp / resendOtp', () => {
     )
     const result = await generateOtp({ ...REF, deliverVia: 'email' })
     expect(result).toEqual({ ok: true, data: { expiresAt: 5, cooldownSeconds: 60 } })
+    expect(String(fetchMock.mock.calls[0]![0])).toContain('/otp/generate')
     const [, init] = fetchMock.mock.calls[0]!
     expect(init.method).toBe('POST')
+    expect(init.headers).toEqual({ 'content-type': 'application/json', 'x-tenant-id': 'acme' })
     expect(JSON.parse(init.body)).toEqual({
       recipient: 'demo@example.com',
       purpose: 'email_verification',
@@ -63,7 +65,7 @@ describe('generateOtp / resendOtp', () => {
     })
   })
 
-  /** Resend hits the resend route. */
+  /** Resend hits the resend route with the exact body. */
   it('resends via the resend route', async () => {
     fetchMock.mockResolvedValue(
       makeResponse({
@@ -74,6 +76,11 @@ describe('generateOtp / resendOtp', () => {
     )
     await resendOtp({ ...REF, deliverVia: 'manual' })
     expect(fetchMock.mock.calls[0]![0]).toContain('/otp/resend')
+    expect(JSON.parse(fetchMock.mock.calls[0]![1].body)).toEqual({
+      recipient: 'demo@example.com',
+      purpose: 'email_verification',
+      deliverVia: 'manual',
+    })
   })
 })
 
@@ -84,6 +91,10 @@ describe('consumeOtp', () => {
     const result = await consumeOtp(REF)
     expect(result.ok).toBe(true)
     expect(fetchMock.mock.calls[0]![0]).toContain('/otp/consume')
+    expect(JSON.parse(fetchMock.mock.calls[0]![1].body)).toEqual({
+      recipient: 'demo@example.com',
+      purpose: 'email_verification',
+    })
   })
 })
 
@@ -94,8 +105,16 @@ describe('verifyOtp', () => {
     const result = await verifyOtp({ ...REF, code: '123456' })
     expect(result).toEqual({ ok: true })
     // The guessed code travels only in the request body, never a query string.
+    expect(String(fetchMock.mock.calls[0]![0])).toContain('/otp/verify')
     expect(String(fetchMock.mock.calls[0]![0])).not.toContain('123456')
-    expect(JSON.parse(fetchMock.mock.calls[0]![1].body).code).toBe('123456')
+    const [, init] = fetchMock.mock.calls[0]!
+    expect(init.method).toBe('POST')
+    expect(init.headers).toEqual({ 'content-type': 'application/json', 'x-tenant-id': 'acme' })
+    expect(JSON.parse(init.body)).toEqual({
+      recipient: 'demo@example.com',
+      purpose: 'email_verification',
+      code: '123456',
+    })
   })
 
   /** An invalid_code 401 maps to OTP_INVALID_CODE with the remaining attempts. */

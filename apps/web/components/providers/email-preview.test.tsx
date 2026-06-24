@@ -52,6 +52,8 @@ describe('EmailPreview', () => {
     const html = screen.getByTestId('preview-html')
     expect(html.textContent ?? '').toContain('&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;')
     expect(html.textContent ?? '').not.toContain('<script>')
+    // The fixed appName variable is interpolated into the rendered body.
+    expect(html.textContent ?? '').toContain('Bymax')
   })
 
   /** The Text tab keeps the variable raw (text is not an HTML context). */
@@ -90,6 +92,9 @@ describe('EmailPreview', () => {
     await user.click(screen.getByRole('combobox', { name: 'Template' }))
     const listbox = await screen.findByRole('listbox')
     await user.click(within(listbox).getByRole('option', { name: 'New login alert' }))
+    // The new-login template interpolates the fixed location variable into its body.
+    await user.click(screen.getByRole('tab', { name: 'HTML' }))
+    expect(screen.getByTestId('preview-html').textContent ?? '').toContain('Berlin, DE')
     await user.click(screen.getByRole('tab', { name: 'Metadata' }))
     expect(within(screen.getByRole('tabpanel')).getByText('new_login_alert')).toBeInTheDocument()
   })

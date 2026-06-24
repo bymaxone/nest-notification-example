@@ -43,9 +43,13 @@ interface VirtualizerOptions {
   estimateSize: (index: number) => number
 }
 
+/** Captures the virtualizer's `getScrollElement` accessor so a test can invoke it post-render. */
+let capturedGetScrollElement: (() => HTMLElement | null) | null = null
+
 vi.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: (options: VirtualizerOptions) => {
     const { count } = options
+    capturedGetScrollElement = options.getScrollElement
     options.getScrollElement()
     const size = options.estimateSize(0)
     const indices = forcedVirtualIndices ?? Array.from({ length: count }, (_, i) => i)
@@ -98,6 +102,7 @@ beforeEach(() => {
   fetchNextPageMock.mockReset()
   forcedVirtualIndices = null
   forceEmptyHeaderGroups = false
+  capturedGetScrollElement = null
   useLogsReturn = {
     data: { pages: [{ data: [] }] },
     error: null,
@@ -141,6 +146,13 @@ describe('LogTable', () => {
     ]) {
       expect(screen.getByText(header)).toBeInTheDocument()
     }
+  })
+
+  /** The header row applies the shared grid template via inline style. */
+  it('applies the grid template to the header row', () => {
+    render(<LogTable query={query} onRowClick={vi.fn()} />)
+    const header = screen.getByText('Recipient').closest('div')
+    expect(header?.style.gridTemplateColumns).toContain('minmax(180px,1fr)')
   })
 
   /** A generic error (no rows) shows the failure copy without a status. */
@@ -188,6 +200,26 @@ describe('LogTable', () => {
     expect(onRowClick).toHaveBeenCalledWith(target)
   })
 
+  /** Each row button carries its base layout class and virtualizer-driven inline style. */
+  it('positions each row with the grid template, height, and translate', () => {
+    useLogsReturn = { ...useLogsReturn, data: { pages: [{ data: [makeRow()] }] } }
+    render(<LogTable query={query} onRowClick={vi.fn()} />)
+    const rowButton = screen.getAllByRole('button')[0]
+    expect(rowButton?.className).toContain('absolute')
+    expect(rowButton?.style.gridTemplateColumns).toContain('minmax(180px,1fr)')
+    expect(rowButton?.style.height).toBe('36px')
+    expect(rowButton?.style.transform).toBe('translateY(0px)')
+  })
+
+  /** The virtualized body wrapper is positioned relative so absolute rows anchor to it. */
+  it('renders the virtual body wrapper as a relatively-positioned box', () => {
+    useLogsReturn = { ...useLogsReturn, data: { pages: [{ data: [makeRow()] }] } }
+    render(<LogTable query={query} onRowClick={vi.fn()} />)
+    const wrapper = screen.getAllByRole('button')[0]?.parentElement
+    expect(wrapper?.style.position).toBe('relative')
+    expect(wrapper?.style.height).toBe('36px')
+  })
+
   /** Live rows append after historical rows and carry the highlight class. */
   it('appends and highlights live rows', () => {
     const historical = makeRow({ id: 'h1', recipient: 'hist***@a.com' })
@@ -226,8 +258,27 @@ describe('LogTable', () => {
       hasNextPage: true,
     }
     render(<LogTable query={query} onRowClick={vi.fn()} scrollRef={scrollRef} />)
-    scrollTo(scrollRef.current!, 1000, 800, 100)
+    // remaining = 2000 - 1500 - 800 = -300 (near/past the bottom). A `+` between the
+    // height and the scroll offset would push this to 2700 and suppress the prefetch.
+    scrollTo(scrollRef.current!, 2000, 800, 1500)
     expect(fetchNextPageMock).toHaveBeenCalledTimes(1)
+    // The virtualizer reads its scroll element from the forwarded ref, not a stale local one.
+    // (Invoked post-render: the ref is null during render but attached by the time it scrolls.)
+    expect(capturedGetScrollElement?.()).toBe(scrollRef.current)
+  })
+
+  /** Exactly at the threshold the strict `<` guard does NOT prefetch (the boundary). */
+  it('does not prefetch when exactly at the scroll threshold', () => {
+    const scrollRef = createRef<HTMLDivElement>()
+    useLogsReturn = {
+      ...useLogsReturn,
+      data: { pages: [{ data: [makeRow()] }] },
+      hasNextPage: true,
+    }
+    render(<LogTable query={query} onRowClick={vi.fn()} scrollRef={scrollRef} />)
+    // remaining = 1120 - 0 - 800 = 320, exactly SCROLL_THRESHOLD; `<` is false, `<=` would fire.
+    scrollTo(scrollRef.current!, 1120, 800, 0)
+    expect(fetchNextPageMock).not.toHaveBeenCalled()
   })
 
   /** Following: a programmatic auto-scroll to the bottom must NOT prefetch. */

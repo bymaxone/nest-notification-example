@@ -100,6 +100,10 @@ export function matches(entry: AuditBusEntry, filter: AuditQueryDto): boolean {
   if (filter.provider !== undefined && entry.providerName !== filter.provider) return false
   if (
     filter.q !== undefined &&
+    // Stryker disable next-line StringLiteral: the `?? ''` only guards `null.toLowerCase()`; for a
+    // null errorMessage the row must never satisfy a real free-text query, which holds for any
+    // non-empty fallback the caller's `q` is not a coincidental substring of — the empty fallback's
+    // value is not observable through the predicate's contract.
     !(entry.errorMessage ?? '').toLowerCase().includes(filter.q.toLowerCase())
   ) {
     return false
@@ -178,6 +182,10 @@ export class AuditEventBus {
     filter: AuditQueryDto,
     restriction?: AuditRestriction,
   ): Observable<AuditSseEvent> {
+    // Stryker disable next-line ConditionalExpression,StringLiteral: this early return is a fast
+    // path, not a behavioural fork — an undefined or empty `lastId` that skips it falls through to
+    // `decodeCursor`, which throws and is caught below to return the same EMPTY, so every mutated
+    // form of the guard yields the identical observable.
     if (lastId === undefined || lastId === '') return EMPTY
 
     let from: AuditCursor

@@ -6,6 +6,7 @@
  * so no real TCP connection is opened.
  */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals'
+import { ConfigService } from '@nestjs/config'
 
 const mockRedisConstructor = jest.fn()
 
@@ -31,6 +32,12 @@ describe('redisProvider.useFactory', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockRedisConstructor.mockReturnValue({ _isMockRedis: true })
+  })
+
+  it('injects ConfigService so the factory receives the configuration source', () => {
+    /** The provider must declare `[ConfigService]` as its single injected dependency — an empty
+     *  inject list would leave the factory without the config it reads `REDIS_URL` from. */
+    expect((redisProvider as { inject?: unknown[] }).inject).toEqual([ConfigService])
   })
 
   it('reads REDIS_URL through ConfigService.get with type inference', () => {

@@ -30,6 +30,10 @@ interface ChannelBadgesProps {
 /** Resolve a dimension value to its channel severity descriptor, else `undefined`. */
 function severityFor(name: string): SeverityMeta | undefined {
   const channel = asChannel(name)
+  // Forcing this guard true is equivalent: `asChannel` only returns `undefined` for
+  // an unknown name, and `CHANNEL_SEVERITY[undefined]` is itself `undefined` — the
+  // same value the `: undefined` branch yields, so the result is unchanged.
+  // Stryker disable next-line ConditionalExpression: see the note above.
   return channel !== undefined ? CHANNEL_SEVERITY[channel] : undefined
 }
 

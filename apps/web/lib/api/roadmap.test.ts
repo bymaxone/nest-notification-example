@@ -44,9 +44,14 @@ describe('roadmap probes', () => {
       message: 'sms not supported in v0.1',
     })
     expect(String(fetchMock.mock.calls[0]![0])).toContain('/admin/try-configure-sms')
+    // Pin the probe envelope: a POST that accepts JSON (no body, no tenant header).
+    expect(fetchMock.mock.calls[0]![1]).toEqual({
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+    })
   })
 
-  /** Push maps the push-provider code. */
+  /** Push maps the push-provider code and hits the push route. */
   it('maps the Push code', async () => {
     fetchMock.mockResolvedValue(
       makeResponse(() => Promise.resolve({ errorMessage: 'push rejected' })),
@@ -54,9 +59,10 @@ describe('roadmap probes', () => {
     const result = await tryConfigurePush()
     expect(result.code).toBe(NOTIFICATION_ERROR_CODES.PUSH_PROVIDER_NOT_CONFIGURED)
     expect(result.message).toBe('push rejected')
+    expect(String(fetchMock.mock.calls[0]![0])).toContain('/admin/try-configure-push')
   })
 
-  /** useClass maps no catalog code (null). */
+  /** useClass maps no catalog code (null) and hits the async-useclass route. */
   it('maps no code for useClass', async () => {
     fetchMock.mockResolvedValue(
       makeResponse(() => Promise.resolve({ errorMessage: 'useClass rejected' })),
@@ -64,6 +70,7 @@ describe('roadmap probes', () => {
     const result = await tryConfigureAsyncUseClass()
     expect(result.code).toBeNull()
     expect(result.message).toBe('useClass rejected')
+    expect(String(fetchMock.mock.calls[0]![0])).toContain('/admin/try-configure-async-useclass')
   })
 
   /** A body without errorMessage yields an empty message. */

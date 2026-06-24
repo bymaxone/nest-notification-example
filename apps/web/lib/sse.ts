@@ -46,6 +46,10 @@ export class RingBuffer<T> {
    */
   pushMany(items: T[]): void {
     this.buf.push(...items)
+    // Stryker disable next-line ConditionalExpression,EqualityOperator: this length guard is an
+    // optimization, not a behavioural fork — `splice(0, length - capacity)` is a no-op when
+    // `length <= capacity` (a non-positive delete count removes nothing), so `>`, `>=`, and an
+    // always-true guard all evict identically.
     if (this.buf.length > this.capacity) {
       this.buf.splice(0, this.buf.length - this.capacity)
     }
@@ -111,6 +115,9 @@ function subscribeAuditStream(url: string, refs: StreamRefs): () => void {
     if (source.readyState === EventSource.CLOSED) setFailed(true)
   }
   source.onmessage = (event: MessageEvent<string>) => {
+    // Stryker disable next-line ConditionalExpression: this early return is an optimization for the
+    // empty keep-alive ping — skipping it is equivalent because `JSON.parse('')` then throws and is
+    // caught by the block below, which also returns without buffering a row.
     if (!event.data) return // keep-alive ping — ignore
     let row: NotificationLog
     try {
@@ -138,6 +145,9 @@ function subscribeAuditStream(url: string, refs: StreamRefs): () => void {
   return () => {
     source.close()
     clearInterval(idleTimer)
+    // Stryker disable next-line ConditionalExpression: forcing this guard true is equivalent — when no
+    // frame is pending `rafRef.current` is 0 and `cancelAnimationFrame(0)` is a documented no-op, so
+    // the guard only avoids a harmless call.
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
       rafRef.current = 0
@@ -155,10 +165,14 @@ function subscribeAuditStream(url: string, refs: StreamRefs): () => void {
 export function useAuditStream(filter: AuditQuery, enabled: boolean): AuditStream {
   const bufferRef = useRef<RingBuffer<NotificationLog> | null>(null)
   const buffer = (bufferRef.current ??= new RingBuffer<NotificationLog>(BUFFER_CAPACITY))
+  // Stryker disable next-line ArrayDeclaration: the initial pending list is reset to `[]` by the
+  // effect before the subscription can push to it, so its initial contents are never observable.
   const pendingRef = useRef<NotificationLog[]>([])
   const rafRef = useRef(0)
   const [rows, setRows] = useState<NotificationLog[]>([])
   const [isConnected, setConnected] = useState(false)
+  // Stryker disable next-line BooleanLiteral: the effect always sets `isFailed` (false on enable or
+  // disable) before render is observed, so the initial value is overwritten and not observable.
   const [isFailed, setFailed] = useState(false)
 
   const role = filter.role ?? 'viewer'
@@ -185,6 +199,9 @@ export function useAuditStream(filter: AuditQuery, enabled: boolean): AuditStrea
   }, [enabled, url, buffer])
 
   const clear = (): void => {
+    // Stryker disable next-line ConditionalExpression,BlockStatement: cancelling a pending frame here
+    // is defensive only — `pendingRef` is emptied and the buffer cleared immediately below, so even if
+    // a queued frame still fires it flushes nothing and `setRows([])` wins; every mutant clears to [].
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
       rafRef.current = 0

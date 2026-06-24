@@ -80,6 +80,9 @@ interface ParsedErrorEnvelope {
 
 /** Extract `details.remainingSeconds` from an error object via `in`-narrowing (no casts). */
 function readRemainingSeconds(error: object): number | null {
+  // Stryker disable next-line ConditionalExpression: the `in`-narrowing is required for TypeScript to
+  // type `details`; dropping the early return is behaviourally equivalent because the
+  // `typeof details !== 'object'` check below returns null for the same no-`details` case.
   if (!('details' in error)) return null
   const { details } = error
   if (typeof details !== 'object' || details === null || !('remainingSeconds' in details)) {
@@ -96,12 +99,18 @@ function readErrorEnvelope(body: unknown): ParsedErrorEnvelope | null {
   if (typeof error !== 'object' || error === null || !('code' in error)) return null
   const { code } = error
   if (typeof code !== 'string') return null
+  // Stryker disable next-line ConditionalExpression: the `'message' in error` narrowing is required
+  // for TypeScript to read `error.message`; forcing it true is equivalent because the
+  // `typeof error.message === 'string'` check then yields `''` for the same absent-message case.
   const message = 'message' in error && typeof error.message === 'string' ? error.message : ''
   return { code, message, remainingSeconds: readRemainingSeconds(error) }
 }
 
 /** Resolve the retry-after seconds from the header, then the cooldown detail. */
 function resolveRetryAfter(header: string | null, remainingSeconds: number | null): number | null {
+  // Stryker disable next-line ConditionalExpression: forcing this guard true is equivalent — when
+  // `header` is null, `Number.parseInt(null)` is `NaN`, which fails the `isFinite` check and falls
+  // through to `remainingSeconds`, exactly as skipping the block would.
   if (header !== null) {
     const parsed = Number.parseInt(header, 10)
     if (Number.isFinite(parsed)) return parsed
@@ -137,6 +146,9 @@ export async function postForResult<T>(
     const data = (res.status === 204 ? undefined : await res.json()) as T
     return { ok: true, data }
   }
+  // Stryker disable next-line ArrowFunction: a parse failure must yield a non-envelope value; `null`
+  // and the mutant's `undefined` are both treated identically by `readErrorEnvelope` (→ null), so the
+  // fallback value is not observable.
   const parsed: unknown = await res.json().catch(() => null)
   const envelope = readErrorEnvelope(parsed)
   return {

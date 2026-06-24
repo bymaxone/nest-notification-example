@@ -31,6 +31,10 @@ const ERROR_MESSAGES_BY_CODE: Record<string, string> = NOTIFICATION_ERROR_MESSAG
 
 /** Localize an `errorMessage` when it is a recognised `notification.*` code, else `null`. */
 function localizedError(message: string | null): string | null {
+  // This guard is a fast-path only: a `null`/empty key would miss the lookup and
+  // fall through to the same `?? null`, so every mutation of the condition yields
+  // the identical localized-or-null result — observably equivalent.
+  // Stryker disable next-line ConditionalExpression,LogicalOperator,StringLiteral: see the note above.
   if (message === null || message === '') return null
   return ERROR_MESSAGES_BY_CODE[message] ?? null
 }

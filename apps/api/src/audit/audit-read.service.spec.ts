@@ -7,11 +7,7 @@
  */
 import { describe, expect, it, beforeEach } from '@jest/globals'
 
-import {
-  AuditReadService,
-  INTERCEPTOR_PROVIDER_NAME,
-  StaleCursorError,
-} from './audit-read.service.js'
+import { AuditReadService, StaleCursorError } from './audit-read.service.js'
 import type { AuditQueryDto } from './dto/audit-query.dto.js'
 
 /** Build a minimal valid `AuditQueryDto` with the schema defaults, overriding as needed. */
@@ -81,6 +77,8 @@ describe('AuditReadService cursor codec', () => {
     })()
     expect(fromDecode.name).toBe('StaleCursorError')
     expect(new StaleCursorError('explicit reason').message).toBe('explicit reason')
+    // The default message arm: constructing without an argument uses the stable default text.
+    expect(new StaleCursorError().message).toBe('cursor is stale or malformed')
   })
 })
 
@@ -154,16 +152,20 @@ describe('AuditReadService.buildWhere', () => {
     })
   })
 
+  // The reserved provider name is asserted as a string LITERAL here (not the imported
+  // INTERCEPTOR_PROVIDER_NAME constant) on purpose: comparing against the constant would mutate
+  // both the production value and the expectation together, letting a StringLiteral mutant on the
+  // constant survive. The literal pins the exact wire value the column is filtered on.
   it('source=interceptor narrows to interceptor rows only', () => {
-    /** The HTTP-boundary view: only rows the interceptor stamped. */
+    /** The HTTP-boundary view: only rows stamped with the reserved `__interceptor__` provider. */
     const where = service.buildWhere(query({ source: 'interceptor' }))
-    expect(where.AND).toEqual([{ providerName: INTERCEPTOR_PROVIDER_NAME }])
+    expect(where.AND).toEqual([{ providerName: '__interceptor__' }])
   })
 
   it('source=service excludes interceptor rows', () => {
-    /** The "what the service did" view: every row except the interceptor's. */
+    /** The "what the service did" view: every row except the reserved `__interceptor__` provider. */
     const where = service.buildWhere(query({ source: 'service' }))
-    expect(where.AND).toEqual([{ providerName: { not: INTERCEPTOR_PROVIDER_NAME } }])
+    expect(where.AND).toEqual([{ providerName: { not: '__interceptor__' } }])
   })
 
   it('omits the source predicate entirely when source is absent', () => {

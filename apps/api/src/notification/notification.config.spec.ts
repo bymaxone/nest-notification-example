@@ -10,6 +10,7 @@ import { describe, expect, it } from '@jest/globals'
 import type { ConfigService } from '@nestjs/config'
 import type { Redis } from 'ioredis'
 import {
+  CANONICAL_EMAIL_TEMPLATES,
   DefaultTemplateRenderer,
   InMemoryOtpStorage,
   RedisOtpStorage,
@@ -104,7 +105,7 @@ describe('resolveOtpStorage', () => {
 })
 
 describe('notificationConfig', () => {
-  it('wires in-memory storage, a masker, and defaultFromName when configured', () => {
+  it('wires in-memory storage, a masker, and defaultFromName when configured', async () => {
     /** REDIS null + masking on + a from-name exercises the in-memory/mask/from-name paths. */
     const options = notificationConfig(
       fakeConfig({ MAIL_FROM: 'no-reply@notification.local', MAIL_FROM_NAME: 'Bymax' }),
@@ -114,21 +115,59 @@ describe('notificationConfig', () => {
     )
 
     expect(options.global?.redisNamespace).toBe('notification')
+    // The default-locale arm: no DEFAULT_LOCALE in env falls back to 'en' (pins the 'en' default).
+    expect(options.global?.defaultLocale).toBe('en')
     expect(options.global?.tenantIdResolver).toBe(resolveTenantId)
     expect(options.otp?.storage).toBeInstanceOf(InMemoryOtpStorage)
     expect(options.otp?.defaultLength).toBe(6)
+    // The OTP defaults: no env override falls back to 600s TTL / 60s cooldown.
+    expect(options.otp?.defaultTtlSeconds).toBe(600)
+    expect(options.otp?.resendCooldownSeconds).toBe(60)
     expect(options.otp?.perPurpose?.['password_reset']).toEqual({
       length: 8,
       codeType: 'alphanumeric',
       ttlSeconds: 900,
     })
+    // The second per-purpose override must also be wired (a longer email-verification TTL).
+    expect(options.otp?.perPurpose?.['email_verification']).toEqual({ ttlSeconds: 3600 })
     expect(options.email?.defaultFrom).toBe('no-reply@notification.local')
     expect(options.email?.defaultFromName).toBe('Bymax')
     expect(options.email?.maxAttachmentBytes).toBe(10 * 1024 * 1024)
-    expect(options.email?.templateRenderer).toBeInstanceOf(DefaultTemplateRenderer)
+    const renderer = options.email?.templateRenderer
+    expect(renderer).toBeInstanceOf(DefaultTemplateRenderer)
+    // The renderer must be seeded with the app registry (not an empty template set).
+    expect(
+      await (renderer as DefaultTemplateRenderer).hasTemplate(
+        CANONICAL_EMAIL_TEMPLATES.OTP_CODE,
+        'en',
+      ),
+    ).toBe(true)
     expect(options.email?.provider).toBeDefined()
     expect(options.audit?.swallowErrors).toBe(true)
     expect(options.audit?.maskRecipient?.('jane@acme.com')).toBe('j***@acme.com')
+  })
+
+  it('reads DEFAULT_LOCALE, the OTP TTL, and the resend cooldown from the env keys', async () => {
+    /**
+     * Scenario: an env that overrides the locale + OTP timing knobs.
+     * Contract: each value is sourced from its exact config key (not the fallback), so a blanked
+     * key name would silently revert to the default — the custom values prove the keys are read.
+     */
+    const options = notificationConfig(
+      fakeConfig({
+        MAIL_FROM: 'no-reply@notification.local',
+        DEFAULT_LOCALE: 'fr',
+        OTP_DEFAULT_TTL_SECONDS: 1200,
+        OTP_RESEND_COOLDOWN_SECONDS: 90,
+      }),
+      null,
+      prisma,
+      fakeBus,
+    )
+
+    expect(options.global?.defaultLocale).toBe('fr')
+    expect(options.otp?.defaultTtlSeconds).toBe(1200)
+    expect(options.otp?.resendCooldownSeconds).toBe(90)
   })
 
   it('wires Redis storage, the identity masker, and omits an absent defaultFromName', () => {

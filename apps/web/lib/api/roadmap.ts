@@ -25,6 +25,10 @@ export interface RoadmapRejection {
 
 /** Read the `errorMessage` field from a probe response via `in`-narrowing. */
 function readErrorMessage(body: unknown): string {
+  // Stryker disable next-line ConditionalExpression,LogicalOperator: this `in`-narrowing guard is
+  // required for TypeScript to read `errorMessage`, but is behaviourally redundant — the
+  // `typeof errorMessage === 'string'` check below yields `''` for a missing/undefined field, and the
+  // caller's `try/catch` absorbs any throw a relaxed guard would cause, so every mutant returns `''`.
   if (typeof body !== 'object' || body === null || !('errorMessage' in body)) return ''
   const { errorMessage } = body
   return typeof errorMessage === 'string' ? errorMessage : ''
@@ -37,6 +41,9 @@ async function probe(path: string, code: string | null): Promise<RoadmapRejectio
       method: 'POST',
       headers: { Accept: 'application/json' },
     })
+    // Stryker disable next-line ArrowFunction: a parse failure must yield a non-object value; `null` and
+    // the mutant's `undefined` are both rejected by `readErrorMessage` (→ ''), so the fallback is not
+    // observable.
     const body: unknown = await res.json().catch(() => null)
     return { code, message: readErrorMessage(body) }
   } catch {

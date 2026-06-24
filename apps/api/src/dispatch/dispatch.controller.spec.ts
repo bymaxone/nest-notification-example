@@ -20,6 +20,7 @@ import type {
 } from '@bymax-one/nest-notification'
 
 import { DispatchController } from './dispatch.controller.js'
+import { maskRecipient } from '../notification/notification.config.js'
 
 /** Mocked surface of `NotificationService` the controller touches. */
 interface MockNotification {
@@ -132,6 +133,22 @@ describe('DispatchController.channels / configStatus', () => {
       maskRecipient: true,
       defaultLocale: 'en',
     })
+  })
+
+  it('detects active masking through the real masker applied to a non-PII probe', () => {
+    /**
+     * Scenario: the production `maskRecipient` (which masks a real address but leaves an empty
+     * string unchanged) is wired.
+     * Contract: `configStatus` reports `maskRecipient: true` because the fixed `probe@example.com`
+     * probe is altered by the masker — proving the probe is a real address (an empty probe would be
+     * left unchanged and mis-report masking as inactive).
+     */
+    const { controller, notification } = buildController(
+      buildOptions({ otp: { consumeOnVerify: true }, mask: maskRecipient }),
+    )
+    notification.getEnabledChannels.mockReturnValue(['email', 'otp'])
+
+    expect(controller.configStatus().maskRecipient).toBe(true)
   })
 
   it('defaults consumeOnVerify to false and reports identity masking as inactive', () => {

@@ -68,16 +68,31 @@ describe('HealthStrip', () => {
     })
     render(<HealthStrip query={QUERY} />)
     expect(screen.getByText('DELIVERED')).toBeInTheDocument()
-    expect(screen.getByText('10.0%')).toBeInTheDocument() // delivery rate 1/(1+9)
     expect(screen.getByText('80.0%')).toBeInTheDocument() // verify rate 8/10
-    expect(screen.getByText('9')).toBeInTheDocument() // failures
+    // A sub-90% delivery rate and any failures both flip the tile value to the destructive colour.
+    expect(screen.getByText('10.0%')).toHaveClass('text-destructive') // delivery rate 1/(1+9)
+    expect(screen.getByText('9')).toHaveClass('text-destructive') // failures
+    expect(mockAgg).toHaveBeenCalledWith('verb', QUERY)
+  })
+
+  /** Exactly the 90% threshold is NOT danger (the boundary is strictly-less-than). */
+  it('treats a delivery rate at exactly the threshold as healthy', () => {
+    setAgg({
+      data: [
+        { bucket: 'b1', dimension: 'sent', n: 9 },
+        { bucket: 'b1', dimension: 'failed', n: 1 },
+      ],
+    })
+    render(<HealthStrip query={QUERY} />)
+    expect(screen.getByText('90.0%')).toHaveClass('text-foreground')
   })
 
   /** A perfect window trips neither danger ring (covers the false arms). */
   it('shows a healthy window with no danger', () => {
     setAgg({ data: [{ bucket: 'b1', dimension: 'sent', n: 10 }] })
     render(<HealthStrip query={QUERY} />)
-    expect(screen.getByText('100.0%')).toBeInTheDocument() // delivery rate
-    expect(screen.getByText('0')).toBeInTheDocument() // failures
+    // A 100% delivery rate and zero failures keep both tile values the normal foreground colour.
+    expect(screen.getByText('100.0%')).toHaveClass('text-foreground') // delivery rate
+    expect(screen.getByText('0')).toHaveClass('text-foreground') // failures
   })
 })

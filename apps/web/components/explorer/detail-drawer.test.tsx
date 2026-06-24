@@ -10,7 +10,7 @@
  * @module components/explorer/detail-drawer.test
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement, ReactNode } from 'react'
 import { NuqsTestingAdapter } from 'nuqs/adapters/testing'
@@ -85,6 +85,64 @@ describe('DetailDrawer', () => {
     const { onOpenChange } = renderDrawer(makeRow({}))
     fireEvent.click(screen.getByTitle('Filter for Channel'))
     expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  /** Each field's pivot writes exactly its key/value to the URL. */
+  it('writes the matching query for every field pivot', async () => {
+    const cases: ReadonlyArray<[title: string, key: string, value: string]> = [
+      ['Filter for Channel', 'channel', 'email'],
+      ['Filter for Verb', 'verb', 'sent'],
+      ['Filter for Recipient', 'recipient', 'j***@acme.com'],
+      ['Filter for Purpose', 'purpose', 'login'],
+      ['Filter for Provider', 'provider', 'nodemailer'],
+      ['Filter for Source', 'source', 'service'],
+    ]
+    for (const [title, key, value] of cases) {
+      const { onUrlUpdate } = renderDrawer(makeRow({}))
+      fireEvent.click(screen.getByTitle(title))
+      await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled())
+      const calls = onUrlUpdate.mock.calls
+      const params = calls[calls.length - 1]![0].searchParams as URLSearchParams
+      expect(params.get(key)).toBe(value)
+      cleanup()
+      vi.clearAllMocks()
+    }
+  })
+
+  /** The severity value carries its inline colour (the `style={{ color }}` object). */
+  it('colours the severity value inline', () => {
+    renderDrawer(makeRow({}))
+    const severity = screen.getByText('Sent')
+    expect(severity.style.color).not.toBe('')
+  })
+
+  /** The Error row (no pivot) renders no "filter for" button. */
+  it('omits the filter button on the pivot-less error row', () => {
+    renderDrawer(makeRow({ verb: 'failed', errorMessage: 'notification.otp_invalid_code' }))
+    expect(screen.getByText(/Incorrect code/)).toBeInTheDocument()
+    expect(screen.queryByTitle('Filter for Error')).toBeNull()
+  })
+
+  /** A nested `code` inside metadata (no top-level key) trips the regex-driven warning. */
+  it('warns when a code appears only inside the serialized metadata', async () => {
+    const leaky = {
+      ...makeRow({}),
+      metadata: { code: 'leak' },
+    } as unknown as NotificationLog
+    renderDrawer(leaky)
+    await userEvent.click(screen.getByRole('tab', { name: 'Proof' }))
+    expect(screen.getByText(/Unexpected/)).toBeInTheDocument()
+  })
+
+  /** An explicit `code: undefined` key (omitted from JSON) still trips the `in`-check warning. */
+  it('warns on an explicit undefined code key absent from the JSON', async () => {
+    const withUndefinedCode = {
+      ...makeRow({}),
+      code: undefined,
+    } as unknown as NotificationLog
+    renderDrawer(withUndefinedCode)
+    await userEvent.click(screen.getByRole('tab', { name: 'Proof' }))
+    expect(screen.getByText(/Unexpected/)).toBeInTheDocument()
   })
 
   /** The Raw tab shows the masked JSON with no code field. */

@@ -66,6 +66,8 @@ describe('getJson', () => {
   it('throws ApiError on a non-2xx response', async () => {
     fetchMock.mockResolvedValue(makeResponse({ ok: false, status: 503, statusText: 'Unavailable' }))
     await expect(getJson('/x', '')).rejects.toBeInstanceOf(ApiError)
+    // The message joins the status and statusText with a single space — pin that format.
+    await expect(getJson('/x', '')).rejects.toThrow('503 Unavailable')
   })
 })
 
@@ -77,6 +79,12 @@ describe('postForResult', () => {
     )
     const result = await postForResult<{ expiresAt: number }>('/otp/generate', { a: 1 }, 'acme')
     expect(result).toEqual({ ok: true, data: { expiresAt: 9 } })
+    // Pin the request envelope: POST, JSON content-type + trusted tenant header, and the JSON body.
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE}/otp/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-tenant-id': 'acme' },
+      body: JSON.stringify({ a: 1 }),
+    })
   })
 
   /** A 204 yields { ok:true, data: undefined } without parsing a body. */
@@ -170,10 +178,27 @@ describe('postForResult', () => {
     if (!result.ok) expect(result.code).toBe('')
   })
 
+  /** A non-string `message` is treated as absent — the message stays empty, never the raw value. */
+  it('blanks a non-string error message', async () => {
+    fetchMock.mockResolvedValue(
+      makeResponse({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ error: { code: 'c', message: 123 } }),
+      }),
+    )
+    const result = await postForResult('/x', {}, '')
+    if (!result.ok) {
+      expect(result.code).toBe('c')
+      expect(result.message).toBe('')
+    }
+  })
+
   /** Odd `details` shapes (non-object, missing field, non-number) yield null retry. */
   it.each([
     { error: { code: 'c' } },
     { error: { code: 'c', details: null } },
+    { error: { code: 'c', details: 'str' } },
     { error: { code: 'c', details: { other: 1 } } },
     { error: { code: 'c', details: { remainingSeconds: 'x' } } },
   ])('returns null retry for odd details %#', async (envelope) => {

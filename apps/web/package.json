@@ -15,7 +15,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:e2e": "node e2e/ensure-stack.mjs && playwright test"
+    "test:e2e": "node e2e/ensure-stack.mjs && playwright test",
+    "mutation": "NODE_OPTIONS='--max-old-space-size=4096' stryker run --force",
+    "mutation:incremental": "NODE_OPTIONS='--max-old-space-size=4096' stryker run"
   },
   "dependencies": {
     "@bymax-one/nest-notification": "file:../../../nest-notification",
@@ -49,6 +51,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

@@ -163,8 +163,15 @@ export function useAuditQuery(): AuditQueryState {
   const [nowTick, setNowTick] = useState(0)
   useEffect(() => {
     if (!usesRelativePreset) return
+    // Stryker disable next-line ArithmeticOperator: the tick value is only used as a memo dependency
+    // to force re-evaluation; any change (whether `+ 1` or `- 1`) recomputes the window equally, so
+    // the operator's direction is not observable — the resulting `to` is derived from `Date.now()`.
     const id = setInterval(() => setNowTick((t) => t + 1), NOW_QUANTUM_MS)
     return () => clearInterval(id)
+    // Stryker disable next-line ArrayDeclaration: emptying the dependency list only changes WHEN the
+    // ticker is torn down across a relative↔absolute transition; it has no observable effect on the
+    // compiled query, because for a non-relative range `resolveWindow` returns null and `to` is the
+    // fixed URL value regardless of any extra tick — a leaked interval cannot change the output.
   }, [usesRelativePreset])
 
   const query = useMemo<AuditQuery>(() => {

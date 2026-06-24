@@ -56,17 +56,27 @@ describe('ChannelBadges', () => {
     expect(screen.getByText(/No channel activity/)).toBeInTheDocument()
   })
 
-  /** A known channel renders its label + deep-link; an unknown value falls back. */
+  /** A known channel renders its label + icon + colour; an unknown value falls back. */
   it('renders click-to-filter badges for known and unknown channels', () => {
     setAgg({
       data: [
-        { bucket: 'b1', dimension: 'email', n: 5 },
+        { bucket: 'b1', dimension: 'sms', n: 5 },
         { bucket: 'b1', dimension: 'mystery', n: 1 },
       ],
     })
     render(<ChannelBadges query={QUERY} />)
-    const emailLink = screen.getByRole('link', { name: /Email/ })
-    expect(emailLink).toHaveAttribute('href', '/explorer?channel=email&range=15m')
-    expect(screen.getByText('mystery')).toBeInTheDocument()
+    // The panel reads the channel-grouped aggregate for the active query.
+    expect(mockAgg).toHaveBeenCalledWith('channel', QUERY)
+    const smsLink = screen.getByRole('link', { name: /SMS/ })
+    expect(smsLink).toHaveAttribute('href', '/explorer?channel=sms&range=15m')
+    expect(smsLink).toHaveAttribute('title', 'Filter the Explorer by SMS')
+    // A known channel uses its OWN severity colour (#22c55e), not the generic fallback,
+    // and carries its severity icon.
+    expect(smsLink.style.color).toBe('rgb(34, 197, 94)')
+    expect(smsLink.querySelector('svg')).not.toBeNull()
+    // An unknown value falls back to the generic blue and shows no icon.
+    const unknownLink = screen.getByRole('link', { name: /mystery/ })
+    expect(unknownLink.style.color).toBe('rgb(96, 165, 250)')
+    expect(unknownLink.querySelector('svg')).toBeNull()
   })
 })

@@ -1,6 +1,6 @@
 # Phase 14 — Docs, Public-Readiness & Release
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 7 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In Progress · **Progress**: 6 / 7 tasks · **Last updated**: 2026-06-24
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P14
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -77,12 +77,12 @@ DEPLOYMENT,TROUBLESHOOTING,RELEASES}.md`.
 
 | ID   | Task                                                                                | Status  | Priority | Size | Depends on             |
 | ---- | ----------------------------------------------------------------------------------- | ------- | -------- | ---- | ---------------------- |
-| 14.1 | `GETTING_STARTED.md` + `FEATURES.md` (front door + feature tour)                    | 📋 ToDo | P0       | L    | —                      |
-| 14.2 | `ARCHITECTURE.md` + `DATABASE.md` + `DASHBOARD.md` (deep dives)                     | 📋 ToDo | P0       | L    | 14.1                   |
-| 14.3 | `ENVIRONMENT.md` + `PROVIDERS.md` + `TEMPLATING.md` (config & extension)            | 📋 ToDo | P0       | L    | 14.1                   |
-| 14.4 | `MULTI_TENANCY.md` + `AUTH_INTEGRATION.md` + `DEPLOYMENT.md` + `TROUBLESHOOTING.md` | 📋 ToDo | P0       | L    | 14.1                   |
-| 14.5 | `README.md` badge header + `RELEASES.md` + `CHANGELOG.md` `[0.1.0]`                 | 📋 ToDo | P0       | M    | 14.1, 14.2, 14.3, 14.4 |
-| 14.6 | Audit reconciliation + security-hardening pass (§6 matrix, helmet/CSP, deps)        | 📋 ToDo | P0       | L    | 14.5                   |
+| 14.1 | `GETTING_STARTED.md` + `FEATURES.md` (front door + feature tour)                    | ✅ Done | P0       | L    | —                      |
+| 14.2 | `ARCHITECTURE.md` + `DATABASE.md` + `DASHBOARD.md` (deep dives)                     | ✅ Done | P0       | L    | 14.1                   |
+| 14.3 | `ENVIRONMENT.md` + `PROVIDERS.md` + `TEMPLATING.md` (config & extension)            | ✅ Done | P0       | L    | 14.1                   |
+| 14.4 | `MULTI_TENANCY.md` + `AUTH_INTEGRATION.md` + `DEPLOYMENT.md` + `TROUBLESHOOTING.md` | ✅ Done | P0       | L    | 14.1                   |
+| 14.5 | `README.md` badge header + `RELEASES.md` + `CHANGELOG.md` `[0.1.0]`                 | ✅ Done | P0       | M    | 14.1, 14.2, 14.3, 14.4 |
+| 14.6 | Audit reconciliation + security-hardening pass (§6 matrix, helmet/CSP, deps)        | ✅ Done | P0       | L    | 14.5                   |
 | 14.7 | Go-public gate + `v0.1.0` release (link-check, Appendix E, tag, RELEASES row)       | 📋 ToDo | P0       | M    | 14.6                   |
 
 ---
@@ -91,7 +91,7 @@ DEPLOYMENT,TROUBLESHOOTING,RELEASES}.md`.
 
 ### Task 14.1 — `GETTING_STARTED.md` + `FEATURES.md` (front door + feature tour)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: —
@@ -194,7 +194,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 14.2 — `ARCHITECTURE.md` + `DATABASE.md` + `DASHBOARD.md` (deep dives)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 14.1
@@ -283,7 +283,7 @@ Completion Protocol:
 
 ### Task 14.3 — `ENVIRONMENT.md` + `PROVIDERS.md` + `TEMPLATING.md` (config & extension)
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 14.1
@@ -371,7 +371,7 @@ Completion Protocol:
 
 ### Task 14.4 — `MULTI_TENANCY.md` + `AUTH_INTEGRATION.md` + `DEPLOYMENT.md` + `TROUBLESHOOTING.md`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 14.1
@@ -476,7 +476,7 @@ Completion Protocol:
 
 ### Task 14.5 — `README.md` badge header + `RELEASES.md` + `CHANGELOG.md` `[0.1.0]`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 14.1, 14.2, 14.3, 14.4
@@ -568,7 +568,7 @@ Completion Protocol:
 
 ### Task 14.6 — Audit reconciliation + security-hardening pass
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 14.5
@@ -783,4 +783,9 @@ If any DoD bullet is unmet or CI is red, set P14 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 14.6 ✅ 2026-06-24 — audit reconciliation + security hardening (audit:exports + audit:error-codes exit 0, helm/CSP verified, format:check green)
+- 14.5 ✅ 2026-06-24 — README badge header + RELEASES seed row + CHANGELOG [0.1.0]
+- 14.4 ✅ 2026-06-24 — multi-tenancy + auth integration + deployment + troubleshooting docs
+- 14.3 ✅ 2026-06-24 — environment + providers + templating guides
+- 14.2 ✅ 2026-06-24 — architecture + database + console deep-dives
+- 14.1 ✅ 2026-06-24 — GETTING_STARTED + FEATURES docs

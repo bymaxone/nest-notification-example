@@ -49,7 +49,7 @@ structural template, reconciled with the current vault standard.
 
 ## Progress
 
-- **Overall progress:** 14 / 15 phases · 75 / 82 tasks done (91%)
+- **Overall progress:** 14 / 15 phases · 81 / 82 tasks done (99%)
 - **Active phase:** P14 — Docs, Public-Readiness & Release
 - **Blocked:** none
 
@@ -76,7 +76,7 @@ structural template, reconciled with the current vault standard.
 | P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | ✅     | 3 / 3    | M    | 2026-06-23   |
 | P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | ✅     | 6 / 6    | L    | 2026-06-24   |
 | P13 | Mutation Hardening                           | `phase-13-mutation.md`              | ✅     | 5 / 5    | L    | 2026-06-24   |
-| P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 📋     | 0 / 7    | L    | —            |
+| P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 🔄     | 6 / 7    | L    | 2026-06-24   |
 
 ---
 

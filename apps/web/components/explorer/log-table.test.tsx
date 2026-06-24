@@ -4,9 +4,9 @@
  * The data boundary (`@/hooks/use-audit-logs`) is mocked so each test drives one
  * render branch: error (generic + ApiError status), loading skeletons, empty,
  * populated rows (historical + highlighted live), the loading-older footer, the
- * keyset-prefetch scroll guard (fire + each guard), an out-of-bounds virtual row,
- * and the empty-header-groups guard. The virtualizer + table are mocked so rows
- * mount deterministically in jsdom.
+ * keyset-prefetch scroll guard (fire + each guard + the follow-mode suppression),
+ * an out-of-bounds virtual row, and the empty-header-groups guard. The virtualizer
+ * + table are mocked so rows mount deterministically in jsdom.
  *
  * @module components/explorer/log-table.test
  */
@@ -217,7 +217,7 @@ describe('LogTable', () => {
     expect(screen.getByText('Loading older events…')).toBeInTheDocument()
   })
 
-  /** Scrolling near the bottom with a next page prefetches once. */
+  /** Not following: a near-bottom user scroll prefetches the next page once. */
   it('prefetches the next page when scrolled near the bottom', () => {
     const scrollRef = createRef<HTMLDivElement>()
     useLogsReturn = {
@@ -228,6 +228,19 @@ describe('LogTable', () => {
     render(<LogTable query={query} onRowClick={vi.fn()} scrollRef={scrollRef} />)
     scrollTo(scrollRef.current!, 1000, 800, 100)
     expect(fetchNextPageMock).toHaveBeenCalledTimes(1)
+  })
+
+  /** Following: a programmatic auto-scroll to the bottom must NOT prefetch. */
+  it('suppresses the prefetch while follow-mode auto-scrolls to the bottom', () => {
+    const scrollRef = createRef<HTMLDivElement>()
+    useLogsReturn = {
+      ...useLogsReturn,
+      data: { pages: [{ data: [makeRow()] }] },
+      hasNextPage: true,
+    }
+    render(<LogTable query={query} onRowClick={vi.fn()} scrollRef={scrollRef} isFollowing />)
+    scrollTo(scrollRef.current!, 1000, 800, 100)
+    expect(fetchNextPageMock).not.toHaveBeenCalled()
   })
 
   /** Far from the bottom: the distance guard blocks the prefetch. */

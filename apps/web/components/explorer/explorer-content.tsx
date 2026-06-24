@@ -143,6 +143,7 @@ export function ExplorerContent() {
             onRowClick={openRow}
             liveRows={live ? stream.rows : []}
             scrollRef={scrollRef}
+            isFollowing={live && !follow.paused}
           />
           {live && follow.newCount > 0 && (
             <JumpPill count={follow.newCount} onJump={follow.jumpToLatest} />

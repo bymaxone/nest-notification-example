@@ -5,8 +5,10 @@
  * 60fps: sticky header, newest-first, keyset infinite scroll (older pages load
  * via `fetchNextPage` near the bottom — never OFFSET) from `useAuditLogs`. Live
  * SSE rows are appended at the bottom via the `liveRows` prop (highlighted); a row
- * click opens the detail drawer. Loading shows skeletons (not spinners); an empty
- * query shows an action-oriented prompt.
+ * click opens the detail drawer. While follow-mode auto-scrolls the live tail to
+ * the bottom, the `isFollowing` prop suppresses the near-bottom prefetch so the
+ * programmatic scroll never pages through historical keyset data. Loading shows
+ * skeletons (not spinners); an empty query shows an action-oriented prompt.
  *
  * @module components/explorer/log-table
  */
@@ -60,6 +62,12 @@ interface LogTableProps {
   liveRows?: NotificationLog[]
   /** Ref to the scroll container so the live tail can drive follow-mode. */
   scrollRef?: React.RefObject<HTMLDivElement | null>
+  /**
+   * Whether follow-mode is auto-scrolling the live tail to the bottom. When true,
+   * the near-bottom keyset prefetch is suppressed: the programmatic auto-scroll
+   * would otherwise look like a user nearing the bottom and page through history.
+   */
+  isFollowing?: boolean
 }
 
 /** The sticky column header row. */
@@ -195,7 +203,13 @@ function TableBody({
  * @param props - {@link LogTableProps}.
  * @returns The Explorer audit grid.
  */
-export function LogTable({ query, onRowClick, liveRows = [], scrollRef }: LogTableProps) {
+export function LogTable({
+  query,
+  onRowClick,
+  liveRows = [],
+  scrollRef,
+  isFollowing = false,
+}: LogTableProps) {
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useAuditLogs(query)
 
@@ -217,8 +231,13 @@ export function LogTable({ query, onRowClick, liveRows = [], scrollRef }: LogTab
     overscan: 10,
   })
 
-  /** Prefetch the next (older) keyset page when the user nears the bottom. */
+  /**
+   * Prefetch the next (older) keyset page when the user nears the bottom. While
+   * follow-mode is auto-scrolling the live tail, the prefetch is skipped: that
+   * scroll is programmatic and its rows arrive over SSE, not via keyset paging.
+   */
   const handleScroll = (event: React.UIEvent<HTMLDivElement>): void => {
+    if (isFollowing) return
     if (shouldPrefetch(event.currentTarget, hasNextPage, isFetchingNextPage)) void fetchNextPage()
   }
 

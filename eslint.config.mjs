@@ -131,6 +131,9 @@ export default tseslint.config(
       // `await act(syncCallback)` is the canonical testing-library pattern;
       // the rule fires when `act` returns void for a synchronous callback.
       '@typescript-eslint/await-thenable': 'off',
+      // Tests intentionally reject with a non-Error value to exercise the
+      // `err instanceof Error ? … : fallback` branch of error handlers.
+      '@typescript-eslint/prefer-promise-reject-errors': 'off',
     },
   },
   prettier,

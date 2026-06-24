@@ -1,6 +1,6 @@
 # Phase 9 — Console Core (Overview · Trigger Center · Explorer)
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P9
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -84,12 +84,12 @@ trigger-api.ts,api-client.ts}`.
 
 | ID  | Task                                                          | Status  | Priority | Size | Depends on |
 | --- | ------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 9.1 | Audit data layer — `lib/` clients, types, hooks, pivot helper | 📋 ToDo | P0       | M    | —          |
-| 9.2 | Overview page — delivery-health charts                        | 📋 ToDo | P1       | L    | 9.1        |
-| 9.3 | Audit Explorer — facets, query bar, virtualized table         | 📋 ToDo | P0       | L    | 9.1        |
-| 9.4 | Live tail — SSE stream + follow-mode                          | 📋 ToDo | P0       | M    | 9.3        |
-| 9.5 | Detail drawer + never-contains-code proof                     | 📋 ToDo | P1       | M    | 9.3        |
-| 9.6 | Trigger Center — fire-every-feature grid that auto-pivots     | 📋 ToDo | P0       | L    | 9.1, 9.3   |
+| 9.1 | Audit data layer — `lib/` clients, types, hooks, pivot helper | ✅ Done | P0       | M    | —          |
+| 9.2 | Overview page — delivery-health charts                        | ✅ Done | P1       | L    | 9.1        |
+| 9.3 | Audit Explorer — facets, query bar, virtualized table         | ✅ Done | P0       | L    | 9.1        |
+| 9.4 | Live tail — SSE stream + follow-mode                          | ✅ Done | P0       | M    | 9.3        |
+| 9.5 | Detail drawer + never-contains-code proof                     | ✅ Done | P1       | M    | 9.3        |
+| 9.6 | Trigger Center — fire-every-feature grid that auto-pivots     | ✅ Done | P0       | L    | 9.1, 9.3   |
 
 ---
 
@@ -97,7 +97,7 @@ trigger-api.ts,api-client.ts}`.
 
 ### Task 9.1 — Audit data layer — `lib/` clients, types, hooks, pivot helper
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -225,7 +225,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 9.2 — Overview page — delivery-health charts
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: L
 - **Depends on**: 9.1
@@ -325,7 +325,7 @@ Completion Protocol:
 
 ### Task 9.3 — Audit Explorer — facets, query bar, virtualized table
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 9.1
@@ -427,7 +427,7 @@ Completion Protocol:
 
 ### Task 9.4 — Live tail — SSE stream + follow-mode
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 9.3
@@ -546,7 +546,7 @@ Completion Protocol:
 
 ### Task 9.5 — Detail drawer + never-contains-code proof
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 9.3
@@ -640,7 +640,7 @@ Completion Protocol:
 
 ### Task 9.6 — Trigger Center — fire-every-feature grid that auto-pivots
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 9.1, 9.3
@@ -772,4 +772,9 @@ If any DoD bullet is unmet or CI is red, set P9 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 9.1 ✅ 2026-06-23 — audit data layer (lib clients, types, hooks, pivot)
+- 9.2 ✅ 2026-06-23 — Overview delivery-health charts (latency panel omitted — no duration data in the audit model)
+- 9.3 ✅ 2026-06-23 — Audit Explorer (facets + query bar + virtualized table)
+- 9.4 ✅ 2026-06-23 — SSE live tail (same-origin proxy route + stream hook + follow-mode)
+- 9.5 ✅ 2026-06-23 — detail drawer + never-contains-code proof
+- 9.6 ✅ 2026-06-23 — Trigger Center grid (fire every feature, auto-pivot Explorer; break-audit-sink card omitted — no fault-injection endpoint)

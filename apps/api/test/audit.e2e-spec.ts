@@ -151,6 +151,13 @@ describe('GET /audit/logs', () => {
     // Every persisted row is masked + code-free at the write seam.
     expect(store.every((r) => !r.recipient.includes('jane@acme.com'))).toBe(true)
 
+    // The library interceptor now records a masked boundary row stamped '__interceptor__' — the
+    // dual-source Explorer demo is real (service verbs AND the interceptor source both populate).
+    const interceptorRows = store.filter((r) => r.providerName === '__interceptor__')
+    expect(interceptorRows.length).toBeGreaterThan(0)
+    expect(interceptorRows.every((r) => r.verb === 'sent' || r.verb === 'failed')).toBe(true)
+    expect(interceptorRows.every((r) => !r.recipient.includes('jane@acme.com'))).toBe(true)
+
     const res = await request(app.getHttpServer())
       .get('/audit/logs?source=service')
       .set('x-tenant-id', 'acme')

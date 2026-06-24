@@ -24,17 +24,24 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    include: ['{app,components,lib}/**/*.{test,spec}.{ts,tsx}'],
+    include: ['{app,components,hooks,lib}/**/*.{test,spec}.{ts,tsx}'],
     // Cap parallel workers to prevent OOM from the workspace `file:` dependency
     // being loaded independently by each worker process.
     maxWorkers: '50%',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary', 'json-summary', 'html'],
-      include: ['lib/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}'],
+      include: [
+        'lib/**/*.{ts,tsx}',
+        'hooks/**/*.{ts,tsx}',
+        'components/**/*.{ts,tsx}',
+        'app/api/**/*.{ts,tsx}',
+      ],
       // Vendored shadcn primitives are excluded (authored upstream, not here);
-      // hand-written `lib/` and `components/` are gated at 100% on all metrics.
-      exclude: ['components/ui/**', '**/*.{test,spec}.{ts,tsx}'],
+      // hand-written `lib/`, `hooks/`, `components/`, and the same-origin API route
+      // handlers are gated at 100% on all metrics. Page shells (`app/**/page.tsx`)
+      // stay out of scope — they are thin Server Components proven by the build.
+      exclude: ['components/ui/**', 'app/**/page.tsx', '**/*.{test,spec}.{ts,tsx}'],
       thresholds: { branches: 100, functions: 100, lines: 100, statements: 100 },
     },
   },

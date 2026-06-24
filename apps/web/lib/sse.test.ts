@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, renderHook } from '@testing-library/react'
 
 import { RingBuffer, useAuditStream } from './sse'
-import type { AuditFilter } from './api-client'
+import type { AuditQuery } from './types'
 import type { RbacRole } from './filters'
 
 /**
@@ -67,7 +67,7 @@ function flushRaf(): void {
 }
 
 /** A minimal valid filter. */
-const filter: AuditFilter = { role: 'admin', tenantId: 'acme' }
+const filter: AuditQuery = { role: 'admin', tenantId: 'acme' }
 
 beforeEach(() => {
   FakeEventSource.last = null
@@ -345,10 +345,9 @@ describe('useAuditStream', () => {
 
   /** Filter change resets the buffer and starts a new stream. */
   it('resets and reopens when the filter changes', async () => {
-    const { result, rerender } = renderHook(
-      ({ f }: { f: AuditFilter }) => useAuditStream(f, true),
-      { initialProps: { f: { role: 'admin' as RbacRole } } },
-    )
+    const { result, rerender } = renderHook(({ f }: { f: AuditQuery }) => useAuditStream(f, true), {
+      initialProps: { f: { role: 'admin' as RbacRole } },
+    })
     const first = source()
     const row = {
       id: 'r1',

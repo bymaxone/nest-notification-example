@@ -73,7 +73,7 @@ structural template, reconciled with the current vault standard.
 | P8  | Web Skeleton & Design System                 | `phase-08-web-skeleton.md`          | ✅     | 6 / 6    | M    | 2026-06-23   |
 | P9  | Console Core (Overview · Trigger · Explorer) | `phase-09-console-core.md`          | ✅     | 6 / 6    | L    | 2026-06-23   |
 | P10 | OTP & Providers Panels                       | `phase-10-otp-providers-panels.md`  | ✅     | 6 / 6    | L    | 2026-06-23   |
-| P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | 🔄     | 1 / 3    | M    | 2026-06-23   |
+| P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | 🔄     | 2 / 3    | M    | 2026-06-23   |
 | P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | 📋     | 0 / 6    | L    | —            |
 | P13 | Mutation Hardening                           | `phase-13-mutation.md`              | 📋     | 0 / 5    | L    | —            |
 | P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 📋     | 0 / 7    | L    | —            |

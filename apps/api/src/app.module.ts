@@ -24,6 +24,7 @@ import { NotificationExceptionFilter } from './common/notification-exception.fil
 import { validateEnv } from './config/env.schema.js'
 import { HealthModule } from './health/health.module.js'
 import { applyNotificationServiceMetadata } from './notification/notification-metadata.js'
+import { AuthDemoController } from './notification/auth-demo.controller.js'
 import { NotificationAuthEmailProvider } from './notification/auth-email.provider.js'
 import { DebugModule } from './debug/debug.module.js'
 import { DispatchModule } from './dispatch/dispatch.module.js'
@@ -40,6 +41,10 @@ applyNotificationServiceMetadata()
 
 /** Composes the application's global configuration and feature modules. */
 @Module({
+  controllers: [
+    // Dev-only seam for the optional nest-auth password-reset journey.
+    AuthDemoController,
+  ],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,

@@ -152,6 +152,10 @@ describe('AuditReadService.buildWhere', () => {
     })
   })
 
+  // The reserved provider name is asserted as a string LITERAL here (not the imported
+  // INTERCEPTOR_PROVIDER_NAME constant) on purpose: comparing against the constant would mutate
+  // both the production value and the expectation together, letting a StringLiteral mutant on the
+  // constant survive. The literal pins the exact wire value the column is filtered on.
   it('source=interceptor narrows to interceptor rows only', () => {
     /** The HTTP-boundary view: only rows stamped with the reserved `__interceptor__` provider. */
     const where = service.buildWhere(query({ source: 'interceptor' }))

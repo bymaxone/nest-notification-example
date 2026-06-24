@@ -74,7 +74,7 @@ export function OtpInputBox({
           maxLength={1}
           inputMode={inputMode}
           autoComplete="one-time-code"
-          aria-label={`Digit ${index + 1}`}
+          aria-label={`Character ${index + 1}`}
           disabled={disabled}
           className="h-12 w-12 px-0 text-center font-mono text-lg"
         />

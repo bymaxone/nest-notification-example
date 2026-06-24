@@ -17,7 +17,7 @@
 
 import { NOTIFICATION_ERROR_CODES, type OtpPurpose } from '@bymax-one/nest-notification/shared'
 
-import { API_BASE, postForResult, tenantHeaders, type ApiResult } from './http'
+import { API_BASE, getJson, postForResult, tenantHeaders, type ApiResult } from './http'
 
 /** Result of a successful `POST /otp/generate` (or `resend`). */
 export interface OtpGenerateData {
@@ -167,16 +167,16 @@ export function consumeOtp(input: OtpReference & { tenantId: string }): Promise<
 /**
  * Read the current OTP status — never the plaintext code.
  *
+ * Routes through the shared {@link getJson} transport so a non-2xx response
+ * throws {@link ApiError} instead of leaking an error envelope typed as a status
+ * snapshot. The query carries only the recipient + purpose (never the code).
+ *
  * @param input - Tenant + the recipient/purpose reference.
  * @returns The code-free status snapshot.
+ * @throws {ApiError} When the status request returns a non-2xx response.
  */
-export async function getOtpStatus(
-  input: OtpReference & { tenantId: string },
-): Promise<OtpStatusData> {
+export function getOtpStatus(input: OtpReference & { tenantId: string }): Promise<OtpStatusData> {
   const { tenantId, recipient, purpose } = input
   const params = new URLSearchParams({ recipient, purpose })
-  const res = await fetch(`${API_BASE}/otp/status?${params.toString()}`, {
-    headers: { Accept: 'application/json', ...tenantHeaders(tenantId) },
-  })
-  return res.json() as Promise<OtpStatusData>
+  return getJson<OtpStatusData>(`/otp/status?${params.toString()}`, tenantId)
 }

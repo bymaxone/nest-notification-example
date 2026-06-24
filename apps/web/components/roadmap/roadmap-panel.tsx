@@ -97,8 +97,15 @@ function ProbeCard({ probe }: { probe: RoadmapProbe }) {
 
   const onRun = async (): Promise<void> => {
     setBusy(true)
-    setResult(await probe.run())
-    setBusy(false)
+    try {
+      setResult(await probe.run())
+    } catch {
+      // An unexpected throw still leaves the button usable and shows the no-message
+      // fallback rather than sticking disabled forever.
+      setResult({ code: null, message: '' })
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (

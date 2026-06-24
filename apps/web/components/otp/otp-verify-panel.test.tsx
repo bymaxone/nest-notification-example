@@ -18,6 +18,17 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { NOTIFICATION_ERROR_CODES } from '@bymax-one/nest-notification/shared'
 
+import type { OtpVerifyOutcome } from '@/lib/api/otp'
+
+/** A controllable promise for asserting in-flight (busy) UI state. */
+function defer<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((res) => {
+    resolve = res
+  })
+  return { promise, resolve }
+}
+
 const api = {
   generateOtp: vi.fn(),
   resendOtp: vi.fn(),
@@ -305,5 +316,39 @@ describe('OtpVerifyPanel', () => {
     const resend = await screen.findByRole('button', { name: /^Resend$/ })
     await user.click(resend)
     await waitFor(() => expect(screen.getByRole('button', { name: /^Resend$/ })).toBeDisabled())
+  })
+
+  /** A verify in flight holds the shared busy flag (resend disabled), released after. */
+  it('holds busy during verify and releases it after a wrong code', async () => {
+    api.generateOtp.mockResolvedValue({
+      ok: true,
+      data: { expiresAt: Date.now() + 60_000, cooldownSeconds: 0 },
+    })
+    const pending = defer<OtpVerifyOutcome>()
+    api.verifyOtp.mockReturnValue(pending.promise)
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Resend$/ })).toBeDisabled())
+    pending.resolve({
+      ok: false,
+      code: NOTIFICATION_ERROR_CODES.OTP_INVALID_CODE,
+      remainingAttempts: 2,
+    })
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Resend$/ })).not.toBeDisabled())
+  })
+
+  /** A consume in flight holds the shared busy flag (generate disabled), released after. */
+  it('holds busy during consume and releases it after success', async () => {
+    const pending = defer<{ ok: true; data: undefined }>()
+    api.consumeOtp.mockReturnValue(pending.promise)
+    renderPanel()
+    await generate()
+    await user.click(screen.getByTestId('box'))
+    await user.click(await screen.findByRole('button', { name: 'Consume' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: /Generate/ })).toBeDisabled())
+    pending.resolve({ ok: true, data: undefined })
+    await waitFor(() => expect(screen.queryByTestId('box')).toBeNull())
+    expect(screen.getByRole('button', { name: /Generate/ })).not.toBeDisabled()
   })
 })

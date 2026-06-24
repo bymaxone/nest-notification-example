@@ -87,10 +87,15 @@ export function ProviderMatrix() {
   const { tenantId } = useNotificationQuery()
   const query = useQuery<MatrixData>({
     queryKey: ['provider-matrix', tenantId],
-    queryFn: async () => ({
-      channels: await getChannels(tenantId),
-      config: await getConfigStatus(tenantId),
-    }),
+    // The two reads are independent, so fetch them concurrently; a rejection in
+    // either still propagates to the query's error state.
+    queryFn: async () => {
+      const [channels, config] = await Promise.all([
+        getChannels(tenantId),
+        getConfigStatus(tenantId),
+      ])
+      return { channels, config }
+    },
   })
 
   if (query.isError) {

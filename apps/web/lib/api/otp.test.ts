@@ -11,6 +11,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { NOTIFICATION_ERROR_CODES } from '@bymax-one/nest-notification/shared'
+import { ApiError } from '../types'
 import { consumeOtp, generateOtp, getOtpStatus, resendOtp, verifyOtp } from './otp'
 
 /** Build a minimal `Response`-like object for the fetch stub. */
@@ -203,5 +204,11 @@ describe('getOtpStatus', () => {
     expect(url).toContain('recipient=demo%40example.com')
     expect(url).toContain('purpose=email_verification')
     expect(url).not.toContain('code')
+  })
+
+  /** A non-2xx status throws ApiError (an error envelope is never typed as status). */
+  it('throws ApiError on a non-2xx status', async () => {
+    fetchMock.mockResolvedValue(makeResponse({ ok: false, status: 500 }))
+    await expect(getOtpStatus(REF)).rejects.toBeInstanceOf(ApiError)
   })
 })

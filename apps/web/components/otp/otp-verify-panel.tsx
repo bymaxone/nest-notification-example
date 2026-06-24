@@ -160,24 +160,26 @@ async function runIssue(
   actions.setBusy(false)
 }
 
-/** Run a verify, mapping the discriminated outcome onto the feedback. */
+/** Run a verify under the shared busy flag, mapping the outcome onto the feedback. */
 async function runVerify(input: OtpVerifyInput, actions: OtpStateActions): Promise<void> {
-  let outcome: OtpVerifyOutcome
+  actions.setBusy(true)
   try {
-    outcome = await verifyOtp(input)
+    const outcome: OtpVerifyOutcome = await verifyOtp(input)
+    if (outcome.ok) {
+      actions.setFeedback({ kind: 'success' })
+      return
+    }
+    failTo(actions, outcome.code, outcome.remainingAttempts, isTerminalCode(outcome.code))
   } catch {
     failTo(actions, '', null, false)
-    return
+  } finally {
+    actions.setBusy(false)
   }
-  if (outcome.ok) {
-    actions.setFeedback({ kind: 'success' })
-    return
-  }
-  failTo(actions, outcome.code, outcome.remainingAttempts, isTerminalCode(outcome.code))
 }
 
-/** Run a consume, clearing the session on success. */
+/** Run a consume under the shared busy flag, clearing the session on success. */
 async function runConsume(input: OtpReferenceInput, actions: OtpStateActions): Promise<void> {
+  actions.setBusy(true)
   try {
     await consumeOtp(input)
     actions.setSession(null)
@@ -185,6 +187,8 @@ async function runConsume(input: OtpReferenceInput, actions: OtpStateActions): P
     actions.bumpReset()
   } catch {
     failTo(actions, '', null, false)
+  } finally {
+    actions.setBusy(false)
   }
 }
 

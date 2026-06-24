@@ -101,4 +101,16 @@ describe('RoadmapPanel', () => {
     const card = screen.getByTestId('probe-sms')
     await waitFor(() => expect(within(card).getByRole('button')).toBeDisabled())
   })
+
+  /** A throwing probe still clears busy (button re-enabled) and shows the fallback. */
+  it('recovers the button and falls back when the probe throws', async () => {
+    mock.tryConfigureSms.mockRejectedValue(new Error('boom'))
+    render(<RoadmapPanel />)
+    await tryProbe('sms')
+    const card = screen.getByTestId('probe-sms')
+    await waitFor(() =>
+      expect(within(card).getByText(/did not return a rejection message/)).toBeInTheDocument(),
+    )
+    expect(within(card).getByRole('button')).not.toBeDisabled()
+  })
 })

@@ -22,7 +22,7 @@ afterEach(() => {
 
 /** Read the slot inputs in order. */
 function slots(): HTMLInputElement[] {
-  return screen.getAllByLabelText(/Digit/) as HTMLInputElement[]
+  return screen.getAllByLabelText(/Character/) as HTMLInputElement[]
 }
 
 describe('OtpInputBox', () => {
@@ -34,7 +34,7 @@ describe('OtpInputBox', () => {
     expect(inputs[0]).toHaveAttribute('autocomplete', 'one-time-code')
     expect(inputs[0]).toHaveAttribute('inputmode', 'numeric')
     expect(inputs[0]).toHaveAttribute('maxlength', '1')
-    expect(inputs[0]).toHaveAttribute('aria-label', 'Digit 1')
+    expect(inputs[0]).toHaveAttribute('aria-label', 'Character 1')
   })
 
   /** A non-numeric character class uses the text inputMode. */

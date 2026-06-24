@@ -18,11 +18,17 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: notification_example_test
+      # initdb runs in a fresh SUBDIRECTORY of the tmpfs mount, never the mount point
+      # itself. A tmpfs is mounted root-owned and world-writable (mode 1777), and Postgres
+      # refuses a data directory with group/world permissions. A subdir that initdb creates
+      # and owns at 0700 sidesteps that — the canonical fix for mounting at the data dir.
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '127.0.0.1:55432:5432'
     tmpfs:
-      # Mount at the data dir itself: the postgres image declares a volume at
-      # /var/lib/postgresql/data, which would shadow a tmpfs on the parent.
+      # Ephemeral storage — nothing persists between runs. PGDATA (above) points at a subdir
+      # of this mount so initdb gets a clean, correctly-owned directory rather than the
+      # root-owned mount point.
       - /var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d notification_example_test']

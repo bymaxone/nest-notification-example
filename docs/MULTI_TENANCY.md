@@ -24,12 +24,13 @@ plaintext recipient.
 
 ### Proof in the console
 
-`GET /debug/key?tenantId=acme&recipient=alice@acme.com` returns the raw 64-hex key. The **Inspect OTP**
-panel in the OTP view calls this endpoint and displays the opaque key alongside the OTP status, showing that
-an operator cannot learn PII from Redis monitoring.
+`GET /debug/key?recipient=alice@acme.com` with an `x-tenant-id: acme` header returns the raw 64-hex key —
+the tenant comes from the trusted header (never the query string), and only `recipient` is read from the
+query. The **Inspect OTP** panel in the OTP view calls this endpoint and displays the opaque key alongside
+the OTP status, showing that an operator cannot learn PII from Redis monitoring.
 
 ```bash
-curl -sS 'http://localhost:3001/debug/key?tenantId=acme&recipient=alice%40acme.com'
+curl -sS -H 'x-tenant-id: acme' 'http://localhost:3001/debug/key?recipient=alice%40acme.com'
 # → { "key": "3e2dc4…" }
 ```
 

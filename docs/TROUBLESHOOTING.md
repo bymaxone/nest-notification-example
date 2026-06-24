@@ -35,7 +35,7 @@ Resend and Mailpit receives nothing.
 
 **Fix.** Unset or comment out `RESEND_API_KEY` in `apps/api/.env` to restore the Nodemailer→Mailpit path.
 
-**See also.** [PROVIDERS.md → email provider selection](./PROVIDERS.md#ienailprovider--writing-and-wiring-a-custom-provider),
+**See also.** [PROVIDERS.md → email provider selection](./PROVIDERS.md#iemailprovider--writing-and-wiring-a-custom-provider),
 [ENVIRONMENT.md](./ENVIRONMENT.md).
 
 ---
@@ -111,9 +111,13 @@ The hazard is amplified if the library is reloaded into multiple Jest workers si
 
 **Fix — cap the heaps.**
 
-Add `NODE_OPTIONS=--max-old-space-size=2048` to `apps/api/src/main.ts`'s dev script, and
-`--max-old-space-size=4096` for the web app. The `dev` scripts in both `apps/api/package.json` and
-`apps/web/package.json` already set these caps.
+Start each watcher with an explicit heap cap — `--max-old-space-size=2048` for the API and
+`--max-old-space-size=4096` for the web app — so neither process can grow into swap:
+
+```bash
+NODE_OPTIONS=--max-old-space-size=2048 pnpm --filter @nest-notification-example/api dev
+NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter web dev
+```
 
 **Fix — start one service at a time.**
 

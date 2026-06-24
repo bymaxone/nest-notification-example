@@ -19,7 +19,7 @@
 | P7    | `phase-07-roadmap-rejection.md`     | `/admin/try-configure-{sms,push,async-useclass}`                                    | ✅     |
 | P8    | `phase-08-web-skeleton.md`          | Next.js shell + **verbatim** design system + global controls                        | ✅     |
 | P9    | `phase-09-console-core.md`          | Overview · Trigger Center · Audit Explorer (+ live tail)                            | ✅     |
-| P10   | `phase-10-otp-providers-panels.md`  | OTP-verify · provider matrix · email preview · roadmap · settings                   | 📋     |
+| P10   | `phase-10-otp-providers-panels.md`  | OTP-verify · provider matrix · email preview · roadmap · settings                   | ✅     |
 | P11   | `phase-11-auth-seam.md`             | `NotificationAuthEmailProvider` + the nest-auth journey                             | 📋     |
 | P12   | `phase-12-testing.md`               | 100% coverage (Jest api + Vitest web) + Playwright                                  | 📋     |
 | P13   | `phase-13-mutation.md`              | Stryker ≥ 95 → 100; `docs/stryker/*`                                                | 📋     |

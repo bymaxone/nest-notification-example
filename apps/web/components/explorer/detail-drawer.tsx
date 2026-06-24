@@ -19,7 +19,7 @@ import { CheckCircle2, Filter, type LucideIcon } from 'lucide-react'
 
 import { VERB_SERIES } from '@/lib/chart-series'
 import { sourceOf } from '@/lib/audit-facets'
-import { ERROR_CODE_MESSAGES } from '@/lib/error-codes'
+import { NOTIFICATION_ERROR_MESSAGES } from '@/lib/error-codes'
 import { useAuditQuery } from '@/lib/filters'
 import { CHANNEL_SEVERITY } from '@/lib/severity'
 import type { AuditQuery, NotificationLog } from '@/lib/types'
@@ -27,7 +27,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 /** Error-code → localized message, widened to a string lookup (no per-key cast). */
-const ERROR_MESSAGES_BY_CODE: Record<string, string> = ERROR_CODE_MESSAGES
+const ERROR_MESSAGES_BY_CODE: Record<string, string> = NOTIFICATION_ERROR_MESSAGES
 
 /** Localize an `errorMessage` when it is a recognised `notification.*` code, else `null`. */
 function localizedError(message: string | null): string | null {

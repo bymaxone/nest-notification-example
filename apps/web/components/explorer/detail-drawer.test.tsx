@@ -115,7 +115,7 @@ describe('DetailDrawer', () => {
   /** A recognised error code is shown with its localized label. */
   it('localizes a recognised error code', () => {
     renderDrawer(makeRow({ verb: 'failed', errorMessage: 'notification.otp_invalid_code' }))
-    expect(screen.getByText(/The OTP entered is incorrect/)).toBeInTheDocument()
+    expect(screen.getByText(/Incorrect code/)).toBeInTheDocument()
   })
 
   /** A null purpose and an unrecognised error omit their rows. */

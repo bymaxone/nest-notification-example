@@ -1,6 +1,6 @@
 # Phase 10 — OTP & Providers Panels
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: ✅ Done · **Progress**: 6 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P10
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -90,12 +90,12 @@ re-implement the hooks.
 
 | ID   | Task                                                       | Status  | Priority | Size | Depends on             |
 | ---- | ---------------------------------------------------------- | ------- | -------- | ---- | ---------------------- |
-| 10.1 | Error-code localization map + OTP API client helpers       | 📋 ToDo | P0       | M    | —                      |
-| 10.2 | OTP Verify panel — segmented box + countdown + live verify | 📋 ToDo | P0       | L    | 10.1                   |
-| 10.3 | Providers & Templates — matrix + email preview tabs        | 📋 ToDo | P1       | L    | 10.1                   |
-| 10.4 | Roadmap panel — startup-rejection preview                  | 📋 ToDo | P1       | M    | 10.1                   |
-| 10.5 | Settings panel — config status + boot-frozen options       | 📋 ToDo | P2       | M    | 10.1                   |
-| 10.6 | Error-code audit reconciliation + matrix close-out         | 📋 ToDo | P0       | M    | 10.2, 10.3, 10.4, 10.5 |
+| 10.1 | Error-code localization map + OTP API client helpers       | ✅ Done | P0       | M    | —                      |
+| 10.2 | OTP Verify panel — segmented box + countdown + live verify | ✅ Done | P0       | L    | 10.1                   |
+| 10.3 | Providers & Templates — matrix + email preview tabs        | ✅ Done | P1       | L    | 10.1                   |
+| 10.4 | Roadmap panel — startup-rejection preview                  | ✅ Done | P1       | M    | 10.1                   |
+| 10.5 | Settings panel — config status + boot-frozen options       | ✅ Done | P2       | M    | 10.1                   |
+| 10.6 | Error-code audit reconciliation + matrix close-out         | ✅ Done | P0       | M    | 10.2, 10.3, 10.4, 10.5 |
 
 ---
 
@@ -103,7 +103,7 @@ re-implement the hooks.
 
 ### Task 10.1 — Error-code localization map + OTP API client helpers
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -222,7 +222,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 10.2 — OTP Verify panel — segmented box + countdown + live verify
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 10.1
@@ -370,7 +370,7 @@ Completion Protocol:
 
 ### Task 10.3 — Providers & Templates — matrix + email preview tabs
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: L
 - **Depends on**: 10.1
@@ -481,7 +481,7 @@ Completion Protocol:
 
 ### Task 10.4 — Roadmap panel — startup-rejection preview
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 10.1
@@ -578,7 +578,7 @@ Completion Protocol:
 
 ### Task 10.5 — Settings panel — config status + boot-frozen options
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P2
 - **Size**: M
 - **Depends on**: 10.1
@@ -675,7 +675,7 @@ Completion Protocol:
 
 ### Task 10.6 — Error-code audit reconciliation + matrix close-out
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 10.2, 10.3, 10.4, 10.5
@@ -804,6 +804,11 @@ If any DoD bullet is unmet or CI is red, set P10 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
-</content>
-</invoke>
+- 10.1 ✅ 2026-06-23 — error-code map + cooldown + OTP api helpers
+- 10.2 ✅ 2026-06-23 — OTP Verify panel (box + countdown + live verify)
+- 10.3 ✅ 2026-06-23 — Providers & Templates matrix + email preview
+- 10.4 ✅ 2026-06-23 — Roadmap startup-rejection panel
+- 10.5 ✅ 2026-06-23 — Settings config status + frozen options
+- 10.6 ✅ 2026-06-23 — error-code audit reconciliation + matrix close-out
+  </content>
+  </invoke>

@@ -1,40 +1,4 @@
 {
-  "$comment": "Public exports intentionally NOT demonstrated in apps/ yet. Each entry needs { symbol, reason, issue }. The entries below are the browser-only ./react surface (hooks and their types), temporarily allow-listed until the web app consumes the React subpath — at which point they are demonstrated there and removed from this list. The list otherwise stays empty: never use it to make CI green for a real, demonstrable export from apps/api.",
-  "ignored": [
-    {
-      "symbol": "useOtpInput",
-      "reason": "Browser-only React hook. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be imported from apps/api (a Node.js NestJS backend).",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    },
-    {
-      "symbol": "useOtpCountdown",
-      "reason": "Browser-only React hook. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be imported from apps/api (a Node.js NestJS backend).",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    },
-    {
-      "symbol": "OtpInputType",
-      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    },
-    {
-      "symbol": "UseOtpInputOptions",
-      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    },
-    {
-      "symbol": "UseOtpInputState",
-      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    },
-    {
-      "symbol": "UseOtpCountdownOptions",
-      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    },
-    {
-      "symbol": "UseOtpCountdownState",
-      "reason": "Type belonging to the browser-only ./react subpath. Demonstrated in apps/web's OTP panel when the web app is scaffolded. Cannot be used in apps/api.",
-      "issue": "https://github.com/bymaxone/nest-notification-example/issues/1"
-    }
-  ]
+  "$comment": "Public exports intentionally NOT demonstrated in apps/ yet. Each entry needs { symbol, reason, issue }. The list is empty: every public export — including the browser-only ./react hooks (useOtpInput, useOtpCountdown) and their types, now consumed by apps/web's OTP panel — is referenced in apps/. Never use this list to make CI green for a real, demonstrable export.",
+  "ignored": []
 }

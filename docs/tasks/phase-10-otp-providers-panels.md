@@ -1,6 +1,6 @@
 # Phase 10 — OTP & Providers Panels
 
-> **Status**: 🔄 In progress · **Progress**: 3 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 4 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P10
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -93,7 +93,7 @@ re-implement the hooks.
 | 10.1 | Error-code localization map + OTP API client helpers       | ✅ Done | P0       | M    | —                      |
 | 10.2 | OTP Verify panel — segmented box + countdown + live verify | ✅ Done | P0       | L    | 10.1                   |
 | 10.3 | Providers & Templates — matrix + email preview tabs        | ✅ Done | P1       | L    | 10.1                   |
-| 10.4 | Roadmap panel — startup-rejection preview                  | 📋 ToDo | P1       | M    | 10.1                   |
+| 10.4 | Roadmap panel — startup-rejection preview                  | ✅ Done | P1       | M    | 10.1                   |
 | 10.5 | Settings panel — config status + boot-frozen options       | 📋 ToDo | P2       | M    | 10.1                   |
 | 10.6 | Error-code audit reconciliation + matrix close-out         | 📋 ToDo | P0       | M    | 10.2, 10.3, 10.4, 10.5 |
 
@@ -481,7 +481,7 @@ Completion Protocol:
 
 ### Task 10.4 — Roadmap panel — startup-rejection preview
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P1
 - **Size**: M
 - **Depends on**: 10.1
@@ -807,5 +807,6 @@ If any DoD bullet is unmet or CI is red, set P10 to `🟡 Partial`, not `✅`.
 - 10.1 ✅ 2026-06-23 — error-code map + cooldown + OTP api helpers
 - 10.2 ✅ 2026-06-23 — OTP Verify panel (box + countdown + live verify)
 - 10.3 ✅ 2026-06-23 — Providers & Templates matrix + email preview
+- 10.4 ✅ 2026-06-23 — Roadmap startup-rejection panel
   </content>
   </invoke>

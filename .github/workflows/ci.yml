@@ -121,8 +121,16 @@ jobs:
           pnpm -C ../nest-notification install --frozen-lockfile
           pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
-      # No app packages yet, so this resolves to a no-op until apps/ are added.
-      - run: pnpm test:cov
+      # Run each workspace's coverage as a SEPARATE sequential step with a bounded heap: the
+      # `file:` library is reloaded into every worker, so the two apps must never run at once.
+      - name: API unit coverage
+        run: pnpm --filter @nest-notification-example/api test:cov
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+      - name: Web unit coverage
+        run: pnpm --filter web test:cov
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
       - name: Upload API coverage
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -164,14 +172,12 @@ jobs:
           pnpm -C ../nest-notification install --frozen-lockfile
           pnpm -C ../nest-notification build
       - run: pnpm install --frozen-lockfile
-      # Scope to the API workspace so the web suite does not also run here; no-op until apps/api exists.
+      # Scope to the API workspace so the web Vitest suite does not also run here. The e2e suite
+      # boots in-process against an in-memory OTP store + a mocked transport — no live stack.
       - name: API e2e
-        run: |
-          if [ -f apps/api/package.json ]; then
-            pnpm --filter "./apps/api" --if-present run test:e2e
-          else
-            echo "apps/api not present yet — e2e is a no-op."
-          fi
+        run: pnpm --filter @nest-notification-example/api test:e2e
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
   build-web:
     needs: install
@@ -226,14 +232,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install --with-deps chromium
-      # Scope to the web workspace so the API suite does not also run here.
-      - name: Web e2e
-        run: |
-          if [ -f apps/web/package.json ]; then
-            pnpm --filter "./apps/web" --if-present run test:e2e
-          else
-            echo "apps/web not present yet — e2e is a no-op."
-          fi
+      # Live journeys: the Playwright config brings up the dedicated test stack
+      # (docker-compose.test.yml — Postgres/Redis/Mailpit), migrates + seeds the test database,
+      # then starts the API + web; `E2E_TEARDOWN=1` tears the stack down after this one-shot run.
+      - name: Web e2e (live journeys against the test stack)
+        run: pnpm --filter web test:e2e
+        env:
+          E2E_TEARDOWN: '1'
 
   export-usage-check:
     needs: install
@@ -295,6 +300,27 @@ jobs:
           name: coverage-unit-web
           path: coverage/web
         continue-on-error: true
+      - name: Fail if any metric is below 100%
+        run: |
+          fail=0
+          for app in api web; do
+            f="coverage/$app/coverage-summary.json"
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing coverage summary $f (the unit job did not produce it)"
+              fail=1
+              continue
+            fi
+            for metric in statements branches functions lines; do
+              pct=$(jq -r ".total.${metric}.pct" "$f")
+              if [ "$pct" != "100" ]; then
+                echo "::error::${app} ${metric} coverage is ${pct}% (expected 100%)"
+                fail=1
+              else
+                echo "${app} ${metric}: 100%"
+              fi
+            done
+          done
+          [ "$fail" = "0" ]
       - name: Upload combined coverage
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

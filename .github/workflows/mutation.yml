@@ -10,14 +10,23 @@ name: Mutation Testing (PR)
 
 on:
   pull_request:
+    # Mirror the `detect` job's paths-filter exactly so a change to any mutation-relevant file
+    # (source, Stryker/jest config, package.json, tsconfig, schema, vitest config) triggers the
+    # workflow — otherwise a config-only PR would skip the workflow and bypass the gate.
     paths:
       - 'apps/api/src/**'
       - 'apps/api/test/**'
       - 'apps/api/stryker.config.json'
+      - 'apps/api/jest.stryker.config.cjs'
+      - 'apps/api/package.json'
+      - 'apps/api/tsconfig*.json'
+      - 'apps/api/prisma/schema.prisma'
       - 'apps/web/app/**'
       - 'apps/web/lib/**'
       - 'apps/web/components/**'
       - 'apps/web/stryker.config.json'
+      - 'apps/web/package.json'
+      - 'apps/web/vitest.config.ts'
       - 'pnpm-lock.yaml'
       - '.github/workflows/mutation.yml'
 

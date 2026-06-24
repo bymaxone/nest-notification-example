@@ -7,11 +7,13 @@
  *   1. Docker daemon — reuse it if already running, otherwise start Docker Desktop (macOS)
  *      and wait until it answers, instead of letting `docker compose` error out.
  *   2. Test stack — `docker compose -f docker-compose.test.yml up -d --wait` reuses healthy
- *      containers (Postgres :55432, Redis :56379, Mailpit :1025/:8025) and starts any missing.
- *   3. Stale dev servers — Playwright's `reuseExistingServer` reattaches to whatever already
- *      listens on the e2e ports. A server left over from a previous run whose database was
- *      reset underneath it still answers `/health`, so each port is probed for real readiness;
- *      a healthy server is kept (fast reuse) and a stale one is killed for a fresh start.
+ *      containers (Postgres :55432, Redis :56379, Mailpit host :51025/:58025) and starts missing.
+ *   3. Stale dev servers — Playwright's `reuseExistingServer` (local only) reattaches to whatever
+ *      already listens on the e2e ports. Each port is probed for a genuine 2xx so an unrelated
+ *      process answering with a 4xx is never mistaken for a reusable server; a healthy server is
+ *      kept (fast reuse). A non-healthy occupant is killed ONLY when `E2E_KILL_STALE=1` is set
+ *      (opt-in, since the occupant may be an unrelated local process); otherwise the run aborts
+ *      with instructions rather than killing an unknown process.
  *
  * Exit code is 0 on success; non-zero only when Docker genuinely cannot be made ready.
  *
@@ -22,7 +24,7 @@ import { fileURLToPath } from 'node:url'
 
 /** Repo root — where `docker compose` resolves the compose file. */
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url))
-/** Dedicated, throwaway test stack (Postgres :55432, Redis :56379, Mailpit :1025/:8025). */
+/** Dedicated, throwaway test stack (Postgres :55432, Redis :56379, Mailpit host :51025/:58025). */
 const COMPOSE_FILE = 'docker-compose.test.yml'
 /** How long to wait for the Docker daemon to come up after starting it. */
 const DOCKER_READY_TIMEOUT_MS = 90_000
@@ -70,15 +72,17 @@ function dockerDaemonReady() {
 }
 
 /**
- * GET `url` and report whether the server is serving. A status below 500 means the process
- * is alive and handling requests; network errors read as down.
+ * GET `url` and report whether the INTENDED server is serving. Only a genuine 2xx counts as
+ * healthy: a 4xx/5xx (or a network error) means the port is either down or held by an unrelated
+ * process, so it must not be treated as a reusable e2e server. The API probe hits `/health`
+ * (expects 200) and the web probe hits `/` (expects 200).
  *
- * @returns `true` when the server responded below 500, `false` otherwise.
+ * @returns `true` when the server responded with a 2xx, `false` otherwise.
  */
 async function probe(url) {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) })
-    return res.status < 500
+    return res.ok
   } catch {
     return false
   }
@@ -138,8 +142,14 @@ function ensureTestStack() {
   }
 }
 
-/** Keep healthy e2e servers (fast reuse) and kill stale ones so Playwright restarts them. */
+/**
+ * Keep healthy e2e servers (fast reuse) and clear non-healthy occupants so Playwright can
+ * restart them. A non-healthy occupant is killed only when `E2E_KILL_STALE=1` is set — the
+ * process on the port may be unrelated local work, so killing it is strictly opt-in. Without
+ * the opt-in, the run aborts with instructions instead of force-killing an unknown process.
+ */
 async function reapStaleServers() {
+  const killOptIn = process.env.E2E_KILL_STALE === '1'
   for (const server of SERVERS) {
     const pids = pidsOnPort(server.port)
     if (pids.length === 0) {
@@ -150,8 +160,19 @@ async function reapStaleServers() {
       log(`:${server.port} ${server.name} — healthy; reusing.`)
       continue
     }
+    if (!killOptIn) {
+      log(
+        `:${server.port} ${server.name} — occupied by a non-healthy process (pid(s) ${pids.join(
+          ', ',
+        )}). Refusing to kill an unknown process. Stop it yourself, or re-run with ` +
+          `E2E_KILL_STALE=1 to have this script free the port.`,
+      )
+      process.exit(1)
+    }
     log(
-      `:${server.port} ${server.name} — stale; killing pid(s) ${pids.join(', ')} for a fresh start.`,
+      `:${server.port} ${server.name} — stale; E2E_KILL_STALE=1 set, killing pid(s) ${pids.join(
+        ', ',
+      )} for a fresh start.`,
     )
     for (const pid of pids) tryRun(`kill -9 ${pid}`)
   }

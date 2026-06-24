@@ -239,6 +239,9 @@ jobs:
         run: pnpm --filter web test:e2e
         env:
           E2E_TEARDOWN: '1'
+          # The runner's e2e ports are free, so this never triggers; set so that if a port were
+          # ever held by a non-healthy process the prep frees it instead of aborting the run.
+          E2E_KILL_STALE: '1'
 
   export-usage-check:
     needs: install

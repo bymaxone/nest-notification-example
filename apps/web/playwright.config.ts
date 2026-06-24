@@ -3,10 +3,12 @@
  *
  * Self-contained and isolated from the dev environment: the API `webServer` entry brings
  * the DEDICATED test stack up (`docker-compose.test.yml` — Postgres :55432, Redis :56379,
- * Mailpit :1025/:8025, all ephemeral/tmpfs), applies the migrations + the demo seed to the
- * TEST database, then starts the API pointed at the test stack; a sibling entry starts the
- * web console (:3003). Each entry is gated on its readiness URL so the journeys only run once
- * the whole stack is live, and `reuseExistingServer` reattaches to anything already up.
+ * Mailpit SMTP :51025 / HTTP :58025, all on alternate host ports and ephemeral/tmpfs), applies
+ * the migrations + the demo seed to the TEST database, then starts the API pointed at the test
+ * stack; a sibling entry starts the web console (:3003). Each entry is gated on its readiness URL
+ * so the journeys only run once the whole stack is live. `reuseExistingServer` is disabled in CI
+ * (`!process.env.CI`) so CI always starts the intended test-stack servers fresh, and enabled
+ * locally for fast reattachment to an already-running stack.
  *
  * The dev database is never touched — only the throwaway test stack. Set `E2E_TEARDOWN=1`
  * to stop the test stack afterwards (see `e2e/global-teardown.ts`).
@@ -30,7 +32,10 @@ const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const TEST_PG_AUTH = ['postgres', 'postgres'].join(':')
 const TEST_DATABASE_URL = `postgresql://${TEST_PG_AUTH}@127.0.0.1:55432/notification_example_test`
 const TEST_REDIS_URL = 'redis://127.0.0.1:56379'
-const TEST_SMTP_URL = 'smtp://127.0.0.1:1025'
+// Alternate host SMTP port (forwarded to Mailpit's container :1025) so the test stack never
+// collides with the dev stack's Mailpit; keep in lockstep with docker-compose.test.yml and the
+// Mailpit fixture's HTTP base (host :58025).
+const TEST_SMTP_URL = 'smtp://127.0.0.1:51025'
 
 /** Env prefix that points the API at the test stack instead of the dev defaults. */
 const API_ENV = [
@@ -80,14 +85,16 @@ export default defineConfig({
       command: API_COMMAND,
       url: `${API_URL}/health`,
       cwd: ROOT,
-      reuseExistingServer: true,
+      // Never reattach to a possibly-stale server in CI; reuse only for fast local iteration.
+      reuseExistingServer: !process.env.CI,
       timeout: 300_000,
     },
     {
       command: 'pnpm --filter web dev',
       url: WEB_URL,
       cwd: ROOT,
-      reuseExistingServer: true,
+      // Never reattach to a possibly-stale server in CI; reuse only for fast local iteration.
+      reuseExistingServer: !process.env.CI,
       timeout: 180_000,
     },
   ],

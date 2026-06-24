@@ -10,8 +10,15 @@
  * @module e2e/fixtures/mailpit
  */
 
-/** Mailpit HTTP API base — overridable so CI/test can point at the test-stack port. */
-const MAILPIT_URL = process.env['MAILPIT_URL'] ?? 'http://127.0.0.1:8025'
+/**
+ * Mailpit HTTP API base — overridable via `MAILPIT_URL` so CI/test can point at the test-stack
+ * port. Defaults to the test stack's alternate host port (58025 → Mailpit container :8025),
+ * kept in lockstep with `docker-compose.test.yml` and the API's SMTP target (host :51025).
+ */
+const MAILPIT_URL = process.env['MAILPIT_URL'] ?? 'http://127.0.0.1:58025'
+
+/** Per-request network timeout (ms) so a hung Mailpit connection fails fast, not the suite. */
+const FETCH_TIMEOUT_MS = 5000
 
 /** A Mailpit message summary as returned by `GET /api/v1/messages`. */
 interface MailpitMessage {
@@ -69,12 +76,16 @@ function matches(message: MailpitMessage, criteria: MailMatch): boolean {
 export async function waitForEmail(criteria: MailMatch, timeoutMs = 15_000): Promise<string> {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
-    const res = await fetch(`${MAILPIT_URL}/api/v1/messages?limit=50`)
+    const res = await fetch(`${MAILPIT_URL}/api/v1/messages?limit=50`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
     if (!res.ok) throw new Error(`Mailpit list failed: ${res.status.toString()}`)
     const data = (await res.json()) as MailpitMessagesResponse
     const match = data.messages.find((message) => matches(message, criteria))
     if (match) {
-      const detail = await fetch(`${MAILPIT_URL}/api/v1/message/${match.ID}`)
+      const detail = await fetch(`${MAILPIT_URL}/api/v1/message/${match.ID}`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      })
       if (!detail.ok) throw new Error(`Mailpit detail failed: ${detail.status.toString()}`)
       const body = (await detail.json()) as MailpitMessageDetail
       return body.HTML !== '' ? body.HTML : body.Text
@@ -90,7 +101,10 @@ export async function waitForEmail(criteria: MailMatch, timeoutMs = 15_000): Pro
  * @throws When the delete request fails.
  */
 export async function clearMailpit(): Promise<void> {
-  const res = await fetch(`${MAILPIT_URL}/api/v1/messages`, { method: 'DELETE' })
+  const res = await fetch(`${MAILPIT_URL}/api/v1/messages`, {
+    method: 'DELETE',
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  })
   if (!res.ok) throw new Error(`Mailpit clear failed: ${res.status.toString()}`)
 }
 

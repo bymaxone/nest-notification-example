@@ -5,10 +5,11 @@ name: nest-notification-example-test
 # test-only credentials; never reuse outside CI. Everything is bound to 127.0.0.1.
 #
 # Mailpit is included so the live Playwright journeys can poll a real inbox (generate OTP →
-# Mailpit → verify; send email → Mailpit). It binds the STANDARD Mailpit ports (SMTP 1025,
-# web/API 8025) — the same as the dev stack — so the test stack's Mailpit must not run
-# concurrently with the dev stack's Mailpit. In CI only this stack runs, so there is no
-# collision. Brought up by `pnpm infra:test:up`, torn down by `pnpm infra:test:down`.
+# Mailpit → verify; send email → Mailpit). It binds ALTERNATE host ports (SMTP 51025, web/API
+# 58025) that forward to Mailpit's standard container ports (1025/8025) — distinct from the dev
+# stack's standard 1025/8025 — so the test stack's Mailpit can run alongside the dev stack's
+# without a host-port collision. Brought up by `pnpm infra:test:up`, torn down by
+# `pnpm infra:test:down`.
 services:
   postgres:
     image: postgres:18-alpine
@@ -54,12 +55,14 @@ services:
 
   mailpit:
     # Digest-pinned to the same version used by the dev stack (axllent/mailpit v1.x). The
-    # live e2e journeys send through SMTP :1025 and read the captured mail via the HTTP
-    # API on :8025, asserting the OTP/email actually left the building.
+    # live e2e journeys send through SMTP (host :51025) and read the captured mail via the HTTP
+    # API (host :58025), asserting the OTP/email actually left the building. The container keeps
+    # Mailpit's standard ports (1025/8025); only the host mappings are shifted to avoid colliding
+    # with a running dev-stack Mailpit on 1025/8025.
     image: axllent/mailpit@sha256:757f22b56c1da03570afdb3d259effe5091018008a81bbedc8158cee7e16fdbc
     ports:
-      - '127.0.0.1:1025:1025'
-      - '127.0.0.1:8025:8025'
+      - '127.0.0.1:51025:1025'
+      - '127.0.0.1:58025:8025'
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://localhost:8025/api/v1/info || exit 1']
       interval: 3s

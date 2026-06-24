@@ -1,6 +1,6 @@
 # Phase 14 — Docs, Public-Readiness & Release
 
-> **Status**: 🔄 In Progress · **Progress**: 6 / 7 tasks · **Last updated**: 2026-06-24
+> **Status**: ✅ Done · **Progress**: 7 / 7 tasks · **Last updated**: 2026-06-24
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P14
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -83,7 +83,7 @@ DEPLOYMENT,TROUBLESHOOTING,RELEASES}.md`.
 | 14.4 | `MULTI_TENANCY.md` + `AUTH_INTEGRATION.md` + `DEPLOYMENT.md` + `TROUBLESHOOTING.md` | ✅ Done | P0       | L    | 14.1                   |
 | 14.5 | `README.md` badge header + `RELEASES.md` + `CHANGELOG.md` `[0.1.0]`                 | ✅ Done | P0       | M    | 14.1, 14.2, 14.3, 14.4 |
 | 14.6 | Audit reconciliation + security-hardening pass (§6 matrix, helmet/CSP, deps)        | ✅ Done | P0       | L    | 14.5                   |
-| 14.7 | Go-public gate + `v0.1.0` release (link-check, Appendix E, tag, RELEASES row)       | 📋 ToDo | P0       | M    | 14.6                   |
+| 14.7 | Go-public gate + `v0.1.0` release (link-check, Appendix E, tag, RELEASES row)       | ✅ Done | P0       | M    | 14.6                   |
 
 ---
 
@@ -661,7 +661,7 @@ Completion Protocol:
 
 ### Task 14.7 — Go-public gate + `v0.1.0` release
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: 14.6
@@ -783,7 +783,8 @@ If any DoD bullet is unmet or CI is red, set P14 to `🟡 Partial`, not `✅`.
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-- 14.6 ✅ 2026-06-24 — audit reconciliation + security hardening (audit:exports + audit:error-codes exit 0, helm/CSP verified, format:check green)
+- 14.7 ✅ 2026-06-24 — go-public gate + v0.1.0 release (markdown-link-check clean, Appendix E walked, Copilot files trimmed to <4000 chars, v0.1.0 tag created)
+- 14.6 ✅ 2026-06-24 — audit reconciliation + security hardening (audit:exports + audit:error-codes exit 0, helmet/CSP verified, format:check green)
 - 14.5 ✅ 2026-06-24 — README badge header + RELEASES seed row + CHANGELOG [0.1.0]
 - 14.4 ✅ 2026-06-24 — multi-tenancy + auth integration + deployment + troubleshooting docs
 - 14.3 ✅ 2026-06-24 — environment + providers + templating guides

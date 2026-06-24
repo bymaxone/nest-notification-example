@@ -1,28 +1,28 @@
 /**
- * @fileoverview OTP Verify page — one-time-passcode input and countdown.
+ * @fileoverview OTP Verify page — segmented box + countdown + live verify.
  *
- * A thin Server Component shell with a placeholder body. The full OTP input
- * panel (using `useOtpInput` and `useOtpCountdown` from the library's React
- * subpath) will be added in a later iteration.
+ * A thin Server Component shell that mounts the `'use client'` OTP verify panel
+ * (the library's `useOtpInput` + `useOtpCountdown` hooks driving a real verify
+ * against the backend). Marked `force-dynamic` so the URL-driven active tenant is
+ * read per request.
  *
  * @module app/otp/page
  */
 
 import { AppShell } from '@/components/layout/app-shell'
+import { OtpVerifyPanel } from '@/components/otp/otp-verify-panel'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * OTP Verify page.
  *
- * @returns The OTP Verify placeholder inside the app shell.
+ * @returns The OTP verify panel inside the app shell.
  */
 export default function OtpPage() {
   return (
     <AppShell>
-      <section className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-sm text-white/55">OTP Verify — coming in a later iteration.</p>
-      </section>
+      <OtpVerifyPanel />
     </AppShell>
   )
 }

@@ -1,6 +1,6 @@
 # Phase 10 — OTP & Providers Panels
 
-> **Status**: 🔄 In progress · **Progress**: 1 / 6 tasks · **Last updated**: 2026-06-23
+> **Status**: 🔄 In progress · **Progress**: 2 / 6 tasks · **Last updated**: 2026-06-23
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P10
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -91,7 +91,7 @@ re-implement the hooks.
 | ID   | Task                                                       | Status  | Priority | Size | Depends on             |
 | ---- | ---------------------------------------------------------- | ------- | -------- | ---- | ---------------------- |
 | 10.1 | Error-code localization map + OTP API client helpers       | ✅ Done | P0       | M    | —                      |
-| 10.2 | OTP Verify panel — segmented box + countdown + live verify | 📋 ToDo | P0       | L    | 10.1                   |
+| 10.2 | OTP Verify panel — segmented box + countdown + live verify | ✅ Done | P0       | L    | 10.1                   |
 | 10.3 | Providers & Templates — matrix + email preview tabs        | 📋 ToDo | P1       | L    | 10.1                   |
 | 10.4 | Roadmap panel — startup-rejection preview                  | 📋 ToDo | P1       | M    | 10.1                   |
 | 10.5 | Settings panel — config status + boot-frozen options       | 📋 ToDo | P2       | M    | 10.1                   |
@@ -222,7 +222,7 @@ Completion Protocol (run after finishing — keeps the dashboards honest):
 
 ### Task 10.2 — OTP Verify panel — segmented box + countdown + live verify
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 10.1
@@ -805,5 +805,6 @@ If any DoD bullet is unmet or CI is red, set P10 to `🟡 Partial`, not `✅`.
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
 - 10.1 ✅ 2026-06-23 — error-code map + cooldown + OTP api helpers
+- 10.2 ✅ 2026-06-23 — OTP Verify panel (box + countdown + live verify)
   </content>
   </invoke>

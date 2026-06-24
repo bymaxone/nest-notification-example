@@ -1,6 +1,6 @@
 # Phase 13 — Mutation Hardening
 
-> **Status**: 📋 ToDo · **Progress**: 0 / 5 tasks · **Last updated**: 2026-06-23
+> **Status**: 🟡 In progress · **Progress**: 1 / 5 tasks · **Last updated**: 2026-06-24
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P13
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -75,7 +75,7 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 
 | ID   | Task                                                                 | Status  | Priority | Size | Depends on |
 | ---- | -------------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
-| 13.1 | api Stryker config + baseline measurement                            | 📋 ToDo | P0       | M    | —          |
+| 13.1 | api Stryker config + baseline measurement                            | ✅ Done | P0       | M    | —          |
 | 13.2 | api hardening → `break: 100` (kill survivors / document equivalents) | 📋 ToDo | P0       | L    | 13.1       |
 | 13.3 | web Stryker config + `lib/**` → 100, `components/**` driven up       | 📋 ToDo | P0       | L    | —          |
 | 13.4 | `docs/stryker/{BASELINE,HISTORY,IMPLEMENTATION_PLAN}.md`             | 📋 ToDo | P1       | M    | 13.2, 13.3 |
@@ -87,7 +87,7 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 
 ### Task 13.1 — api Stryker config + baseline measurement
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: M
 - **Depends on**: —
@@ -100,17 +100,17 @@ config and records the pre-hardening number that 13.2 drives to 100.
 
 #### Acceptance criteria
 
-- [ ] `apps/api/stryker.config.json` exists: `jest` runner via a custom `jest.stryker.config.cjs`, `checkers: ["typescript"]`
+- [x] `apps/api/stryker.config.json` exists: `jest` runner via a custom `jest.stryker.config.cjs`, `checkers: ["typescript"]`
       with `tsconfigFile`, `coverageAnalysis: "perTest"`, the `mutate` glob excluding `*.spec.ts`/`*.module.ts`/`main.ts`/
       `*.dto.ts`/`*.d.ts`/`index.ts`/`library-probe.ts`, `thresholds: { high: 100, low: 100, break: 100 }`, `concurrency: 4`,
       `incremental: true` + `incrementalFile`, HTML+JSON reporters under `reports/mutation/api.*`.
-- [ ] `apps/api/jest.stryker.config.cjs` exists: re-runs the **unit** suite only (`testMatch: src/**/*.spec.ts`),
+- [x] `apps/api/jest.stryker.config.cjs` exists: re-runs the **unit** suite only (`testMatch: src/**/*.spec.ts`),
       `collectCoverage: false`, excludes `dist/` + `.stryker-tmp/`, native-ESM transform (`useESM`, `ignoreCoverageForAllDecorators`).
-- [ ] `apps/api/package.json` has `mutation` (`stryker run --force`) + `mutation:incremental` (`stryker run`) scripts and
+- [x] `apps/api/package.json` has `mutation` (`stryker run --force`) + `mutation:incremental` (`stryker run`) scripts and
       the Stryker devDependencies (`@stryker-mutator/core`, `jest-runner`, `typescript-checker`) at 9.6.x.
-- [ ] `pnpm --filter @nest-notification-example/api run mutation` completes and prints a mutation score; the run is
-      recorded for 13.4 (score, killed, survived, timeout, no-cov).
-- [ ] `apps/web` is untouched by this task.
+- [x] `pnpm --filter @nest-notification-example/api run mutation` completes and prints a mutation score; the run is
+      recorded for 13.4 (score 79.26%, killed 409, survived 107, timeout 0, no-cov 0).
+- [x] `apps/web` is untouched by this task.
 
 #### Files to create / modify
 
@@ -632,4 +632,4 @@ If any DoD bullet is unmet or CI is red (e.g. a workspace below its `break` thre
 
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
-_(empty — no tasks completed yet)_
+- 13.1 ✅ 2026-06-24 — api Stryker config + baseline measurement (79.26%, 107 survivors)

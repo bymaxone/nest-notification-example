@@ -105,6 +105,9 @@ export class MjmlTemplateRenderer implements IEmailTemplateRenderer {
    */
   constructor(templates: Record<string, MjmlRawTemplate>) {
     for (const [key, template] of Object.entries(templates)) {
+      // Stryker disable next-line ObjectLiteral: `'soft'` is already MJML's default validationLevel,
+      // so removing the options object selects the same level and collects the same errors — the
+      // explicit value documents intent without changing behaviour.
       const { html, errors } = mjml2html(template.mjml, { validationLevel: 'soft' })
       const firstError = errors[0]
       if (firstError) {
@@ -113,6 +116,9 @@ export class MjmlTemplateRenderer implements IEmailTemplateRenderer {
       this.compiled.set(key, {
         subject: template.subject,
         html,
+        // Stryker disable next-line ConditionalExpression: storing `text: undefined` for a
+        // text-less template is indistinguishable from omitting the key — the render path gates on
+        // `template.text !== undefined`, which is false either way, so no text body is ever emitted.
         ...(template.text !== undefined ? { text: template.text } : {}),
       })
     }

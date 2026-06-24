@@ -57,6 +57,9 @@ const DEFAULT_OTP_COOLDOWN_SECONDS = 60
  * @returns The masked recipient (first character + `***` + the domain).
  */
 export function maskRecipient(recipient: string): string {
+  // Stryker disable next-line Regex: the `^`/`$` anchors are redundant here — `String.replace`
+  // evaluates the pattern from the start and the greedy `.*` always extends to the end, so
+  // dropping either anchor produces the identical masked output for every address.
   return recipient.replace(/^(.).*(@.*)$/, '$1***$2')
 }
 

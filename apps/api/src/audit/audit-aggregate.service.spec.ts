@@ -42,6 +42,17 @@ function aggQuery(
   return tenantId === undefined ? query : { ...query, tenantId }
 }
 
+/** The flattened SQL text (literals joined) + bound values of the captured `Prisma.Sql`. */
+function sqlOf(call: unknown): { text: string; values: unknown[] } {
+  const sql = call as { strings: string[]; values: unknown[] }
+  return { text: sql.strings.join('?'), values: sql.values }
+}
+
+/** The epoch-millisecond timestamps among the bound values (the window bounds are Dates). */
+function boundDateMs(values: unknown[]): number[] {
+  return values.filter((v): v is Date => v instanceof Date).map((d) => d.getTime())
+}
+
 describe('AuditAggregateService.query', () => {
   let built: ReturnType<typeof build>
 
@@ -112,5 +123,97 @@ describe('AuditAggregateService.query', () => {
     /** With no window the service derives `now-1h`..`now` (covers the from/to default arms). */
     await built.service.query(aggQuery({ groupBy: 'verb' }))
     expect(built.queryRaw).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['1m', 'minute', '1 minute'],
+    ['5m', 'minute', '5 minutes'],
+    ['1h', 'hour', '1 hour'],
+  ])(
+    'binds the exact date_trunc unit + interval for the %s bucket',
+    async (bucket, unit, interval) => {
+      /**
+       * Scenario: each explicit bucket size.
+       * Contract: the `EXPLICIT_BUCKET` map binds the precise `date_trunc` unit and `generate_series`
+       * interval as query parameters — pinning the literal `'minute'`/`'5 minutes'`/… strings so a
+       * blanked bucket entry (which would zero-fill at the wrong granularity) is caught.
+       */
+      await built.service.query(aggQuery({ groupBy: 'verb', bucket }))
+
+      const { values } = sqlOf(built.queryRaw.mock.calls[0]?.[0])
+      expect(values).toContain(unit)
+      expect(values).toContain(interval)
+    },
+  )
+
+  it('binds the group-by column identifier for each dimension', async () => {
+    /**
+     * Scenario: each bounded group-by dimension.
+     * Contract: the hardcoded `DIMENSION_COLUMN` identifier is spliced into the SQL text (never a
+     * bound value), so `verb`/`channel`/`provider` select `"verb"`/`"channel"`/`"providerName"` —
+     * proving the allow-listed column name reaches the query rather than an empty identifier.
+     */
+    const cases: Array<[AuditAggregateQueryDto['groupBy'], string]> = [
+      ['verb', '"verb"'],
+      ['channel', '"channel"'],
+      ['provider', '"providerName"'],
+    ]
+    for (const [groupBy, column] of cases) {
+      const local = build([])
+      await local.service.query(aggQuery({ groupBy }))
+      expect(sqlOf(local.queryRaw.mock.calls[0]?.[0]).text).toContain(column)
+    }
+  })
+
+  it('derives the default window as exactly one hour before an explicit `to`', async () => {
+    /**
+     * Scenario: an explicit `to` with no `from` and an explicit bucket (so `resolveBucket` is not
+     * involved). Contract: `from` is bound as `to - 1h` — pinning the `60 * 60 * 1000` window math
+     * and its subtraction, so a widened/flipped window is rejected.
+     */
+    const to = new Date('2026-06-23T12:00:00.000Z')
+    await built.service.query(aggQuery({ groupBy: 'verb', bucket: '1h', to: to.toISOString() }))
+
+    const ms = boundDateMs(sqlOf(built.queryRaw.mock.calls[0]?.[0]).values)
+    expect(ms).toContain(to.getTime())
+    expect(ms).toContain(to.getTime() - 60 * 60 * 1000)
+  })
+
+  it('binds the interceptor source fragment with the reserved provider name', async () => {
+    /**
+     * Scenario: `source=interceptor` grouped by `verb` (so `providerName` can only come from the
+     * source facet). Contract: the SQL gains an `AND "providerName" = ?` fragment bound to the
+     * reserved `__interceptor__` name — proving the interceptor branch emits the equality filter.
+     */
+    await built.service.query(aggQuery({ groupBy: 'verb', source: 'interceptor' }))
+
+    const { text, values } = sqlOf(built.queryRaw.mock.calls[0]?.[0])
+    expect(text).toContain('"providerName" = ')
+    expect(values).toContain('__interceptor__')
+  })
+
+  it('binds the service source fragment as a not-equals on the reserved provider name', async () => {
+    /**
+     * Scenario: `source=service` grouped by `verb`.
+     * Contract: the SQL gains an `AND "providerName" <> ?` fragment bound to `__interceptor__` —
+     * the `<>` operator (not `=`) is what excludes the interceptor rows, so the equality-operator
+     * and the branch selection are both pinned.
+     */
+    await built.service.query(aggQuery({ groupBy: 'verb', source: 'service' }))
+
+    const { text, values } = sqlOf(built.queryRaw.mock.calls[0]?.[0])
+    expect(text).toContain('"providerName" <> ')
+    expect(values).toContain('__interceptor__')
+  })
+
+  it('emits no providerName predicate when no source facet is requested', async () => {
+    /**
+     * Scenario: a `verb` grouping with no `source`.
+     * Contract: `sourceSql` returns `Prisma.empty`, so the SQL references no `providerName` at all
+     * — proving neither source branch fires when the facet is absent.
+     */
+    await built.service.query(aggQuery({ groupBy: 'verb' }))
+
+    expect(sqlOf(built.queryRaw.mock.calls[0]?.[0]).text).not.toContain('providerName')
   })
 })

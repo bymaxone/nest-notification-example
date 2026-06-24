@@ -99,7 +99,14 @@ export function validateEnv(config: Record<string, unknown>): Env {
   const parsed = envSchema.safeParse(config)
   if (!parsed.success) {
     const issues = parsed.error.issues
-      .map((issue) => `  - ${issue.path.join('.') || '(root)'}: ${issue.message}`)
+      .map((issue) => {
+        // Stryker disable next-line StringLiteral: every issue this flat schema (+ its single-element
+        // superRefine paths) produces has a one-segment path, so the join separator is never applied
+        // — `'.'` and `''` yield the identical key, making the separator's value unobservable.
+        const joined = issue.path.join('.')
+        const path = joined || '(root)'
+        return `  - ${path}: ${issue.message}`
+      })
       .join('\n')
     throw new Error(`Invalid environment configuration:\n${issues}`)
   }

@@ -46,6 +46,27 @@ describe('ZodValidationPipe', () => {
     expect(typeof response.errors[0]?.message).toBe('string')
   })
 
+  it('dot-joins a nested issue path so the failing field is fully qualified', () => {
+    /**
+     * A nested schema failure must report the full path (`outer.inner`), proving the path
+     * segments are joined with a dot — a blanked separator would collapse them to `outerinner`.
+     */
+    const schema = z.object({ outer: z.object({ inner: z.string() }) })
+    const pipe = new ZodValidationPipe(schema)
+
+    let caught: unknown
+    try {
+      pipe.transform({ outer: { inner: 123 } })
+    } catch (error) {
+      caught = error
+    }
+
+    const response = (caught as BadRequestException).getResponse() as {
+      errors: Array<{ path: string; message: string }>
+    }
+    expect(response.errors[0]?.path).toBe('outer.inner')
+  })
+
   it('caps the reported issues at the documented maximum', () => {
     /**
      * A payload that violates many fields must not produce an unbounded error list;

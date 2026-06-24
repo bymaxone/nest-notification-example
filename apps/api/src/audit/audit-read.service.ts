@@ -95,6 +95,9 @@ export class AuditReadService {
       const parsed = JSON.parse(json) as { t: unknown; i: unknown }
       const timestamp = new Date(parsed.t as string)
       if (Number.isNaN(timestamp.getTime()) || typeof parsed.i !== 'string') {
+        // Stryker disable next-line StringLiteral: this Error is caught by the surrounding `catch`
+        // and rethrown as a `StaleCursorError`; its message is never surfaced to a caller, so the
+        // literal's value is not observable.
         throw new Error('bad cursor')
       }
       return { timestamp, id: parsed.i }

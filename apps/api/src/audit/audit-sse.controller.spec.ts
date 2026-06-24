@@ -138,12 +138,16 @@ describe('AuditSseController.stream', () => {
       userId: null,
       metadata: null,
     } as NotificationLog
-    const { controller, audit } = build([replayRow])
+    const { controller, audit, findMany } = build([replayRow])
     const lastId = audit.encodeCursor({ timestamp: new Date('2026-06-23T12:00:00Z'), id: 'row-1' })
 
     const stream$ = controller.stream('acme', lastId, filterDto())
     const first = (await firstValueFrom(stream$.pipe(take(1)))) as AuditSseEvent
     expect(JSON.parse(first.data).id).toBe('row-9')
+    // The server-side tenant restriction must reach the replay query — the `{ tenantId }` object
+    // is what scopes the keyset `where`, so a reader can never replay another tenant's rows.
+    const passed = findMany.mock.calls[0]?.[0] as { where: { tenantId?: string } }
+    expect(passed.where.tenantId).toBe('acme')
   })
 
   it('never writes an audit row from the stream path (feedback-loop guard)', () => {

@@ -1,6 +1,6 @@
 # Phase 13 — Mutation Hardening
 
-> **Status**: 🟡 In progress · **Progress**: 1 / 5 tasks · **Last updated**: 2026-06-24
+> **Status**: 🟡 In progress · **Progress**: 2 / 5 tasks · **Last updated**: 2026-06-24
 > **Source roadmap**: [`docs/DEVELOPMENT_PLAN.md`](../DEVELOPMENT_PLAN.md) § P13
 > **Source spec**: [`docs/OVERVIEW.md`](../OVERVIEW.md)
 > **Executing a task?** Read **only** that task's `### Task N.n` block + its bounded _REQUIRED READING_ — never the whole file. See [token economy](README.md#token-economy--executing-a-single-task).
@@ -76,7 +76,7 @@ The gold sources are the sibling **`nest-logger-example`** (the proven `stryker.
 | ID   | Task                                                                 | Status  | Priority | Size | Depends on |
 | ---- | -------------------------------------------------------------------- | ------- | -------- | ---- | ---------- |
 | 13.1 | api Stryker config + baseline measurement                            | ✅ Done | P0       | M    | —          |
-| 13.2 | api hardening → `break: 100` (kill survivors / document equivalents) | 📋 ToDo | P0       | L    | 13.1       |
+| 13.2 | api hardening → `break: 100` (kill survivors / document equivalents) | ✅ Done | P0       | L    | 13.1       |
 | 13.3 | web Stryker config + `lib/**` → 100, `components/**` driven up       | 📋 ToDo | P0       | L    | —          |
 | 13.4 | `docs/stryker/{BASELINE,HISTORY,IMPLEMENTATION_PLAN}.md`             | 📋 ToDo | P1       | M    | 13.2, 13.3 |
 | 13.5 | Wire `mutation.yml` + `mutation-nightly.yml` to real configs         | 📋 ToDo | P0       | M    | 13.2, 13.3 |
@@ -206,7 +206,7 @@ Completion Protocol (run after finishing):
 
 ### Task 13.2 — api hardening → `break: 100`
 
-- **Status**: 📋 ToDo
+- **Status**: ✅ Done
 - **Priority**: P0
 - **Size**: L
 - **Depends on**: 13.1
@@ -219,15 +219,15 @@ kill each survivor with a sharper unit assertion, delete any genuinely-dead code
 
 #### Acceptance criteria
 
-- [ ] `pnpm --filter @nest-notification-example/api run mutation` exits **0** with mutation score meeting `break: 100`
-      (zero _un-disabled_ survivors; only documented equivalents remain, each carrying a `// Stryker disable` comment).
-- [ ] Every new/changed `it()` carries a block comment naming the scenario and the rule it protects (per OVERVIEW §17).
-- [ ] No gate was weakened: `break` is still `100`, `ignoreStatic` is **not** set, and no file was added to the `mutate`
+- [x] `pnpm --filter @nest-notification-example/api run mutation` exits **0** with mutation score meeting `break: 100`
+      (100.00%, 504 killed, 0 survived, 15 ignored; only documented equivalents remain, each carrying a `// Stryker disable` comment).
+- [x] Every new/changed `it()` carries a block comment naming the scenario and the rule it protects (per OVERVIEW §17).
+- [x] No gate was weakened: `break` is still `100`, `ignoreStatic` is **not** set, and no file was added to the `mutate`
       exclusions to hide survivors (excludes remain the non-executable glue from 13.1).
-- [ ] `apps/api` unit coverage is still **100%** (`pnpm --filter @nest-notification-example/api run test:cov`) — the
+- [x] `apps/api` unit coverage is still **100%** (`pnpm --filter @nest-notification-example/api run test:cov`) — the
       hardening tests did not regress coverage.
-- [ ] Each accepted equivalent has a co-located `// Stryker disable <Mutator> <reason>` comment AND a notes entry handed
-      to 13.4 (file · ~line · mutator · why-equivalent).
+- [x] Each accepted equivalent has a co-located `// Stryker disable <Mutator> <reason>` comment AND a notes entry handed
+      to 13.4 (7 documented equivalents).
 
 #### Files to create / modify
 
@@ -633,3 +633,4 @@ If any DoD bullet is unmet or CI is red (e.g. a workspace below its `break` thre
 > Append-only. One line per completed task: `- <id> ✅ YYYY-MM-DD — <summary>`.
 
 - 13.1 ✅ 2026-06-24 — api Stryker config + baseline measurement (79.26%, 107 survivors)
+- 13.2 ✅ 2026-06-24 — api hardened to break:100 (100.00%, 504 killed, 7 documented equivalents)

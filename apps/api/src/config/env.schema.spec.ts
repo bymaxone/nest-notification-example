@@ -176,4 +176,59 @@ describe('validateEnv', () => {
       expect(env.WEB_ORIGIN).toBe('https://example.com')
     })
   })
+
+  describe('field constraints and accepted values', () => {
+    it('accepts each explicit NODE_ENV enum value', () => {
+      // Passing the enum member explicitly proves it is a member (a blanked enum entry would
+      // reject the very value it should accept), not just reachable via the default.
+      expect(validateEnv({ ...MINIMAL_VALID_ENV, NODE_ENV: 'development' }).NODE_ENV).toBe(
+        'development',
+      )
+      expect(validateEnv({ ...MINIMAL_VALID_ENV, NODE_ENV: 'test' }).NODE_ENV).toBe('test')
+    })
+
+    it('accepts a multi-character RESEND_API_KEY (min length, not max)', () => {
+      // The key constraint is a MINIMUM length: a realistic multi-character key must pass (a
+      // `.max(1)` mutant would reject anything longer than one character).
+      expect(
+        validateEnv({ ...MINIMAL_VALID_ENV, RESEND_API_KEY: 're_live_abc123' }).RESEND_API_KEY,
+      ).toBe('re_live_abc123')
+    })
+
+    it('accepts a full MAIL_FROM address (min length, not max)', () => {
+      // MAIL_FROM is bounded below by one character; a full address must be accepted verbatim.
+      expect(validateEnv({ ...MINIMAL_VALID_ENV, MAIL_FROM: 'sender@example.com' }).MAIL_FROM).toBe(
+        'sender@example.com',
+      )
+    })
+
+    it('accepts a region-qualified DEFAULT_LOCALE (min length two, not max)', () => {
+      // DEFAULT_LOCALE requires at least two characters; a `pt-BR`-style tag longer than two must
+      // pass (a `.max(2)` mutant would reject it).
+      expect(validateEnv({ ...MINIMAL_VALID_ENV, DEFAULT_LOCALE: 'en-US' }).DEFAULT_LOCALE).toBe(
+        'en-US',
+      )
+    })
+  })
+
+  describe('aggregated error message formatting', () => {
+    it('formats each issue as "  - <key>: <message>"', () => {
+      // The aggregated message indents every offending key with a "  - " bullet and a ": "
+      // separator so a misconfiguration is human-readable; the literal framing is pinned here.
+      expect(() => validateEnv({ DATABASE_URL: 'not-a-url' })).toThrow(/ {2}- DATABASE_URL: /)
+    })
+
+    it('puts each offending key on its own newline-separated line', () => {
+      // Two invalid vars must produce two distinct "  - " lines joined by a newline, not one
+      // run-together line — proving the issue list is `\n`-joined.
+      let message = ''
+      try {
+        validateEnv({ DATABASE_URL: 'not-a-url', PORT: 'not-a-number' })
+      } catch (error) {
+        message = (error as Error).message
+      }
+      const bulletLines = message.split('\n').filter((line) => line.startsWith('  - '))
+      expect(bulletLines.length).toBeGreaterThanOrEqual(2)
+    })
+  })
 })

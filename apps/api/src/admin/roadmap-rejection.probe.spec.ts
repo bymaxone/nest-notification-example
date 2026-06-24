@@ -8,8 +8,8 @@
  */
 import 'reflect-metadata'
 import { describe, expect, it } from '@jest/globals'
-import { Module } from '@nestjs/common'
-import type { DynamicModule } from '@nestjs/common'
+import { Injectable, Module } from '@nestjs/common'
+import type { DynamicModule, OnModuleDestroy } from '@nestjs/common'
 import { BymaxNotificationModule } from '@bymax-one/nest-notification'
 import type { SmsChannelOptions } from '@bymax-one/nest-notification'
 
@@ -46,6 +46,52 @@ describe('attemptConfigure', () => {
       errorName: '',
       errorMessage: '',
     })
+  })
+
+  it('closes the throwaway container after the probe so it does not leak', async () => {
+    /**
+     * Scenario: a successful (non-rejecting) probe whose module owns a destroy-tracking provider.
+     * Contract: the `finally` block tears the throwaway container down — the provider's
+     * `onModuleDestroy` fires, proving `moduleRef.close()` ran rather than being skipped.
+     */
+    let destroyed = false
+
+    @Injectable()
+    class DestroyTracker implements OnModuleDestroy {
+      onModuleDestroy(): void {
+        destroyed = true
+      }
+    }
+
+    const tracked: DynamicModule = { module: StubModule, providers: [DestroyTracker] }
+    await attemptConfigure('push', () => tracked)
+
+    expect(destroyed).toBe(true)
+  })
+
+  it('imports the built module so an init failure surfaces as a rejection', async () => {
+    /**
+     * Scenario: a module whose provider factory throws while the container initializes.
+     * Contract: the probe actually imports the supplied module, so the init failure is captured as
+     * `rejected: true` — an empty imports list would compile a bare host module and wrongly report
+     * `rejected: false`.
+     */
+    const failing: DynamicModule = {
+      module: StubModule,
+      providers: [
+        {
+          provide: 'BOOM',
+          useFactory: (): never => {
+            throw new Error('provider init failed')
+          },
+        },
+      ],
+    }
+
+    const result = await attemptConfigure('async-useclass', () => failing)
+
+    expect(result.rejected).toBe(true)
+    expect(result.errorMessage).toContain('provider init failed')
   })
 
   it('returns rejected: true with a coerced message when a non-Error value is thrown', async () => {

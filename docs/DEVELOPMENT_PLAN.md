@@ -75,7 +75,7 @@ structural template, reconciled with the current vault standard.
 | P10 | OTP & Providers Panels                       | `phase-10-otp-providers-panels.md`  | ✅     | 6 / 6    | L    | 2026-06-23   |
 | P11 | Optional Auth Seam (nest-auth)               | `phase-11-auth-seam.md`             | ✅     | 3 / 3    | M    | 2026-06-23   |
 | P12 | Testing & 100% Coverage                      | `phase-12-testing.md`               | ✅     | 6 / 6    | L    | 2026-06-24   |
-| P13 | Mutation Hardening                           | `phase-13-mutation.md`              | 🟡     | 1 / 5    | L    | 2026-06-24   |
+| P13 | Mutation Hardening                           | `phase-13-mutation.md`              | 🟡     | 2 / 5    | L    | 2026-06-24   |
 | P14 | Docs, Public-Readiness & Release             | `phase-14-docs-release.md`          | 📋     | 0 / 7    | L    | —            |
 
 ---

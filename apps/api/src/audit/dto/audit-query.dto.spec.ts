@@ -74,7 +74,6 @@ describe('resolveBucket', () => {
   it('buckets a <=6h window by the minute', () => {
     /** A short window renders minute-resolution points. */
     expect(resolveBucket('2026-06-23T00:00:00Z', '2026-06-23T02:00:00Z')).toEqual({
-      unit: 'minute',
       interval: '1 minute',
     })
   })
@@ -82,7 +81,6 @@ describe('resolveBucket', () => {
   it('buckets a <=24h window by 5 minutes', () => {
     /** A day-scale window steps every 5 minutes to bound the point count. */
     expect(resolveBucket('2026-06-23T00:00:00Z', '2026-06-23T20:00:00Z')).toEqual({
-      unit: 'minute',
       interval: '5 minutes',
     })
   })
@@ -90,13 +88,12 @@ describe('resolveBucket', () => {
   it('buckets a >24h window by the hour', () => {
     /** A multi-day window collapses to hourly buckets. */
     expect(resolveBucket('2026-06-20T00:00:00Z', '2026-06-23T00:00:00Z')).toEqual({
-      unit: 'hour',
       interval: '1 hour',
     })
   })
 
   it('defaults to a now-1h..now window when both bounds are omitted', () => {
     /** With no explicit window the default hour falls into the minute bucket. */
-    expect(resolveBucket(undefined, undefined)).toEqual({ unit: 'minute', interval: '1 minute' })
+    expect(resolveBucket(undefined, undefined)).toEqual({ interval: '1 minute' })
   })
 })

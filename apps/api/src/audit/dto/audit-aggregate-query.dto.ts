@@ -5,7 +5,7 @@
  * Validates the query params for `GET /audit/aggregate`. The `groupBy` allow-list is bounded
  * to the three Overview-chart dimensions (`verb`/`channel`/`provider`) so a caller can never
  * group by a high-cardinality column (`recipient`, `cursor`, `id`). `resolveBucket` maps the
- * query window to a `date_trunc` unit + `generate_series` interval when `bucket === 'auto'`.
+ * query window to a `date_bin` / `generate_series` interval when `bucket === 'auto'`.
  *
  * @module
  */
@@ -20,27 +20,27 @@ export const AGGREGATE_GROUP_BY_ALLOW_LIST = ['verb', 'channel', 'provider'] as 
 export const BUCKET_SIZES = ['auto', '1m', '5m', '1h'] as const
 
 /**
- * Resolve an `auto` bucket to a PostgreSQL `date_trunc` unit and a `generate_series` interval.
+ * Resolve an `auto` bucket to a PostgreSQL `date_bin` / `generate_series` interval.
  *
- * `unit` is passed verbatim to `date_trunc(unit, "timestamp")`, so it must be a single-word
- * PostgreSQL time identifier (`minute`/`hour`); `interval` drives the zero-fill step. Short
- * windows bucket by the minute, day-scale windows by 5 minutes, longer ones by the hour — so
- * a chart never renders thousands of points.
+ * `interval` is a PostgreSQL interval literal (`1 minute`/`5 minutes`/`1 hour`) that drives both
+ * the `date_bin` bucket width and the zero-fill step. Short windows bucket by the minute,
+ * day-scale windows by 5 minutes, longer ones by the hour — so a chart never renders thousands
+ * of points.
  *
  * @param from - Window start ISO string (or `undefined` for `now-1h`).
  * @param to - Window end ISO string (or `undefined` for `now`).
- * @returns `{ unit, interval }` for use in the aggregate raw SQL.
+ * @returns `{ interval }` for use in the aggregate raw SQL.
  */
 export function resolveBucket(
   from: string | undefined,
   to: string | undefined,
-): { unit: string; interval: string } {
+): { interval: string } {
   const end = to ? new Date(to) : new Date()
   const start = from ? new Date(from) : new Date(end.getTime() - 60 * 60 * 1000)
   const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
-  if (hours <= 6) return { unit: 'minute', interval: '1 minute' }
-  if (hours <= 24) return { unit: 'minute', interval: '5 minutes' }
-  return { unit: 'hour', interval: '1 hour' }
+  if (hours <= 6) return { interval: '1 minute' }
+  if (hours <= 24) return { interval: '5 minutes' }
+  return { interval: '1 hour' }
 }
 
 /**

@@ -131,6 +131,8 @@ describe('DeliveryRateLine', () => {
     expect(propsOf('XAxis').dataKey).toBe('time')
     expect(propsOf('XAxis').tick).toEqual({ fontSize: 10, fill: 'rgba(255,255,255,0.4)' })
     expect(propsOf('YAxis').tick).toEqual({ fontSize: 10, fill: 'rgba(255,255,255,0.4)' })
-    expect(propsOf('LineChart').margin).toEqual({ top: 8, right: 12, bottom: 0, left: -16 })
+    // The Y axis carries an 'events' unit label (each point is a count of delivery events).
+    expect(propsOf('YAxis').label).toMatchObject({ value: 'events', angle: -90 })
+    expect(propsOf('LineChart').margin).toEqual({ top: 8, right: 12, bottom: 0, left: 0 })
   })
 })

@@ -126,25 +126,38 @@ describe('AuditAggregateService.query', () => {
   })
 
   it.each([
-    ['1m', 'minute', '1 minute'],
-    ['5m', 'minute', '5 minutes'],
-    ['1h', 'hour', '1 hour'],
-  ])(
-    'binds the exact date_trunc unit + interval for the %s bucket',
-    async (bucket, unit, interval) => {
-      /**
-       * Scenario: each explicit bucket size.
-       * Contract: the `EXPLICIT_BUCKET` map binds the precise `date_trunc` unit and `generate_series`
-       * interval as query parameters — pinning the literal `'minute'`/`'5 minutes'`/… strings so a
-       * blanked bucket entry (which would zero-fill at the wrong granularity) is caught.
-       */
-      await built.service.query(aggQuery({ groupBy: 'verb', bucket }))
+    ['1m', '1 minute'],
+    ['5m', '5 minutes'],
+    ['1h', '1 hour'],
+  ])('binds the exact date_bin interval for the %s bucket', async (bucket, interval) => {
+    /**
+     * Scenario: each explicit bucket size.
+     * Contract: the `EXPLICIT_BUCKET` map binds the precise `date_bin` / `generate_series` interval
+     * as a query parameter — pinning the literal `'1 minute'`/`'5 minutes'`/… strings so a blanked
+     * bucket entry (which would zero-fill at the wrong granularity) is caught.
+     */
+    await built.service.query(aggQuery({ groupBy: 'verb', bucket }))
 
-      const { values } = sqlOf(built.queryRaw.mock.calls[0]?.[0])
-      expect(values).toContain(unit)
-      expect(values).toContain(interval)
-    },
-  )
+    const { values } = sqlOf(built.queryRaw.mock.calls[0]?.[0])
+    expect(values).toContain(interval)
+  })
+
+  it('seeds the zero-fill series from a date_bin of the window start, not the raw bound', async () => {
+    /**
+     * Scenario: any aggregate query.
+     * Contract: the `generate_series` first argument is `date_bin(...)`, so the series keys land on
+     * the same aligned grid as the `date_bin` count buckets. A series seeded at the raw, sub-bucket
+     * `from` (e.g. `now - 1h` carrying a sub-minute offset) would step off-grid and never join the
+     * boundary-aligned count buckets — zero-filling every bucket to 0. This pins the alignment so
+     * that regression cannot return.
+     */
+    await built.service.query(aggQuery({ groupBy: 'verb' }))
+
+    const { text } = sqlOf(built.queryRaw.mock.calls[0]?.[0])
+    // Both the series seed and the count bucket must derive from date_bin (never date_trunc).
+    expect(text).toMatch(/generate_series\(\s*date_bin\(/)
+    expect(text).not.toContain('date_trunc')
+  })
 
   it('binds the group-by column identifier for each dimension', async () => {
     /**

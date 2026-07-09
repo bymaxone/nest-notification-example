@@ -1,334 +1,67 @@
+# CI — thin caller of the org-wide reusable pipeline (bymaxone/.github).
+#
+# The generic pipeline (lint, typecheck, format, unit+coverage, API e2e,
+# web-build, export audit, mutation) lives in bymaxone/.github so every repo
+# shares one definition. The live Playwright web smoke boots this app's test
+# stack (Postgres/Redis/Mailpit via docker-compose.test.yml), so it stays here.
+# Mutation runs only on a push to main / manual dispatch, never on PRs or a schedule.
 name: CI
 
 on:
   push:
-    branches: [main, next]
+    branches: [main]
   pull_request:
-    branches: [main, next]
+    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Least privilege by default; no job in this workflow needs to write.
 permissions:
   contents: read
 
-env:
-  # Placeholder required by `prisma generate` (postinstall) once apps/api exists.
-  # No job in this workflow connects to a real database.
-  DATABASE_URL: postgresql://ci_runner@localhost/ci_placeholder
-
 jobs:
-  install:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
+  ci:
+    uses: bymaxone/.github/.github/workflows/node-ci.yml@v1
+    with:
+      library-repo: bymaxone/nest-notification
+      has-web: true
+      run-export-audit: true
+      run-mutation: true
+      run-e2e-web: false # live Playwright stack kept below
+      e2e-api-command: pnpm --filter @nest-notification-example/api test:e2e
+      # A placeholder is enough for the in-process API unit/e2e suites (they mock
+      # the store/transport); the live web e2e uses the compose stack's real DB.
+      database-url: postgresql://ci_runner@localhost/ci_placeholder
+      mutation-source-globs: '^(apps/api/src/|apps/web/lib/|apps/web/components/)'
 
-  lint:
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm format:check
-
-  typecheck:
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-
-  unit:
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
-      # Run each workspace's coverage as a SEPARATE sequential step with a bounded heap: the
-      # `file:` library is reloaded into every worker, so the two apps must never run at once.
-      # The heap cap lives in the api `test:cov` script's own NODE_OPTIONS (alongside
-      # --experimental-vm-modules) so it is actually enforced — a step-level env here would be
-      # overwritten by the script's inline NODE_OPTIONS rather than merged.
-      - name: API unit coverage
-        run: pnpm --filter @nest-notification-example/api test:cov
-      - name: Web unit coverage
-        run: pnpm --filter web test:cov
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
-      - name: Upload API coverage
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: coverage-unit-api
-          path: apps/api/coverage/
-          retention-days: 7
-          if-no-files-found: ignore
-      - name: Upload web coverage
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: coverage-unit-web
-          path: apps/web/coverage/
-          retention-days: 7
-          if-no-files-found: ignore
-
-  e2e-api:
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
-      # Scope to the API workspace so the web Vitest suite does not also run here. The e2e suite
-      # boots in-process against an in-memory OTP store + a mocked transport — no live stack.
-      # Heap cap is set inside the api `test:e2e` script's own NODE_OPTIONS (a step-level env
-      # would be overwritten by the script's inline NODE_OPTIONS, not merged).
-      - name: API e2e
-        run: pnpm --filter @nest-notification-example/api test:e2e
-
-  build-web:
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
-      - name: Build web app
-        run: pnpm --filter web build
-
+  # App-specific web smoke: the Playwright config brings up docker-compose.test.yml
+  # (Postgres/Redis/Mailpit), migrates + seeds the DB, starts the API + web, then
+  # walks the live journeys in one Chromium; E2E_TEARDOWN tears the stack down after.
   e2e-web:
-    needs: [e2e-api, build-web]
+    name: E2E — Web (Playwright)
+    needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      DATABASE_URL: postgresql://ci_runner@localhost/ci_placeholder
+      E2E_TEARDOWN: '1'
+      E2E_KILL_STALE: '1'
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: bymaxone/.github/.github/actions/setup-node-pnpm@v1
         with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
+          library-repo: bymaxone/nest-notification
       - name: Install Playwright browsers
         run: pnpm --filter web exec playwright install --with-deps chromium
-      # Live journeys: the Playwright config brings up the dedicated test stack
-      # (docker-compose.test.yml — Postgres/Redis/Mailpit), migrates + seeds the test database,
-      # then starts the API + web; `E2E_TEARDOWN=1` tears the stack down after this one-shot run.
       - name: Web e2e (live journeys against the test stack)
         run: pnpm --filter web test:e2e
-        env:
-          E2E_TEARDOWN: '1'
-          # The runner's e2e ports are free, so this never triggers; set so that if a port were
-          # ever held by a non-healthy process the prep frees it instead of aborting the run.
-          E2E_KILL_STALE: '1'
 
-  export-usage-check:
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 11.8.0
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
-        with:
-          node-version: '24'
-          cache: pnpm
-      - name: Build the pre-publish sibling library
-        run: |
-          # Shallow single-commit fetch of the pinned SHA — GitHub allows fetching a
-          # reachable commit by SHA, so this avoids cloning the library's full history.
-          git init -q ../nest-notification
-          git -C ../nest-notification remote add origin https://github.com/bymaxone/nest-notification.git
-          git -C ../nest-notification fetch -q --depth 1 origin 3e615c9b5077c4c8d66e3c856678ec2c882d8965 # pinned SHA
-          git -C ../nest-notification checkout -q FETCH_HEAD
-          pnpm -C ../nest-notification install --frozen-lockfile
-          pnpm -C ../nest-notification build
-      - run: pnpm install --frozen-lockfile
-      - name: Audit library export usage
-        run: pnpm audit:exports
-      - name: Audit error-code localization
-        run: pnpm audit:error-codes
-
-  dependency-review:
-    # Dependency review needs the Dependency graph + GitHub Advanced Security, which are
-    # unavailable on a private repository; gate it to public so it runs and gates pull
-    # requests once the repo is published.
+  security:
+    # Dependency review needs the dependency graph (public repos, or private + GHAS).
+    # Gated on visibility so it starts running automatically once this repo is public.
     if: github.event_name == 'pull_request' && github.event.repository.visibility == 'public'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4
-        with:
-          fail-on-severity: high
-
-  coverage-report:
-    needs: [unit, e2e-api, e2e-web]
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Download API coverage
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: coverage-unit-api
-          path: coverage/api
-        continue-on-error: true
-      - name: Download web coverage
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: coverage-unit-web
-          path: coverage/web
-        continue-on-error: true
-      - name: Fail if any metric is below 100%
-        run: |
-          fail=0
-          for app in api web; do
-            f="coverage/$app/coverage-summary.json"
-            if [ ! -f "$f" ]; then
-              echo "::error::Missing coverage summary $f (the unit job did not produce it)"
-              fail=1
-              continue
-            fi
-            for metric in statements branches functions lines; do
-              pct=$(jq -r ".total.${metric}.pct" "$f")
-              if [ "$pct" != "100" ]; then
-                echo "::error::${app} ${metric} coverage is ${pct}% (expected 100%)"
-                fail=1
-              else
-                echo "${app} ${metric}: 100%"
-              fi
-            done
-          done
-          [ "$fail" = "0" ]
-      - name: Upload combined coverage
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: coverage-combined
-          path: coverage/
-          retention-days: 30
-          if-no-files-found: ignore
+    uses: bymaxone/.github/.github/workflows/security.yml@v1
+    with:
+      fail-on-severity: high

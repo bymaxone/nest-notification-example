@@ -41,6 +41,14 @@ const TOOLTIP_STYLE = {
 /** Chart pixel height. */
 const CHART_HEIGHT = 220
 
+/** Y-axis unit label — each point is a count of delivery events in that time bucket. */
+const Y_AXIS_LABEL = {
+  value: 'events',
+  angle: -90,
+  position: 'insideLeft',
+  style: { fontSize: 10, fill: 'rgba(255,255,255,0.4)', textAnchor: 'middle' },
+} as const
+
 interface DeliveryRateLineProps {
   /** The active filter driving the series. */
   query: AuditQuery
@@ -91,10 +99,14 @@ export function DeliveryRateLine({ query }: DeliveryRateLineProps) {
   return (
     <ChartCard title="Delivery rate" legend={<ChartLegend items={DELIVERY_SERIES} />}>
       <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-        <LineChart data={points} margin={{ top: 8, right: 12, bottom: 0, left: -16 }}>
+        <LineChart data={points} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
           <XAxis dataKey="time" tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} />
-          <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }} />
+          <YAxis
+            allowDecimals={false}
+            tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.4)' }}
+            label={Y_AXIS_LABEL}
+          />
           <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Line
             type="monotone"

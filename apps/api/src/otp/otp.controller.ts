@@ -14,6 +14,7 @@
  * @module
  */
 import { Body, Controller, Get, HttpCode, Post, Query, Res } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import {
   OtpService,
   type OtpGenerateInput,
@@ -23,6 +24,7 @@ import {
 import type { Response } from 'express'
 
 import { TenantId } from '../common/tenant-id.decorator.js'
+import type { Env } from '../config/env.schema.js'
 import {
   type OtpGenerateDto,
   otpConsumeSchema,
@@ -34,22 +36,42 @@ import {
 import { mapOtpVerifyResult } from './otp-verify-mapping.js'
 
 /**
- * Builds an `OtpGenerateInput` from the trusted tenant + parsed DTO, including each
- * optional field ONLY when it was supplied — keeping the spread `exactOptionalProperty
- * Types`-safe (the input's optionals do not admit an explicit `undefined`).
+ * Fallback application name when `MAIL_FROM_NAME` is unset or blank — keeps a rendered OTP
+ * email's `{{appName}}` non-empty so the subject never collapses to `Your  verification code`.
+ */
+const DEFAULT_APP_NAME = 'Bymax'
+
+/**
+ * Builds an `OtpGenerateInput` from the trusted tenant + parsed DTO. The `deliverVia`,
+ * `emailTemplate`, and `locale` optionals are spread ONLY when supplied — keeping the spread
+ * `exactOptionalPropertyTypes`-safe (those optionals do not admit an explicit `undefined`).
+ * `emailData` is ALWAYS set: the presentation defaults below are merged under any caller
+ * `emailData`, so — unlike the other optionals — this field is never conditional.
+ *
+ * The OTP email template references `{{appName}}`/`{{name}}`, but the library auto-injects
+ * only `{ code, expiresInMinutes, purpose }`. Without presentation defaults the delivered
+ * email would render `Hi , your verification code` under an empty-variable subject, so a
+ * default `appName` (the sender display name) and a `name` derived from the recipient are
+ * merged UNDER any caller-supplied `emailData` — the caller always wins.
  *
  * @param tenantId - The trusted tenant id.
  * @param dto - The parsed generate/resend body.
+ * @param appName - The application name used to fill `{{appName}}`.
  * @returns The service input for `generate` / `resend`.
  */
-function toGenerateInput(tenantId: string, dto: OtpGenerateDto): OtpGenerateInput {
+function toGenerateInput(tenantId: string, dto: OtpGenerateDto, appName: string): OtpGenerateInput {
+  // The recipient is a Zod-validated email, so stripping `@…` always yields a non-empty local
+  // part; `String.replace` returns a string (never `undefined`), keeping this branch-free.
+  // Stryker disable next-line Regex: the trailing `$` is redundant — the greedy `.*` always reaches
+  // the end, so dropping the anchor strips the identical `@…` suffix for every address.
+  const name = dto.recipient.replace(/@.*$/, '')
   return {
     tenantId,
     recipient: dto.recipient,
     purpose: dto.purpose,
     ...(dto.deliverVia !== undefined ? { deliverVia: dto.deliverVia } : {}),
     ...(dto.emailTemplate !== undefined ? { emailTemplate: dto.emailTemplate } : {}),
-    ...(dto.emailData !== undefined ? { emailData: dto.emailData } : {}),
+    emailData: { appName, name, ...(dto.emailData ?? {}) },
     ...(dto.locale !== undefined ? { locale: dto.locale } : {}),
   }
 }
@@ -57,7 +79,23 @@ function toGenerateInput(tenantId: string, dto: OtpGenerateDto): OtpGenerateInpu
 /** REST controller exposing the full OTP lifecycle over HTTP. */
 @Controller('otp')
 export class OtpController {
-  constructor(private readonly otp: OtpService) {}
+  constructor(
+    private readonly otp: OtpService,
+    private readonly config: ConfigService<Env, true>,
+  ) {}
+
+  /**
+   * The application name that fills the OTP email's `{{appName}}` — the configured sender
+   * display name (`MAIL_FROM_NAME`), or {@link DEFAULT_APP_NAME} when it is unset or blank.
+   * A blank/whitespace-only value is treated as unset (it is trimmed and length-checked, not
+   * merely null-checked), so `{{appName}}` never renders empty.
+   *
+   * @returns The non-empty application name.
+   */
+  private appName(): string {
+    const configured = this.config.get('MAIL_FROM_NAME', { infer: true })?.trim()
+    return configured !== undefined && configured.length > 0 ? configured : DEFAULT_APP_NAME
+  }
 
   /**
    * Generate and (optionally) deliver an OTP.
@@ -68,7 +106,9 @@ export class OtpController {
    */
   @Post('generate')
   generate(@TenantId() tenantId: string, @Body() body: unknown): Promise<OtpGenerateResult> {
-    return this.otp.generate(toGenerateInput(tenantId, otpGenerateSchema.parse(body)))
+    return this.otp.generate(
+      toGenerateInput(tenantId, otpGenerateSchema.parse(body), this.appName()),
+    )
   }
 
   /**
@@ -80,7 +120,7 @@ export class OtpController {
    */
   @Post('resend')
   resend(@TenantId() tenantId: string, @Body() body: unknown): Promise<OtpGenerateResult> {
-    return this.otp.resend(toGenerateInput(tenantId, otpResendSchema.parse(body)))
+    return this.otp.resend(toGenerateInput(tenantId, otpResendSchema.parse(body), this.appName()))
   }
 
   /**

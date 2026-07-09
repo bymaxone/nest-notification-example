@@ -8,8 +8,10 @@
  * both produce the right service input (exactOptionalPropertyTypes-safe builder).
  */
 import { describe, expect, it, jest, beforeEach } from '@jest/globals'
+import type { ConfigService } from '@nestjs/config'
 import type { Response } from 'express'
 
+import type { Env } from '../config/env.schema.js'
 import { OtpController } from './otp.controller.js'
 import type { OtpService } from '@bymax-one/nest-notification'
 
@@ -22,8 +24,16 @@ interface MockOtpService {
   getStatus: ReturnType<typeof jest.fn>
 }
 
-/** Build an `OtpController` backed by a mock `OtpService`. */
-function buildController(): { controller: OtpController; service: MockOtpService } {
+/**
+ * Build an `OtpController` backed by a mock `OtpService`.
+ *
+ * @param appName - The value `ConfigService.get('MAIL_FROM_NAME')` returns; `undefined` (the
+ *   default) exercises the controller's `DEFAULT_APP_NAME` ('Bymax') fallback.
+ */
+function buildController(appName: string | undefined = undefined): {
+  controller: OtpController
+  service: MockOtpService
+} {
   const service: MockOtpService = {
     generate: jest.fn(),
     resend: jest.fn(),
@@ -31,7 +41,8 @@ function buildController(): { controller: OtpController; service: MockOtpService
     consume: jest.fn(),
     getStatus: jest.fn(),
   }
-  const controller = new OtpController(service as unknown as OtpService)
+  const config = { get: jest.fn(() => appName) } as unknown as ConfigService<Env, true>
+  const controller = new OtpController(service as unknown as OtpService, config)
   return { controller, service }
 }
 
@@ -54,8 +65,9 @@ describe('OtpController.generate / resend', () => {
   it('forwards every supplied optional field to OtpService.generate', async () => {
     /**
      * Scenario: a full generate body with all optionals set.
-     * Contract: the controller adds the trusted tenant and forwards each optional —
-     * covers the "present" arm of every exactOptional-safe conditional spread.
+     * Contract: the controller adds the trusted tenant and forwards each optional — covers the
+     * "present" arm of every exactOptional-safe conditional spread. Caller-supplied `emailData`
+     * wins over the injected presentation defaults (the explicit `name: 'Jane'` survives).
      */
     ctx.service.generate.mockReturnValue(Promise.resolve({ expiresAt: 10, cooldownSeconds: 60 }))
 
@@ -74,17 +86,19 @@ describe('OtpController.generate / resend', () => {
       purpose: 'login',
       deliverVia: 'manual',
       emailTemplate: 'otp_code',
-      emailData: { name: 'Jane' },
+      emailData: { appName: 'Bymax', name: 'Jane' },
       locale: 'pt-BR',
     })
     expect(result).toEqual({ expiresAt: 10, cooldownSeconds: 60 })
   })
 
-  it('omits absent optionals so the input stays exactOptional-safe', async () => {
+  it('injects presentation defaults so a delivered OTP email never renders empty variables', async () => {
     /**
      * Scenario: a minimal generate body (only recipient + purpose).
-     * Contract: no optional keys are added — covers the "absent" arm of every spread, so
-     * the service never receives an explicit `key: undefined`.
+     * Contract: no other optional keys are added (the "absent" arm of every conditional spread),
+     * but `emailData` always carries a non-empty `appName` (the fallback) and a `name` derived
+     * from the recipient local-part — so the OTP email subject/body never collapse to
+     * `Your  verification code` / `Hi , …`.
      */
     ctx.service.generate.mockReturnValue(Promise.resolve({ expiresAt: 1, cooldownSeconds: 60 }))
 
@@ -94,6 +108,50 @@ describe('OtpController.generate / resend', () => {
       tenantId: TENANT,
       recipient: 'jane@acme.com',
       purpose: 'login',
+      emailData: { appName: 'Bymax', name: 'jane' },
+    })
+  })
+
+  it('fills {{appName}} from the configured MAIL_FROM_NAME when set', async () => {
+    /**
+     * Scenario: MAIL_FROM_NAME is configured (the sender display name).
+     * Contract: `appName()` returns the configured value rather than the DEFAULT_APP_NAME
+     * fallback, so the OTP email carries the real product name — covers the non-fallback arm.
+     */
+    const ctxWithName = buildController('Acme Notifications')
+    ctxWithName.service.generate.mockReturnValue(
+      Promise.resolve({ expiresAt: 3, cooldownSeconds: 60 }),
+    )
+
+    await ctxWithName.controller.generate(TENANT, { recipient: 'jane@acme.com', purpose: 'login' })
+
+    expect(ctxWithName.service.generate).toHaveBeenCalledWith({
+      tenantId: TENANT,
+      recipient: 'jane@acme.com',
+      purpose: 'login',
+      emailData: { appName: 'Acme Notifications', name: 'jane' },
+    })
+  })
+
+  it('treats a blank/whitespace MAIL_FROM_NAME as unset and falls back to the default', async () => {
+    /**
+     * Scenario: MAIL_FROM_NAME is present but whitespace-only (an env var set to "" or spaces).
+     * Contract: `appName()` trims and length-checks the value, so a blank configured name
+     * resolves to DEFAULT_APP_NAME rather than injecting an empty `{{appName}}` into the OTP
+     * email — covers the trim/length-guard branch that a plain `?? fallback` would miss.
+     */
+    const ctxBlank = buildController('   ')
+    ctxBlank.service.generate.mockReturnValue(
+      Promise.resolve({ expiresAt: 4, cooldownSeconds: 60 }),
+    )
+
+    await ctxBlank.controller.generate(TENANT, { recipient: 'jane@acme.com', purpose: 'login' })
+
+    expect(ctxBlank.service.generate).toHaveBeenCalledWith({
+      tenantId: TENANT,
+      recipient: 'jane@acme.com',
+      purpose: 'login',
+      emailData: { appName: 'Bymax', name: 'jane' },
     })
   })
 
@@ -113,6 +171,7 @@ describe('OtpController.generate / resend', () => {
       tenantId: TENANT,
       recipient: 'jane@acme.com',
       purpose: 'login',
+      emailData: { appName: 'Bymax', name: 'jane' },
     })
     expect(result).toEqual({ expiresAt: 2, cooldownSeconds: 60 })
   })

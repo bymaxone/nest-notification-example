@@ -2,10 +2,16 @@
  * @fileoverview Time-bucketed aggregation for the Audit Overview charts.
  * @layer app/audit/aggregate
  *
- * Runs one parameterized `$queryRaw` that buckets `notification_logs.timestamp` via `date_trunc`,
+ * Runs one parameterized `$queryRaw` that buckets `notification_logs.timestamp` via `date_bin`,
  * groups by a bounded dimension (`verb`/`channel`/`provider`), counts rows per bucket+dimension,
  * and zero-fills every bucket via `generate_series` so a chart has no gaps. The query honours the
  * time window, the tenant restriction, and the source facet.
+ *
+ * Bucket alignment: both the zero-fill series and the count buckets are produced by
+ * `date_bin(interval, timestamp, origin)` sharing one fixed origin, so the series keys and the
+ * count keys land on the same grid. This is why `date_bin` replaces `date_trunc`: a
+ * `generate_series` seeded at the raw (sub-bucket-aligned) `from` would step off-grid and never
+ * join the boundary-aligned count buckets, zero-filling every bucket to 0 for any real window.
  *
  * SQL safety: every user value is bound through a `Prisma.sql` tagged template — never
  * string-interpolated. The only identifier injected (the group-by column) comes from a hardcoded
@@ -28,15 +34,22 @@ import {
 /** A group-by dimension from the bounded allow-list. */
 type GroupByDimension = (typeof AGGREGATE_GROUP_BY_ALLOW_LIST)[number]
 
-/** Explicit bucket sizes mapped to a `date_trunc` unit + `generate_series` interval. */
-const EXPLICIT_BUCKET: Record<'1m' | '5m' | '1h', { unit: string; interval: string }> = {
-  '1m': { unit: 'minute', interval: '1 minute' },
-  '5m': { unit: 'minute', interval: '5 minutes' },
-  '1h': { unit: 'hour', interval: '1 hour' },
+/** Explicit bucket sizes mapped to a `date_bin` / `generate_series` interval. */
+const EXPLICIT_BUCKET: Record<'1m' | '5m' | '1h', { interval: string }> = {
+  '1m': { interval: '1 minute' },
+  '5m': { interval: '5 minutes' },
+  '1h': { interval: '1 hour' },
 }
 
 /** Default lookback window when `from` is absent: one hour, in milliseconds. */
 const DEFAULT_WINDOW_MS = 60 * 60 * 1000
+
+/**
+ * The fixed epoch origin every `date_bin` shares, so the zero-fill series and the count buckets
+ * align to the same grid. `1970-01-01T00:00:00Z` sits on every minute/5-minute/hour boundary, so
+ * bins land on natural clock boundaries regardless of where the query window starts.
+ */
+const BUCKET_ORIGIN = new Date(0)
 
 /**
  * The physical column each group-by dimension maps to. Hardcoded — the only identifier ever
@@ -76,15 +89,20 @@ export class AuditAggregateService {
   async query(q: AuditAggregateQueryDto & AuditRestriction): Promise<AuditAggregateRow[]> {
     const to = q.to ? new Date(q.to) : new Date()
     const from = q.from ? new Date(q.from) : new Date(to.getTime() - DEFAULT_WINDOW_MS)
-    const { unit, interval } =
+    const { interval } =
       q.bucket === 'auto' ? resolveBucket(q.from, q.to) : EXPLICIT_BUCKET[q.bucket]
     const column = DIMENSION_COLUMN[q.groupBy]
     const tenantId = q.tenantId ?? null
     const source = this.sourceSql(q.source)
+    const origin = BUCKET_ORIGIN
 
     return this.prisma.$queryRaw<AuditAggregateRow[]>(Prisma.sql`
       SELECT b.bucket, d.dimension, COALESCE(c.n, 0)::int AS n
-      FROM generate_series(${from}::timestamptz, ${to}::timestamptz, ${interval}::interval) AS b(bucket)
+      FROM generate_series(
+             date_bin(${interval}::interval, ${from}::timestamptz, ${origin}::timestamptz),
+             ${to}::timestamptz,
+             ${interval}::interval
+           ) AS b(bucket)
       CROSS JOIN (
         SELECT DISTINCT ${column} AS dimension
         FROM "notification_logs"
@@ -93,7 +111,8 @@ export class AuditAggregateService {
           ${source}
       ) AS d
       LEFT JOIN (
-        SELECT date_trunc(${unit}::text, "timestamp") AS bucket, ${column} AS dimension, count(*)::int AS n
+        SELECT date_bin(${interval}::interval, "timestamp", ${origin}::timestamptz) AS bucket,
+               ${column} AS dimension, count(*)::int AS n
         FROM "notification_logs"
         WHERE "timestamp" BETWEEN ${from} AND ${to}
           AND (${tenantId}::text IS NULL OR "tenantId" = ${tenantId})

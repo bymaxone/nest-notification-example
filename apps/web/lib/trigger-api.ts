@@ -18,11 +18,26 @@ import type { NotificationVerb } from './types'
 /** API base URL — the demo + read API. Defaults to the local `apps/api` port. */
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
-/** The demo recipient every fire targets (a valid, non-PII address). */
+/** The demo recipient the stateless email fires target (a valid, non-PII address). */
 const DEMO_RECIPIENT = 'demo@example.com'
 
 /** The demo OTP purpose. */
 const DEMO_PURPOSE = 'login'
+
+/**
+ * A per-fire unique recipient for the OTP cards.
+ *
+ * Every OTP card generates its own address so the resend cooldown and max-attempts counters
+ * (keyed on `tenant:recipient`) never leak between cards or across rapid re-fires — each fire is
+ * self-contained, so a card's outcome always matches its label regardless of firing order. The
+ * local part keeps its leading `d`, so the masked audit pivot stays `d***@example.com` (the same
+ * value the Explorer deep-link filters on); only the full address — the OTP storage key — varies.
+ *
+ * @returns A fresh `demo-<uuid>@example.com` address.
+ */
+function freshOtpRecipient(): string {
+  return `demo-${crypto.randomUUID()}@example.com`
+}
 
 /** Attachment size that trips the library's 10 MiB attachment guard (→ 413). */
 const OVERSIZE_BYTES = 11 * 1024 * 1024
@@ -75,17 +90,18 @@ async function call(
   return res.status
 }
 
-/** Build a result from a status + the pivot key. */
+/** Build a result from a status + the pivot key (the masked recipient the audit row stores). */
 function result(
   status: number,
   channel: 'email' | 'otp',
   verb: NotificationVerb,
   purpose: string | null,
+  recipient: string,
 ): TriggerResult {
   return {
     status,
     ok: status < 400,
-    recipient: maskRecipient(DEMO_RECIPIENT),
+    recipient: maskRecipient(recipient),
     channel,
     purpose,
     verb,
@@ -107,7 +123,7 @@ export const triggerApi = {
       { to: DEMO_RECIPIENT, subject: 'Hello from the console', html: '<p>Hi there</p>' },
       tenantId,
     )
-    return result(status, 'email', 'sent', null)
+    return result(status, 'email', 'sent', null, DEMO_RECIPIENT)
   },
 
   /**
@@ -117,13 +133,14 @@ export const triggerApi = {
    * @returns The fire outcome (channel otp, verb generated).
    */
   async generateOtp(tenantId: string): Promise<TriggerResult> {
+    const recipient = freshOtpRecipient()
     const status = await call(
       'POST',
       '/otp/generate',
-      { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
+      { recipient, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
       tenantId,
     )
-    return result(status, 'otp', 'generated', DEMO_PURPOSE)
+    return result(status, 'otp', 'generated', DEMO_PURPOSE, recipient)
   },
 
   /**
@@ -133,13 +150,14 @@ export const triggerApi = {
    * @returns The fire outcome (channel otp, verb failed). Never carries the code.
    */
   async verifyWrong(tenantId: string): Promise<TriggerResult> {
+    const recipient = freshOtpRecipient()
     const status = await call(
       'POST',
       '/otp/verify',
-      { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, code: '000000' },
+      { recipient, purpose: DEMO_PURPOSE, code: '000000' },
       tenantId,
     )
-    return result(status, 'otp', 'failed', DEMO_PURPOSE)
+    return result(status, 'otp', 'failed', DEMO_PURPOSE, recipient)
   },
 
   /**
@@ -149,19 +167,20 @@ export const triggerApi = {
    * @returns The (expected-429) fire outcome.
    */
   async tripCooldown(tenantId: string): Promise<TriggerResult> {
+    const recipient = freshOtpRecipient()
     await call(
       'POST',
       '/otp/generate',
-      { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
+      { recipient, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
       tenantId,
     )
     const status = await call(
       'POST',
       '/otp/resend',
-      { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
+      { recipient, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
       tenantId,
     )
-    return result(status, 'otp', 'cooldown_blocked', DEMO_PURPOSE)
+    return result(status, 'otp', 'cooldown_blocked', DEMO_PURPOSE, recipient)
   },
 
   /**
@@ -171,10 +190,11 @@ export const triggerApi = {
    * @returns The (expected-429) fire outcome.
    */
   async forceMaxAttempts(tenantId: string): Promise<TriggerResult> {
+    const recipient = freshOtpRecipient()
     await call(
       'POST',
       '/otp/generate',
-      { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
+      { recipient, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
       tenantId,
     )
     let status = 0
@@ -182,11 +202,11 @@ export const triggerApi = {
       status = await call(
         'POST',
         '/otp/verify',
-        { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, code: '000000' },
+        { recipient, purpose: DEMO_PURPOSE, code: '000000' },
         tenantId,
       )
     }
-    return result(status, 'otp', 'max_attempts_exceeded', DEMO_PURPOSE)
+    return result(status, 'otp', 'max_attempts_exceeded', DEMO_PURPOSE, recipient)
   },
 
   /**
@@ -207,7 +227,7 @@ export const triggerApi = {
       },
       tenantId,
     )
-    return result(status, 'email', 'failed', null)
+    return result(status, 'email', 'failed', null, DEMO_RECIPIENT)
   },
 
   /**
@@ -220,17 +240,18 @@ export const triggerApi = {
    * @returns The fire outcome (channel otp, verb sent).
    */
   async spoofTenant(tenantId: string, forgedTenantId: string): Promise<TriggerResult> {
+    const recipient = freshOtpRecipient()
     const status = await call(
       'POST',
       '/dispatch',
       {
         channel: 'otp',
         tenantId: forgedTenantId,
-        payload: { recipient: DEMO_RECIPIENT, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
+        payload: { recipient, purpose: DEMO_PURPOSE, deliverVia: 'manual' },
       },
       tenantId,
     )
-    return result(status, 'otp', 'sent', DEMO_PURPOSE)
+    return result(status, 'otp', 'sent', DEMO_PURPOSE, recipient)
   },
 
   /**
@@ -249,6 +270,6 @@ export const triggerApi = {
       },
       tenantId,
     )
-    return result(status, 'email', 'sent', null)
+    return result(status, 'email', 'sent', null, DEMO_RECIPIENT)
   },
 }

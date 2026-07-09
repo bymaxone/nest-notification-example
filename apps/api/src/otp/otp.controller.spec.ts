@@ -133,6 +133,28 @@ describe('OtpController.generate / resend', () => {
     })
   })
 
+  it('treats a blank/whitespace MAIL_FROM_NAME as unset and falls back to the default', async () => {
+    /**
+     * Scenario: MAIL_FROM_NAME is present but whitespace-only (an env var set to "" or spaces).
+     * Contract: `appName()` trims and length-checks the value, so a blank configured name
+     * resolves to DEFAULT_APP_NAME rather than injecting an empty `{{appName}}` into the OTP
+     * email — covers the trim/length-guard branch that a plain `?? fallback` would miss.
+     */
+    const ctxBlank = buildController('   ')
+    ctxBlank.service.generate.mockReturnValue(
+      Promise.resolve({ expiresAt: 4, cooldownSeconds: 60 }),
+    )
+
+    await ctxBlank.controller.generate(TENANT, { recipient: 'jane@acme.com', purpose: 'login' })
+
+    expect(ctxBlank.service.generate).toHaveBeenCalledWith({
+      tenantId: TENANT,
+      recipient: 'jane@acme.com',
+      purpose: 'login',
+      emailData: { appName: 'Bymax', name: 'jane' },
+    })
+  })
+
   it('delegates resend to OtpService.resend with the same builder', async () => {
     /**
      * Scenario: a resend body.

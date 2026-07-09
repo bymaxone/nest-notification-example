@@ -36,15 +36,17 @@ import {
 import { mapOtpVerifyResult } from './otp-verify-mapping.js'
 
 /**
- * Fallback application name when `MAIL_FROM_NAME` is unset — keeps a rendered OTP email's
- * `{{appName}}` non-empty so the subject never collapses to `Your  verification code`.
+ * Fallback application name when `MAIL_FROM_NAME` is unset or blank — keeps a rendered OTP
+ * email's `{{appName}}` non-empty so the subject never collapses to `Your  verification code`.
  */
 const DEFAULT_APP_NAME = 'Bymax'
 
 /**
- * Builds an `OtpGenerateInput` from the trusted tenant + parsed DTO, including each
- * optional field ONLY when it was supplied — keeping the spread `exactOptionalProperty
- * Types`-safe (the input's optionals do not admit an explicit `undefined`).
+ * Builds an `OtpGenerateInput` from the trusted tenant + parsed DTO. The `deliverVia`,
+ * `emailTemplate`, and `locale` optionals are spread ONLY when supplied — keeping the spread
+ * `exactOptionalPropertyTypes`-safe (those optionals do not admit an explicit `undefined`).
+ * `emailData` is ALWAYS set: the presentation defaults below are merged under any caller
+ * `emailData`, so — unlike the other optionals — this field is never conditional.
  *
  * The OTP email template references `{{appName}}`/`{{name}}`, but the library auto-injects
  * only `{ code, expiresInMinutes, purpose }`. Without presentation defaults the delivered
@@ -84,12 +86,15 @@ export class OtpController {
 
   /**
    * The application name that fills the OTP email's `{{appName}}` — the configured sender
-   * display name (`MAIL_FROM_NAME`), or {@link DEFAULT_APP_NAME} when it is unset.
+   * display name (`MAIL_FROM_NAME`), or {@link DEFAULT_APP_NAME} when it is unset or blank.
+   * A blank/whitespace-only value is treated as unset (it is trimmed and length-checked, not
+   * merely null-checked), so `{{appName}}` never renders empty.
    *
    * @returns The non-empty application name.
    */
   private appName(): string {
-    return this.config.get('MAIL_FROM_NAME', { infer: true }) ?? DEFAULT_APP_NAME
+    const configured = this.config.get('MAIL_FROM_NAME', { infer: true })?.trim()
+    return configured !== undefined && configured.length > 0 ? configured : DEFAULT_APP_NAME
   }
 
   /**

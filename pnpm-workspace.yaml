@@ -44,5 +44,10 @@ allowBuilds:
 # caller-controlled HTML through it — and must be resolved upstream in the notification
 # library's `mjml` chain, not by an unsatisfiable consumer override.
 overrides:
+  # GHSA-5p4m-2wfm-xmqj (CVSS 7.5) — quadratic CPU while resolving !!omap.
+  # Transitive and build-time only; patched rather than ignored, because a
+  # scanner told to skip dev dependencies stays blind after this one is gone.
+  'js-yaml@3': '^3.15.1'
+  'js-yaml@4': '^4.3.1'
   multer: '>=2.2.0'
   nodemailer: '>=9.0.1'

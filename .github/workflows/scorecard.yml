@@ -65,7 +65,6 @@ jobs:
             echo "::notice::Skipped on a $visibility repository: uploading results needs a GitHub Code Security licence, which is only free on public repositories."
           fi
 
-
   analysis:
     # Publishing the score (and the SARIF upload) requires a public repository;
     # gate to public so the private skeleton stays green and Scorecard activates
